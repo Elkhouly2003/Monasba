@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +17,8 @@ import java.util.List;
 @AllArgsConstructor
 @Setter
 @Getter
-@Entity(name = "places")
+@Entity(name = "Place")
+@Table(name = "places")
 public class Place {
 
     @Id
@@ -45,14 +47,14 @@ public class Place {
     @Column(name = "place_capacity")
     private Integer capacity ;
 
-    @Column(name = "start_time")
-    private LocalDateTime startDateTime ;
+    @Column(name = "open_time")
+    private LocalTime openTime;
 
-    @Column(name = "end_time")
-    private LocalDateTime endDateTime ;
+    @Column(name = "close_time")
+    private LocalTime closeTime;
 
     @OneToMany(mappedBy = "place" ,cascade = CascadeType.ALL ,orphanRemoval = true)
-    private List<Review> reviews = new ArrayList<Review>();
+    private List<Review> reviews = new ArrayList<>();
 
     @Column(name = "is_certified")
     private Boolean certified ;          // by default false admin is responsible for this
@@ -63,27 +65,20 @@ public class Place {
     @Column(name = "place_discount")
     private Double discount ;
 
-    @ElementCollection
-    @CollectionTable(
-            name = "place_categories",
-            joinColumns = @JoinColumn(name = "place_id")
-    )
-    @Column(name = "category_name")
-    private List<String> categories = new ArrayList<>();
-
-    @Column(name = "has_ticket")
-    private Boolean hasTicket ;
-
+    @OneToMany(mappedBy = "place" ,cascade = CascadeType.ALL ,orphanRemoval = true)
+   private List<PlaceCategory> placeCategories = new ArrayList<>();
 
    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, fetch = FetchType.EAGER ,orphanRemoval = true)
-   private List<Image> images = new ArrayList<>();
+   private List<Image> images ;
 
    @ManyToOne(fetch = FetchType.LAZY)
    @JoinColumn(name = "owner_id")
    private User owner ;
 
    @OneToMany(mappedBy = "place" , cascade = CascadeType.ALL ,orphanRemoval = true)
-   private List<Booking> events = new ArrayList<>();
+   private List<Booking> bookings = new ArrayList<>();
 
+    @ManyToMany(mappedBy = "savedPlaces")
+    private List<User> savedByUsers = new ArrayList<>();
 
 }

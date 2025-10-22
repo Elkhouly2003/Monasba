@@ -8,7 +8,8 @@ import lombok.Setter;
 
 @Setter
 @Getter
-@Entity(name = "reviews")
+@Entity
+@Table(name = "reviews")
 public class Review {
 
     @Id

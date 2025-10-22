@@ -16,7 +16,8 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "users")
+@Entity(name = "User")
+@Table(name = "users")
 public class User {
     @Id
     @Column(name = "user_id")
@@ -42,8 +43,13 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL ,orphanRemoval = true )
     private List<Booking> bookings = new ArrayList<>() ;
 
-     @OneToMany
-     private List<Place> savedPlaces = new ArrayList<>() ;
+      @ManyToMany
+      @JoinTable(
+              name = "user_saved_places" ,
+              joinColumns = @JoinColumn(name = "user_id") ,
+              inverseJoinColumns = @JoinColumn(name = "place_id")
+      )
+      private List<Place>savedPlaces = new ArrayList<>() ;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL ,orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>() ;
