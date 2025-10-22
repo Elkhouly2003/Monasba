@@ -1,9 +1,10 @@
+// fetch data from spring
+
 // import { useEffect, useState } from "react";
 // import { Link } from "react-router-dom";
 // // import EquipmentModel from "../../../models/EquipmentModel";
 // // import { SpinnerLoading } from "../../../Utils/SpinnerLoading";
 // // import { ReturnEquipment } from "./ReturnEquipment";
-
 
 // export const Carousel = () => {
 
@@ -72,7 +73,7 @@
 //             <div className='homepage-carousel-title'>
 //                 <h3>Find your next "I stayed up too late reading" book.</h3>
 //             </div>
-//             <div id='carouselExampleControls' className='carousel carousel-dark slide mt-5 
+//             <div id='carouselExampleControls' className='carousel carousel-dark slide mt-5
 //                 d-none d-lg-block' data-bs-interval='false'>
 
 //                 {/* Desktop */}
@@ -141,7 +142,7 @@
 //                             ))}
 //                         </div>
 //                     </div>
-                    
+
 //                 </div>
 //                 <button className='carousel-control-prev' type='button'
 //                     data-bs-target='#carouselExampleControls' data-bs-slide='prev'>

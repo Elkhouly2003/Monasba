@@ -5,6 +5,9 @@
 //     redirectUri: window.location.origin+"/callback",
 //     scope: 'openid profile email'
 // }
+
+// Must remove this file 
+
 export const auth0Config = {
     clientId: 'klXPcvSBoydSMI7FB6gpKGjr1Ra2wCvo',
     issuer: 'dev-6f2g7zmekye8jzsd.us.auth0.com',
