@@ -22,7 +22,7 @@ public class User {
     @Id
     @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer userId;
+    private Integer userId ;
 
     @Column(name = "user_name")
     private String username;
@@ -40,7 +40,7 @@ public class User {
     @JoinColumn(name = "image_id")
     private Image image ;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL ,orphanRemoval = true )
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL ,orphanRemoval = true)
     private List<Booking> bookings = new ArrayList<>() ;
 
       @ManyToMany
@@ -49,6 +49,7 @@ public class User {
               joinColumns = @JoinColumn(name = "user_id") ,
               inverseJoinColumns = @JoinColumn(name = "place_id")
       )
+
       private List<Place>savedPlaces = new ArrayList<>() ;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL ,orphanRemoval = true)

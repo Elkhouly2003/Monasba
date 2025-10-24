@@ -3,20 +3,20 @@ package com.example.GraduationBackend.controller;
 import com.example.GraduationBackend.dto.request.PlaceRequest;
 import com.example.GraduationBackend.dto.response.ApiResponse;
 import com.example.GraduationBackend.model.Place;
+import com.example.GraduationBackend.services.ImageService;
 import com.example.GraduationBackend.services.PlaceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile ;
-
-import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("${api.prefix}/place")
 @RequiredArgsConstructor
 public class PlaceController {
     private final PlaceService placeService ;
+    private final ImageService  imageService ;
 
     @PostMapping(  consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse> addPlace(@ModelAttribute PlaceRequest placeRequest , @RequestParam int ownerId  ) {
@@ -48,6 +48,16 @@ public class PlaceController {
             throw new RuntimeException(e);
         }
         return ResponseEntity.ok(new ApiResponse("Success" , "place deleted successfully"));
+    }
+    @PutMapping("/{placeId}")
+    public ResponseEntity<ApiResponse> updatePlace(@ModelAttribute PlaceRequest placeRequest , @PathVariable int placeId) {
+        try {
+            placeService.UpdatePlaceById(placeId , placeRequest ) ;
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return ResponseEntity.ok(new ApiResponse("Success" , "place updated successfully"));
     }
 
 }

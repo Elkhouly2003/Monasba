@@ -13,41 +13,44 @@ import java.util.Date;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "events")
-
+@Entity(name = "Booking")
+@Table(name = "bookings")
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer id ;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User user;
+    private User user ;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "place_id")
-    private Place place;
+    private Place place ;
 
     @Column(name = "event_title")
     private String title ;
 
     @Column(name = "event_description")
-    private String description;
+    private String description ;
 
     @Column(name = "booking_date")
     private LocalDateTime bookingDate ;
 
-    @Column(name = "start_date")
-    private LocalDateTime startDate;
+    @Column(name = "last_update")
+    private LocalDateTime lastUpdate ;
 
-    @Column(name = "end")
-    private LocalDateTime endDate;
+    @Column(name = "start_date")
+    private LocalDateTime startDate ;
+
+    @Column(name = "end_date")
+    private LocalDateTime endDate ;
 
     @Column(name = "event_capacity")
     private Integer capacity ;
 
     @Column(name = "event_price")
-    private Double price;
+    private Double price ;
 
     @Column(name = "status")
     private String status ;
