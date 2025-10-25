@@ -1,6 +1,4 @@
 package com.example.GraduationBackend.model;
-
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,10 +17,13 @@ import java.util.List;
 @Entity(name = "User")
 @Table(name = "users")
 public class User {
+
     @Id
-    @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer userId ;
+    private Integer userId;
+
+    @Column(name = "auth0_id", unique = true)
+    private String auth0Id;
 
     @Column(name = "user_name")
     private String username;
@@ -33,35 +34,34 @@ public class User {
     @Column(name = "user_phone")
     private String phone;
 
-    @Column(name = "user_role")
-    private String role;    // user   owner(user+ addPlace) + admin
+    @Column(name = "role")
+    private String role;
+
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "image_id")
-    private Image image ;
+    private Image image;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL ,orphanRemoval = true)
-    private List<Booking> bookings = new ArrayList<>() ;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Booking> bookings = new ArrayList<>();
 
-      @ManyToMany
-      @JoinTable(
-              name = "user_saved_places" ,
-              joinColumns = @JoinColumn(name = "user_id") ,
-              inverseJoinColumns = @JoinColumn(name = "place_id")
-      )
+    @ManyToMany
+    @JoinTable(
+            name = "user_saved_places",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "place_id")
+    )
+    private List<Place> savedPlaces = new ArrayList<>();
 
-      private List<Place>savedPlaces = new ArrayList<>() ;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL ,orphanRemoval = true)
-    private List<Review> reviews = new ArrayList<>() ;
-
-    @OneToMany(mappedBy = "user" ,cascade = CascadeType.ALL ,orphanRemoval = true)
-    private List<Notification> notifications = new ArrayList<>() ;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notification> notifications = new ArrayList<>();
 
     @Column(name = "total_revenue")
-    private Double totalRevenue ;
+    private Double totalRevenue;
 
-    @OneToMany(mappedBy = "owner",fetch = FetchType.EAGER,cascade = CascadeType.ALL ,orphanRemoval = true)
-    private List<Place> myPlaces ;
-
+    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Place> myPlaces = new ArrayList<>();
 }
