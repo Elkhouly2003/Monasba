@@ -11,6 +11,7 @@ public class BookingRequest {
     private Integer userId ;
     private Integer placeId ;
     private String title ;
+    private String category ;
     private String Description ;
     private LocalDateTime startDate;
     private LocalDateTime endDate;

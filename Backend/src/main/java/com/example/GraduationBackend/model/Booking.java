@@ -31,6 +31,9 @@ public class Booking {
     @Column(name = "event_title")
     private String title ;
 
+    @Column(name = "event_category")
+    private String category ;
+
     @Column(name = "event_description")
     private String description ;
 
