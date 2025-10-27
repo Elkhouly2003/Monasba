@@ -9,7 +9,9 @@ import com.example.GraduationBackend.repository.PlaceRepository;
 import com.example.GraduationBackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,61 +22,71 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PlaceService {
 
-   private final PlaceRepository placeRepository;
-   private final UserRepository userRepository;
-   private final CategoryRepository categoryRepository;
-   private final CategoryService categoryService;
-   private final PlaceCategoryService placeCategoryService;
-   private final ImageService imageService;
-   private final ModelMapper modelMapper ;
+    private final PlaceRepository placeRepository;
+    private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
+    private final CategoryService categoryService;
+    private final PlaceCategoryService placeCategoryService;
+    private final ImageService imageService;
+    private final ModelMapper modelMapper;
 
-   public void addPlace(PlaceRequest placeRequest , int ownerId ) {
+    public void addPlace(PlaceRequest placeRequest, int ownerId) {
 
-       User user = userRepository.findById(ownerId).orElseThrow(
-               () -> new RuntimeException("User with id : " + ownerId + "not found")
-       ) ;
+        User user = userRepository.findById(ownerId).orElseThrow(
+                () -> new ResourceNotFoundException("User with id : " + ownerId + "not found")
+        );
 
-       Place place = modelMapper.map(placeRequest, Place.class);
-       place.setImages(new ArrayList<>());
-       place.setPlaceCategories(new ArrayList<>());
-       place.setCertified(false);
-       place.setOwner(user);
-       Place savedPlace = placeRepository.save(place);
+        Place place = modelMapper.map(placeRequest, Place.class);
+        place.setImages(new ArrayList<>());
+        place.setPlaceCategories(new ArrayList<>());
+        place.setCertified(false);
+        place.setOwner(user);
+        Place savedPlace = placeRepository.save(place);
 
-       List<String> categories = placeRequest.getCategories();
+        List<String> categories = placeRequest.getCategories();
 
-       for (String categoryName : categories) {
-           Category category = categoryRepository.findByName(categoryName)
-                   .orElseGet(() -> {
-                       Category newCat = new Category();
-                       newCat.setName(categoryName);
-                       return categoryService.addCategory(newCat);
-                   });
+        for (String categoryName : categories) {
+            Category category = categoryRepository.findByName(categoryName)
+                    .orElseGet(() -> {
+                        Category newCat = new Category();
+                        newCat.setName(categoryName);
+                        return categoryService.addCategory(newCat);
+                    });
 
 
-           placeCategoryService.addPlaceCategory(savedPlace.getPlaceId() , category.getId());
-       }
+            placeCategoryService.addPlaceCategory(savedPlace.getPlaceId(), category.getId());
+        }
 
-       imageService.uploadImages(placeRequest.getImages() ,savedPlace.getPlaceId());
+        imageService.uploadPlaceImages(placeRequest.getImages(), savedPlace.getPlaceId());
 
+    }
+
+    public List<Place> getAllPlaces() {
+        return placeRepository.findAll();
     }
 
     public Place getPlaceById(int placeId) {
-       return placeRepository.findById(placeId).orElseThrow(
-               () -> new RuntimeException("Place with id : " + placeId + "not found")
-       );
+        return placeRepository.findById(placeId).orElseThrow(
+                () -> new ResourceNotFoundException("Place with id : " + placeId + "not found")
+        );
     }
 
+    public List<Place> getPlacesByUserId(Integer userId) {
+        return placeRepository.findByOwnerUserId(userId);
+    }
+
+    @Transactional
     public void deletePlaceById(int placeId) {
-       placeRepository.findById(placeId).ifPresentOrElse(placeRepository::delete , () ->
-                                        { throw new RuntimeException("Place with id : " + placeId + "not found") ; }
-       );
+        Place place = placeRepository.findById(placeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Place with id: " + placeId + " not found"));
+        place.getPlaceCategories().size();
+        placeRepository.delete(place);
     }
 
     public void UpdatePlaceById(int placeId, PlaceRequest placeRequest) {
-       Place place = placeRepository.findById(placeId).orElseThrow(
-               () -> new RuntimeException("Place with id : " + placeId + " not found")
-       );
+        Place place = placeRepository.findById(placeId).orElseThrow(
+                () -> new ResourceNotFoundException("Place with id : " + placeId + " not found")
+        );
 
         Optional.ofNullable(placeRequest.getPlaceName()).ifPresent(place::setPlaceName);
         Optional.ofNullable(placeRequest.getAddress()).ifPresent(place::setAddress);
@@ -89,8 +101,5 @@ public class PlaceService {
         Optional.ofNullable(placeRequest.getCloseTime()).ifPresent(place::setCloseTime);
 
 
-
     }
-
-
 }

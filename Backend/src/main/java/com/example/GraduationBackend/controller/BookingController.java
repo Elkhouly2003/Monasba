@@ -18,50 +18,45 @@ public class BookingController {
 
     @PostMapping
     public ResponseEntity<ApiResponse> addBooking(@RequestBody BookingRequest bookingRequest) {
-        try {
-            bookingService.createBooking(bookingRequest);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-      return ResponseEntity.ok(new ApiResponse("Success !" ,"New booking added successfully"));
+        bookingService.createBooking(bookingRequest);
+        return ResponseEntity.ok(new ApiResponse("Success !", "New booking added successfully"));
     }
 
     @DeleteMapping("/{bookingId}")
     public ResponseEntity<ApiResponse> cancelBooking(@PathVariable Long bookingId) {
-        try {
-            bookingService.deleteBooking(bookingId);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return ResponseEntity.ok(new ApiResponse("Success !" ,"Booking cancelled successfully"));
+        bookingService.deleteBooking(bookingId);
+        return ResponseEntity.ok(new ApiResponse("Success !", "Booking cancelled successfully"));
     }
 
 
     @GetMapping("user/{userId}")
     public ResponseEntity<ApiResponse> getBookingsByUserId(@PathVariable int userId) {
         List<Booking> bookings = bookingService.getAllBookingsByUserId(userId);
-        return ResponseEntity.ok(new ApiResponse("Success !" ,bookings));
+        return ResponseEntity.ok(new ApiResponse("Success !", bookings));
     }
 
     @GetMapping("/booking/{bookingId}")
     public ResponseEntity<ApiResponse> getBookingById(@PathVariable Long bookingId) {
-        Booking booking ;
-        try {
-          booking = bookingService.getBookingById(bookingId);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return ResponseEntity.ok(new ApiResponse("Success !" ,booking));
+        Booking booking = bookingService.getBookingById(bookingId);
+        return ResponseEntity.ok(new ApiResponse("Success !", booking));
     }
 
     @PutMapping("/{bookingId}")
-    public ResponseEntity<ApiResponse> updateBooking(@RequestBody BookingRequest bookingRequest ,@PathVariable Long bookingId) {
-        try {
-            bookingService.updateBooking(bookingId , bookingRequest);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return ResponseEntity.ok(new ApiResponse("Success !" ,"Booking updated successfully"));
+    public ResponseEntity<ApiResponse> updateBooking(@RequestBody BookingRequest bookingRequest, @PathVariable Long bookingId) {
+        bookingService.updateBooking(bookingId, bookingRequest);
+        return ResponseEntity.ok(new ApiResponse("Success !", "Booking updated successfully"));
     }
+
+    public ResponseEntity<ApiResponse> getAllBookings() {
+        List<Booking> bookings = bookingService.getAllBookings();
+        return ResponseEntity.ok(new ApiResponse("Success !", bookings));
+    }
+
+    @PatchMapping("/{bookingId}")
+    public ResponseEntity<ApiResponse> cancelBookings(@PathVariable Long bookingId) {
+        bookingService.cancelBooking(bookingId);
+        return ResponseEntity.ok(new ApiResponse("Success !", "Booking cancelled successfully"));
+    }
+
 
 }

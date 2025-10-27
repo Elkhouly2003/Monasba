@@ -10,8 +10,8 @@ import com.example.GraduationBackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -58,10 +58,8 @@ public class BookingService {
         bookingRepository.save(booking);
     }
 
-    public void deleteBooking(Long bookingID) {
-        bookingRepository.findById(bookingID).ifPresentOrElse(bookingRepository::delete , ()->{
-            throw new RuntimeException("Booking with id "+ bookingID +" not found");
-                });
+    public List<Booking> getAllBookings() {
+        return bookingRepository.findAll();
     }
 
    public List<Booking> getAllBookingsByUserId(int userID ) {
@@ -70,13 +68,26 @@ public class BookingService {
 
    public Booking getBookingById(Long bookingID) {
         return bookingRepository.findById(bookingID).orElseThrow(
-                () -> new RuntimeException("Booking with id "+ bookingID +" not found")
+                () -> new ResourceNotFoundException("Booking with id "+ bookingID +" not found")
         );
    }
 
+    public void deleteBooking(Long bookingID) {
+        bookingRepository.findById(bookingID).ifPresentOrElse(bookingRepository::delete , ()->{
+            throw new ResourceNotFoundException("Booking with id "+ bookingID +" not found");
+        });
+    }
+    public void cancelBooking(Long bookingID) {
+        Booking booking = bookingRepository.findById(bookingID).orElseThrow(
+                () -> new ResourceNotFoundException("Booking with id "+ bookingID +" not found")
+        );
+        booking.setStatus("cancelled");
+        bookingRepository.save(booking);
+    }
+
     public void updateBooking(Long bookingID, BookingRequest bookingRequest) {
           Booking booking = bookingRepository.findById(bookingID).orElseThrow(
-                  () -> new RuntimeException("Booking with id "+ bookingID +" not found")
+                  () -> new ResourceNotFoundException("Booking with id "+ bookingID +" not found")
           );
         Optional.ofNullable(bookingRequest.getDescription()).ifPresent(booking::setDescription);
         Optional.ofNullable(bookingRequest.getCapacity()).ifPresent(booking::setCapacity);
@@ -86,6 +97,7 @@ public class BookingService {
         Optional.ofNullable(bookingRequest.getCapacity()).ifPresent(booking::setCapacity);
 
         booking.setLastUpdate(LocalDateTime.now());
+        bookingRepository.save(booking);
 
     }
 }

@@ -1,26 +1,29 @@
 package com.example.GraduationBackend.controller;
 
 
+import com.example.GraduationBackend.dto.response.ApiResponse;
 import com.example.GraduationBackend.model.User;
 import com.example.GraduationBackend.repository.UserRepository;
+import com.example.GraduationBackend.services.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-
 import java.util.List;
 import java.util.Map;
+
 @RestController
 @RequestMapping("/api/v1/auth0")
 @CrossOrigin(origins = "http://localhost:3000")
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserRepository userRepository;
+    private final UserService userService;
 
-    public UserController(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
     @PostMapping("/register")
     public Map<String, Object> registerUser(@AuthenticationPrincipal Jwt jwt) {
         Map<String, Object> response = new HashMap<>();
@@ -30,7 +33,7 @@ public class UserController {
         String username = jwt.getClaim("https://luv2code-react-library.com/username");
         String phone = jwt.getClaim("https://luv2code-react-library.com/phone_number");
         List<String> rolesList = jwt.getClaim("https://luv2code-react-library.com/roles");
-        String role = (rolesList != null && !rolesList.isEmpty()) ? rolesList.get(0) : null;
+        String role = (rolesList != null && !rolesList.isEmpty()) ? rolesList.get(0) : "User";
 
         var existingUser = userRepository.findByAuth0Id(auth0Id);
 
@@ -44,6 +47,7 @@ public class UserController {
             user.setUsername(username);
             user.setPhone(phone);
             user.setRole(role);
+            user.setTotalRevenue(0.0);
             userRepository.save(user);
             response.put("message", "User created successfully!");
         } else {
@@ -78,6 +82,12 @@ public class UserController {
 
         response.put("user", user);
         return response;
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<ApiResponse> getUser(@PathVariable Integer userId) {
+        User user = userService.getUserById(userId);
+        return ResponseEntity.ok(new ApiResponse("Success !", user));
     }
 
 }

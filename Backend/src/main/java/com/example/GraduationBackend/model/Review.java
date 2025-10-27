@@ -9,26 +9,28 @@ import lombok.Setter;
 @Setter
 @Getter
 @Entity
-@Table(name = "reviews")
+@Table(name = "reviews", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"user_id", "place_id"})
+})
 public class Review {
 
     @Id
     @Column(name = "review_id")
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id ;
+    private Integer id;
 
     @Column(name = "review_message")
-    private String comment ;
+    private String comment;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-     private User user ;
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "place_id")
-    private Place place ;
+    private Place place;
 
     @Column(name = "place_rating")
-    private  Integer ratings ;
+    private Double ratings;
 
 }

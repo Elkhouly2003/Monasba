@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +44,7 @@ public class Place {
     private String description;
 
     @Column(name = "place_capacity")
-    private Integer capacity ;
+    private Integer capacity;
 
     @Column(name = "open_time")
     private LocalTime openTime;
@@ -53,30 +52,30 @@ public class Place {
     @Column(name = "close_time")
     private LocalTime closeTime;
 
-    @OneToMany(mappedBy = "place" ,cascade = CascadeType.ALL ,orphanRemoval = true)
-    private List<Review> reviews = new ArrayList<>();
-
     @Column(name = "is_certified")
-    private Boolean certified ;          // by default false admin is responsible for this
+    private Boolean certified;          // by default false admin is responsible for this
 
     @Column(name = "place_price")
-    private Double price ;
+    private Double price;
 
     @Column(name = "place_discount")
-    private Double discount ;
+    private Double discount;
 
-    @OneToMany(mappedBy = "place" ,cascade = CascadeType.ALL ,orphanRemoval = true)
-   private List<PlaceCategory> placeCategories = new ArrayList<>();
+    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews = new ArrayList<>();
 
-   @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, fetch = FetchType.EAGER ,orphanRemoval = true)
-   private List<Image> images ;
+    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PlaceCategory> placeCategories = new ArrayList<>();
 
-   @ManyToOne(fetch = FetchType.LAZY)
-   @JoinColumn(name = "owner_id")
-   private User owner ;
+    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private List<Image> images;
 
-   @OneToMany(mappedBy = "place" , cascade = CascadeType.ALL ,orphanRemoval = true)
-   private List<Booking> bookings = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    private User owner;
+
+    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Booking> bookings = new ArrayList<>();
 
     @ManyToMany(mappedBy = "savedPlaces")
     private List<User> savedByUsers = new ArrayList<>();

@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.sql.SQLException;
 import java.util.List;
 
@@ -17,11 +18,11 @@ import java.util.List;
 @RequestMapping("${api.prefix}/images")
 @RequiredArgsConstructor
 public class ImageController {
-    private  final ImageService imageService;
+    private final ImageService imageService;
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getImage(@PathVariable int id) {
-            Image image = imageService.getImageById(id);
+        Image image = imageService.getImageById(id);
 
         try {
             byte[] bytes = image.getImage().getBytes(1L, (int) image.getImage().length());
@@ -40,27 +41,32 @@ public class ImageController {
 
     @GetMapping
     public ResponseEntity<ApiResponse> getImages() {
-        List<Image> images = imageService.getAllImages() ;
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Success" , images));
+        List<Image> images = imageService.getAllImages();
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Success", images));
+    }
+
+    @PostMapping("/{userId}")
+    public ResponseEntity<ApiResponse> uploadProfileImage(@RequestParam MultipartFile file, @PathVariable int userId) {
+        imageService.uploadUserImage(file, userId);
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Success !", "Profile Image Uploaded Successfully"));
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse> uploadImages(@RequestParam List<MultipartFile> files ,@RequestParam int placeId ) {
-        imageService.uploadImages(files, placeId);
-
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Success" ,"images uploaded successfully"));
+    public ResponseEntity<ApiResponse> uploadImagesForPlace(@RequestParam List<MultipartFile> files, @RequestParam int placeId) {
+        imageService.uploadPlaceImages(files, placeId);
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Success", "images uploaded successfully"));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse> deleteImage(@PathVariable int id) {
-         imageService.deleteImageById(id);
-         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Success" , "Deleted success"));
+        imageService.deleteImageById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Success", "Deleted success"));
     }
 
     @PutMapping("/{imageId}")
-    public ResponseEntity<ApiResponse> updateImage(@PathVariable int imageId , @RequestParam MultipartFile file) {
-        imageService.updateImage(file ,imageId);
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Success" , "Image updated successfully"));
+    public ResponseEntity<ApiResponse> updateImage(@PathVariable int imageId, @RequestParam MultipartFile file) {
+        imageService.updateImage(file, imageId);
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Success", "Image updated successfully"));
     }
 
 

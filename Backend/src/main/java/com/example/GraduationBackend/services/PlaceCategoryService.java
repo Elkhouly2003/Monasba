@@ -6,6 +6,7 @@ import com.example.GraduationBackend.model.PlaceCategory;
 import com.example.GraduationBackend.repository.PlaceCategoryRepository;
 import com.example.GraduationBackend.repository.PlaceRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public class PlaceCategoryService {
         Category category;
         try {
               place = placeRepository.findById(placeId).orElseThrow(
-                      () -> new RuntimeException("Place not found")
+                      () -> new ResourceNotFoundException("Place not found")
               ) ;
               category = categoryService.getCategoryById(categoryId);
         } catch (Exception e) {
