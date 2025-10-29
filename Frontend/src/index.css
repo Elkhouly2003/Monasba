@@ -1,1 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Italianno&display=swap');
 @import "tailwindcss";
+
+@theme {
+    --color-state-blue: #415A77;
+    --color-light-neutral: #E0E1DD;
+    --color-light-neutral: #E0E1DD;
+    --color-steel-blue: #1B263B;
+    --color-dark-navy: #0D1B2A;
+    --color-cool-gray: #778DA9;
+    --color-gold: #BFAE70;
+    --color-white: #FFFFFF;
+
+    --font-inter: "inter";
+    --font-italianno: "Italianno";
+}
