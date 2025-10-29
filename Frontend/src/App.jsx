@@ -1,12 +1,11 @@
-import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
-
+import { Routes, Route } from "react-router-dom";
 import { Auth0Provider, withAuthenticationRequired } from "@auth0/auth0-react";
 import { auth0Config } from "./lib/auth0Config";
-
-import { Auth } from "./layout/Components/Auth";
-
 import { useNavigate } from "react-router-dom";
+
+import HomePage from "./Pages/HomePage";
+import SearchPage from "./Pages/SearchPage";
+
 const Auth0ProviderWithNavigate = ({ children }) => {
   const navigate = useNavigate();
 
@@ -36,9 +35,10 @@ const Auth0ProviderWithNavigate = ({ children }) => {
 export const App = () => {
   return (
     <Auth0ProviderWithNavigate>
-      <div className="">
-        <Auth />
-      </div>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/Search" element={<SearchPage />} />
+      </Routes>
     </Auth0ProviderWithNavigate>
   );
 };
