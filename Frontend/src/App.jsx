@@ -1,10 +1,60 @@
-import { Routes, Route } from "react-router-dom";
+import "./App.css";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Layout from "./Components/Layout/Layout";
+import Home from "./Components/Home/Home";
+import Search from "./Components/Search/Search";
+
+function App() {
+
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: <Layout />,
+      children: [
+        { index: true, element: <Home /> },
+        {path:"/search",element:<Search/>}
+      ],
+    },
+  ]);
+  return (
+    <>
+      <RouterProvider router={router} />
+    </>
+  );
+}
+
+export default App;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* import { Routes, Route } from "react-router-dom";
 import { Auth0Provider, withAuthenticationRequired } from "@auth0/auth0-react";
 import { auth0Config } from "./lib/auth0Config";
 import { useNavigate } from "react-router-dom";
 
-import HomePage from "./Pages/HomePage";
-import SearchPage from "./Pages/SearchPage";
+import HomePage from "./Components/Home/HomePage";
+import SearchPage from "./Components/Search/SearchPage";
 
 const Auth0ProviderWithNavigate = ({ children }) => {
   const navigate = useNavigate();
@@ -42,3 +92,5 @@ export const App = () => {
     </Auth0ProviderWithNavigate>
   );
 };
+ */
+
