@@ -1,3 +1,2 @@
-.fa-solid{
-    display: none
-}
+@import "tailwindcss";
+@import "flowbite";
