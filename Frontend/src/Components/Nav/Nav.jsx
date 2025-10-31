@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import img1 from "../../assets/icons/LOGO.png"
+import img1 from "../../assets/icons/LOGO.png";
 
 export default function Nav() {
   return (
@@ -10,13 +10,8 @@ export default function Nav() {
             href="https://flowbite.com/"
             className="flex items-center space-x-3 rtl:space-x-reverse"
           >
-            <img
-              src={img1}
-              className="h-8"
-              alt="Flowbite Logo"
-            />
-            <span className="self-center text-2xl font-semibold whitespace-nowrap text-[var(--color-gold)]">
-            </span>
+            <img src={img1} className="h-8" alt="Flowbite Logo" />
+            <span className="self-center text-2xl font-semibold whitespace-nowrap text-[var(--color-gold)]"></span>
           </NavLink>
           <button
             data-collapse-toggle="navbar-default"
@@ -88,7 +83,8 @@ export default function Nav() {
               <li>
                 <button
                   type="button"
-                  className="text-[var(--color-light-neutral)] bg-[var(--color-state-blue)]  focus:outline-none  font-medium rounded-full text-sm px-4 py-0.5 border-2 border-[var(--color-state-blue)] hover:text-[var(--color-gold)] cursor-pointer">
+                  className="text-[var(--color-light-neutral)] bg-[var(--color-state-blue)]  focus:outline-none  font-medium rounded-full text-sm px-4 py-0.5 border-2 border-[var(--color-state-blue)] hover:text-[var(--color-gold)] cursor-pointer"
+                >
                   Sign in
                 </button>
               </li>

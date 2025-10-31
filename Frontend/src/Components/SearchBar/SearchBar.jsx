@@ -107,7 +107,7 @@ const SearchBar = () => {
           className="bg-state-blue text-light-neutral flex items-center justify-between px-4  py-2 rounded-xl gap-2 xl:flex-none flex-1  min-w-[180px] cursor-pointer relative"
         >
           {showError && (
-            <p className="text-red-600 text-sm absolute top-[-20px] left-2">
+            <p className="text-red-600 text-sm absolute -top-5 left-2">
               Select city first
             </p>
           )}
