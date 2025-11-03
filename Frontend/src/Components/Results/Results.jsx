@@ -1,5 +1,8 @@
 import EventCard from "../EventCard/EventCard";
+import Pagination from "../Pagination/Pagination";
 const Results = () => {
+  let pagesNum = 4;
+
   return (
     <div className="max-w-8xl mx-auto px-4">
       <div className="flex justify-between items-center">
@@ -26,6 +29,9 @@ const Results = () => {
         <EventCard />
         <EventCard />
         <EventCard />
+      </div>
+      <div className="mb-16">
+        <Pagination pagesNum={pagesNum} />
       </div>
     </div>
   );
