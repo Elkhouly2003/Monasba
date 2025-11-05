@@ -7,8 +7,9 @@ import img6 from "../../assets/icons/Two_Tickets_Icon.png";
 import img7 from "../../assets/icons/Workshop_Icon.png";
 import img8 from "../../assets/icons/Search_More_Icon.png";
 import Categorie from "../Categorie/categorie";
+import SearchBar from "../SearchBar/SearchBar";
 
-function Home(props) {
+function Home() {
   const texts = [
     "“Celebrate love in style”",
     "“Your special day.”",
@@ -33,6 +34,9 @@ function Home(props) {
 
   return (
     <>
+      <div className="flex justify-center items-center">
+        <SearchBar />
+      </div>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl pt-6 px-3 font-bold text-gray-900">
           Categories

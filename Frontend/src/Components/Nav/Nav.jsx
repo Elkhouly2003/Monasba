@@ -4,14 +4,14 @@ import img1 from "../../assets/icons/LOGO.png";
 export default function Nav() {
   return (
     <>
-      <nav className=" border-gray-200 bg-[var(--color-steel-blue)]">
+      <nav className=" border-gray-200 bg-(--color-steel-blue)">
         <div className="max-w-8xl flex flex-wrap items-center justify-between mx-auto p-4">
           <NavLink
             href="https://flowbite.com/"
             className="flex items-center space-x-3 rtl:space-x-reverse"
           >
             <img src={img1} className="h-8" alt="Flowbite Logo" />
-            <span className="self-center text-2xl font-semibold whitespace-nowrap text-[var(--color-gold)]"></span>
+            <span className="self-center text-2xl font-semibold whitespace-nowrap text-(--color-gold)"></span>
           </NavLink>
           <button
             data-collapse-toggle="navbar-default"
@@ -38,11 +38,11 @@ export default function Nav() {
             </svg>
           </button>
           <div className="hidden w-full md:block md:w-auto" id="navbar-default">
-            <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border  rounded-lg md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0  dark:bg-[var(--color-steel-blue)] ">
+            <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border  rounded-lg md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0  dark:bg-(--color-steel-blue) ">
               <li>
                 <NavLink
                   href="#"
-                  className="block py-2 px-3  rounded-sm md:bg-transparent  md:p-0 hover:text-[var(--color-gold)] text-[var(--color-light-neutral)]"
+                  className="block py-2 px-3  rounded-sm md:bg-transparent  md:p-0 hover:text-(--color-gold) text-(--color-light-neutral)"
                   aria-current="page"
                 >
                   Home
@@ -51,7 +51,7 @@ export default function Nav() {
               <li>
                 <NavLink
                   href="#"
-                  className="block py-2 px-3 rounded-sm  md:border-0 hover:text-[var(--color-gold)] md:p-0 text-[var(--color-light-neutral)]"
+                  className="block py-2 px-3 rounded-sm  md:border-0 hover:text-(--color-gold) md:p-0 text-(--color-light-neutral)"
                 >
                   Categories
                 </NavLink>
@@ -59,7 +59,7 @@ export default function Nav() {
               <li>
                 <NavLink
                   href="#"
-                  className="block py-2 px-3  rounded-sm  md:p-0 text-[var(--color-light-neutral)] hover:text-[var(--color-gold)]"
+                  className="block py-2 px-3  rounded-sm  md:p-0 text-(--color-light-neutral) hover:text-(--color-gold)"
                 >
                   Browe Events
                 </NavLink>
@@ -67,7 +67,7 @@ export default function Nav() {
               <li>
                 <NavLink
                   href="#"
-                  className="block py-2 px-3 rounded-sm  md:border-0 hover:text-[var(--color-gold)] md:p-0 text-[var(--color-light-neutral)]"
+                  className="block py-2 px-3 rounded-sm  md:border-0 hover:text-(--color-gold) md:p-0 text-(--color-light-neutral)"
                 >
                   Exclusive Offers
                 </NavLink>
@@ -75,7 +75,7 @@ export default function Nav() {
               <li>
                 <NavLink
                   href="#"
-                  className="block py-2 px-3 rounded-sm  md:border-0 hover:text-[var(--color-gold)] md:p-0 text-[var(--color-light-neutral)]"
+                  className="block py-2 px-3 rounded-sm  md:border-0 hover:text-(--color-gold) md:p-0 text-(--color-light-neutral)"
                 >
                   About
                 </NavLink>
@@ -83,7 +83,7 @@ export default function Nav() {
               <li>
                 <button
                   type="button"
-                  className="text-[var(--color-light-neutral)] bg-[var(--color-state-blue)]  focus:outline-none  font-medium rounded-full text-sm px-4 py-0.5 border-2 border-[var(--color-state-blue)] hover:text-[var(--color-gold)] cursor-pointer"
+                  className="text-(--color-light-neutral) bg-(--color-state-blue) focus:outline-none  font-medium rounded-full text-sm px-4 py-0.5 border-2 border-(--color-state-blue) hover:text-(--color-gold) cursor-pointer"
                 >
                   Sign in
                 </button>
