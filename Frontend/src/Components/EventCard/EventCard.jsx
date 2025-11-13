@@ -1,38 +1,56 @@
-import sumatra_weddings from "../../assets/icons/sumatra-weddings.png";
+import { Link } from "react-router-dom";
 
-const EventCard = () => {
+const EventCard = ({ event }) => {
   return (
-    <div className="bg-white text-steel-blue rounded-2xl overflow-hidden relative shadow">
-      <div className="absolute z-20 bg-state-blue text-light-neutral px-4 py-2 top-2 left-2 rounded-2xl opacity-90">
-        Wedding
+    <div className="bg-white text-steel-blue rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 relative group">
+      <div className="absolute top-3 left-3 z-20 bg-state-blue text-light-neutral px-3 py-1 text-sm font-medium rounded-full opacity-90 backdrop-blur-sm">
+        {event.category}
       </div>
-      <img className="rounded-2xl w-full" src={sumatra_weddings} alt="img" />
-      <div className="flex justify-between items-center px-4 mt-4">
-        <h1 className="font-semibold text-2xl">Al-Lu’lu’a Venue</h1>
-        <div className="flex gap-1 items-center">
-          <i className="fa-solid fa-star text-yellow-200 w-5 h-5"></i>
-          <span>4.5</span>
-        </div>
-      </div>
-      <p className="px-4 mt-2 ">Elegant venue for wedding and celebrations.</p>
 
-      <div className="flex justify-between items-center px-4 mt-2">
-        <div className="flex gap-2 items-center">
-          <i className="fa-regular fa-calendar"></i>
-          <span className="text-sm">Jan 9, 2004</span>
+      <Link to={`/place/${event.id}`}>
+        <div className="overflow-hidden">
+          <img
+            className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500"
+            src={event.img}
+            alt={event.eventName}
+          />
         </div>
-        <div className="flex gap-2 items-center">
-          <i className="fa-solid fa-location-dot"></i>
-          <span className="text-sm">Cairo</span>
+      </Link>
+
+      <div className="p-5">
+        <div className="flex justify-between items-center">
+          <h1 className="font-semibold text-xl line-clamp-1">
+            {event.eventName}
+          </h1>
+          <div className="flex items-center gap-1">
+            <i className="fa-solid fa-star text-yellow-400"></i>
+            <span className="font-medium">{event.rate}</span>
+          </div>
         </div>
-      </div>
-      <div className="flex justify-between items-center px-4 mt-5 mb-4">
-        <button className="bg-state-blue text-light-neutral font-semibold px-9 py-3 rounded-2xl">
-          Book Now
-        </button>
-        <button>
-          <i className="fa-regular fa-bookmark fa-2x"></i>
-        </button>
+
+        <p className="text-gray-600 mt-2 text-sm line-clamp-2">{event.desc}</p>
+
+        <div className="flex justify-between items-center mt-4 text-sm text-gray-500">
+          <div className="flex items-center gap-2">
+            <i className="fa-regular fa-calendar"></i>
+            <span>{event.date}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <i className="fa-solid fa-location-dot"></i>
+            <span>{event.location}</span>
+          </div>
+        </div>
+
+        <div className="flex justify-between items-center mt-6">
+          <Link to={`/place/${event.id}`}>
+            <button className="bg-state-blue text-light-neutral font-semibold px-6 py-2 rounded-xl transition-colors duration-300 cursor-pointer">
+              Book Now
+            </button>
+          </Link>
+          <button className="text-gray-500 hover:text-state-blue transition-colors duration-300">
+            <i className="fa-regular fa-bookmark fa-lg"></i>
+          </button>
+        </div>
       </div>
     </div>
   );
