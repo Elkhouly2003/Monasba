@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("${api.prefix}/placeCategory")
+@RequestMapping("/placeCategory")
 @RequiredArgsConstructor
 public class PlaceCategoryController {
     private final PlaceCategoryService placeCategoryService;
