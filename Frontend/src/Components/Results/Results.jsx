@@ -1,6 +1,6 @@
 import EventCard from "../EventCard/EventCard";
 import Pagination from "../Pagination/Pagination";
-const Results = () => {
+const Results = ({ events }) => {
   let pagesNum = 4;
 
   return (
@@ -20,16 +20,13 @@ const Results = () => {
           </div>
         </div>
       </div>
+
       <div className="mt-6 mb-8 grid gap-8 grid-cols-1 [@media(min-width:650px)_and_(max-width:764px)]:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        <EventCard />
-        <EventCard />
-        <EventCard />
-        <EventCard />
-        <EventCard />
-        <EventCard />
-        <EventCard />
-        <EventCard />
+        {events.map((event) => (
+          <EventCard key={event.id} event={event} />
+        ))}
       </div>
+
       <div className="mb-16">
         <Pagination pagesNum={pagesNum} />
       </div>

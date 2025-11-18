@@ -15,7 +15,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 @RestController
-@RequestMapping("${api.prefix}/images")
+@RequestMapping("/images")
 @RequiredArgsConstructor
 public class ImageController {
     private final ImageService imageService;

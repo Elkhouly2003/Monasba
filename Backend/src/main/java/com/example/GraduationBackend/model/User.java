@@ -1,17 +1,17 @@
 package com.example.GraduationBackend.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
 
-@Setter
-@Getter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "User")
@@ -22,20 +22,43 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer userId;
 
-    @Column(name = "auth0_id", unique = true)
-    private String auth0Id;
-
     @Column(name = "user_name")
-    private String username;
+    private String name;
 
-    @Column(name = "user_email")
+    @Column(name = "user_email",unique = true)
     private String email;
 
     @Column(name = "user_phone")
     private String phone;
 
-    @Column(name = "role")
+    @Column(name = "user_role")
     private String role;
+
+    @Column(name = "user_password")
+    private String password;
+
+    @Column(name = "verify_opt")
+    private String verifyOpt;
+
+    @Column(name = "is_account_verified")
+    private Boolean isAccountVerified;
+
+    @Column(name = "verify_otp_expire_at")
+    private Long verifyOtpExpireAt;
+
+    @Column(name = "reset_otp")
+    private String resetOtp;
+
+    @Column(name = "reset_otp_expire_at")
+    private Long resetOtpExpireAt;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private Timestamp createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private Timestamp updatedAt;
 
 
     @OneToOne(cascade = CascadeType.ALL)

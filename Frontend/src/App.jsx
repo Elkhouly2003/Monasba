@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Layout from "./Components/Layout/Layout";
 import Home from "./Components/Home/Home";
 import Search from "./Components/SearchPage/SearchPage";
+import SingleEventPage from "./Components/SinglePage/SingleEventPage";
 
 function App() {
   const router = createBrowserRouter([
@@ -12,6 +13,7 @@ function App() {
       children: [
         { index: true, element: <Home /> },
         { path: "/search", element: <Search /> },
+        { path: "place/:id", element: <SingleEventPage /> },
       ],
     },
   ]);

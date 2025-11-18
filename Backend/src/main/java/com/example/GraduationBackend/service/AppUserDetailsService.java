@@ -1,0 +1,26 @@
+package com.example.GraduationBackend.service;
+
+
+import com.example.GraduationBackend.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+
+@Service
+@RequiredArgsConstructor
+public class AppUserDetailsService implements UserDetailsService {
+    final UserRepository userRepository;
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+       com.example.GraduationBackend.model.User existingUser= userRepository.findByEmail(email)
+                .orElseThrow(()-> new UsernameNotFoundException("Email not found for email: "+email) );
+    return new User(existingUser.getEmail(), existingUser.getPassword(), new ArrayList<>());
+
+    }
+}

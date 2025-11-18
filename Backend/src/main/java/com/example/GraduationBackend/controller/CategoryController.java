@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @Getter
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("${api.prefix}/category")
+@RequestMapping("/category")
 
 public class CategoryController {
 
