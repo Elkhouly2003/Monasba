@@ -63,7 +63,10 @@ public class PlaceController {
         return ResponseEntity.ok(new ApiResponse("Success", places));
 
     }
-
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse> searchForPlaces(@RequestParam String query) {
+        return ResponseEntity.ok(new ApiResponse("Search Success", placeService.searchPlaces(query)));
+    }
 
 }
 

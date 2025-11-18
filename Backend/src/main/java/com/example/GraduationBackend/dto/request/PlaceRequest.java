@@ -17,6 +17,7 @@ public class PlaceRequest {
     private String country;
     private String phone;
     private String description;
+    private String shortDescription;
     private Integer capacity;
     private LocalTime openTime;
     private LocalTime closeTime;
