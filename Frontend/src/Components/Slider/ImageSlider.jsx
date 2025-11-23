@@ -6,7 +6,7 @@ const ImageSlider = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   return (
-    <div className="relative w-full max-w-[1320px] mx-auto rounded-2xl overflow-hidden ">
+    <div className="relative w-full mx-auto rounded-2xl overflow-hidden ">
       <div className="w-full aspect-video sm:aspect-3/2 lg:aspect-1102/569 relative">
         <img
           src={images[currentImageIndex].src}

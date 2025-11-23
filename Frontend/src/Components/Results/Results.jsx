@@ -4,7 +4,7 @@ const Results = ({ events }) => {
   let pagesNum = 4;
 
   return (
-    <div className="max-w-8xl mx-auto px-4">
+    <div className="max-w-8xl mx-auto px-2 sm:px-4">
       <div className="flex justify-between items-center">
         <h2 className="text-dark-navy font-bold text-2xl sm:text-3xl">
           Results

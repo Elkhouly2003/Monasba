@@ -5,7 +5,7 @@ export default function Nav() {
   return (
     <>
       <nav className=" border-gray-200 bg-(--color-steel-blue)">
-        <div className="max-w-8xl flex flex-wrap items-center justify-between mx-auto p-4">
+        <div className="max-w-8xl flex flex-wrap items-center justify-between mx-auto py-4 px-2 sm:px-4 ">
           <NavLink
             href="https://flowbite.com/"
             className="flex items-center space-x-3 rtl:space-x-reverse"
