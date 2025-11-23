@@ -1,12 +1,11 @@
 package com.example.GraduationBackend.controller;
-
-
 import com.example.GraduationBackend.io.AuthRequest;
 import com.example.GraduationBackend.io.AuthResponse;
 import com.example.GraduationBackend.io.RestPasswordRequest;
 import com.example.GraduationBackend.service.AppUserDetailsService;
 import com.example.GraduationBackend.service.ProfileService;
 import com.example.GraduationBackend.util.JwtUtil;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -91,7 +90,7 @@ public class AuthController {
     public ResponseEntity<Boolean> isAuthenticated(@CurrentSecurityContext(expression = "authentication?.name")String email){
             return ResponseEntity.ok(email!=null);
     }
-    @PostMapping("/send-rest-otp")
+    @PostMapping("/send-reset-otp")
     public void sendRestOtp(@RequestParam String email){
         try {
             profileService.sendResetOpt(email);
@@ -101,7 +100,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/rest-password")
+    @PostMapping("/reset-password")
     public void resetPassword(@Valid @RequestBody RestPasswordRequest request){
         try {
             profileService.restPassword(request.getEmail(),request.getOtp(),request.getNewPassword());
@@ -132,6 +131,19 @@ public class AuthController {
        }catch (Exception e){
            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
        }
+    }
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response){
+        ResponseCookie cookie=ResponseCookie.from("jwt","")
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Strict")
+                .build();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE,cookie.toString())
+                .body("Logged out successfully");
     }
 
 
