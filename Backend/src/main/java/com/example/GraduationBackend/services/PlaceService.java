@@ -99,7 +99,24 @@ public class PlaceService {
         Optional.ofNullable(placeRequest.getPhone()).ifPresent(place::setPhone);
         Optional.ofNullable(placeRequest.getOpenTime()).ifPresent(place::setOpenTime);
         Optional.ofNullable(placeRequest.getCloseTime()).ifPresent(place::setCloseTime);
-
-
     }
+
+
+    public List<Place> searchPlaces(String keyword) {
+
+        if (keyword == null || keyword.trim().isEmpty()) {
+            throw new IllegalArgumentException("Keyword cannot be empty");
+        }
+
+        String likeQuery = "%" + keyword.toLowerCase() + "%";
+
+        List<Place> places = placeRepository.searchPlaces(likeQuery);
+
+        if (places.isEmpty()) {
+            throw new ResourceNotFoundException("No places found for: " + keyword);
+        }
+
+        return places;
+    }
+
 }

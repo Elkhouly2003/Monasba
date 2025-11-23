@@ -43,6 +43,9 @@ public class Place {
     @Column(name = "place_description")
     private String description;
 
+    @Column(name = "place_short_description")
+    private String shortDescription;
+
     @Column(name = "place_capacity")
     private Integer capacity;
 
