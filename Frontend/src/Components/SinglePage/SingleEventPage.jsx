@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import ImageSlider from "../Slider/ImageSlider";
+import Reviews from "../Reviews/Reviews";
 
 const SingleEventPage = () => {
   const { id } = useParams();
@@ -104,12 +105,28 @@ const SingleEventPage = () => {
           </div>
         </div>
         <div className="flex justify-center items-center gap-5 mt-16">
-          <button className="bg-state-blue px-12 py-3 text-white font-bold text-xl rounded-2xl">
+          <button className="bg-state-blue px-12 py-3 text-white font-bold text-base md:text-xl rounded-2xl">
             Request Booking
           </button>
-          <button className="bg-white border-2 border-state-blue px-12 py-3 text-state-blue font-bold text-xl rounded-2xl">
+          <button className="bg-white border-2 border-state-blue px-12 py-3 text-state-blue font-bold text-base md:text-xl rounded-2xl">
             Ask Question
           </button>
+        </div>
+        <div className="hidden">Hidden Booking</div>
+      </div>
+      <div className="mt-10">
+        <div className="flex justify-between items-center">
+          <h2 className="text-dark-navy font-bold text-2xl sm:text-3xl">
+            Reviews
+          </h2>
+          <button className="px-3 py-2 bg-state-blue text-white rounded-xl text-sm">
+            Write Review
+          </button>
+        </div>
+        <div className="mt-8 space-y-6 mb-16">
+          <Reviews />
+          <Reviews />
+          <Reviews />
         </div>
       </div>
     </div>
