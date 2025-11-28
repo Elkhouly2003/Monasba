@@ -28,7 +28,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     // URLs that don't require authentication
     static final List<String> PUBLIC_URLS = List.of(
-            "/login", "/register", "/send-reset-otp", "reset-password", "/logout"
+            "/login", "/register", "/send-reset-otp", "/reset-password", "/logout"
     );
 
     @Override
@@ -39,7 +39,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         String path = request.getServletPath();
 
-        // 1️⃣ Skip filter for public endpoints
+        //  Skip filter for public endpoints
         if (PUBLIC_URLS.contains(path)) {
             filterChain.doFilter(request, response);
             return;
@@ -48,13 +48,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         String jwt = null;
         String email = null;
 
-        // 2️⃣ Check JWT in Authorization header
+        // Check JWT in Authorization header
         final String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwt = authorizationHeader.substring(7); // Remove "Bearer " prefix
         }
 
-        // 3️⃣ If not found in header, check cookies
+        //  If not found in header, check cookies
         if (jwt == null) {
             Cookie[] cookies = request.getCookies();
             if (cookies != null) {
@@ -67,7 +67,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             }
         }
 
-        // 4️⃣ Validate token and set authentication context
+        //  Validate token and set authentication context
         if (jwt != null) {
             email = jwtUtil.extractEmail(jwt);
 
@@ -95,7 +95,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             }
         }
 
-        // 5️⃣ Continue the filter chain
+        //  Continue the filter chain
         filterChain.doFilter(request, response);
     }
 }

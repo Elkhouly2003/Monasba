@@ -81,12 +81,12 @@ export default function Nav() {
                 </NavLink>
               </li>
               <li>
-                <button
-                  type="button"
-                  className="text-(--color-light-neutral) bg-(--color-state-blue) focus:outline-none  font-medium rounded-full text-sm px-4 py-0.5 border-2 border-(--color-state-blue) hover:text-(--color-gold) cursor-pointer"
+                <NavLink
+                  to="/login"
+                  className="text-(--color-light-neutral) bg-(--color-state-blue) focus:outline-none font-medium rounded-full text-sm px-4 py-0.5 border-2 border-(--color-state-blue) hover:text-(--color-gold) cursor-pointer"
                 >
                   Sign in
-                </button>
+                </NavLink>
               </li>
             </ul>
           </div>
