@@ -4,9 +4,15 @@ import Layout from "./Components/Layout/Layout";
 import Home from "./Components/Home/Home";
 import Search from "./Components/SearchPage/SearchPage";
 import SingleEventPage from "./Components/SinglePage/SingleEventPage";
+import { ToastContainer } from "react-toastify";
+import Login from "./AuthenticationPage/Login.jsx";
+import ResetPassword from "./AuthenticationPage/ResetPassword.jsx";
 
 function App() {
   const router = createBrowserRouter([
+
+     { path: "/login", element: <Login /> },
+     { path: "/reset-password", element: <ResetPassword /> },
     {
       path: "/",
       element: <Layout />,
@@ -20,6 +26,7 @@ function App() {
   return (
     <>
       <RouterProvider router={router} />
+        <ToastContainer />
     </>
   );
 }
