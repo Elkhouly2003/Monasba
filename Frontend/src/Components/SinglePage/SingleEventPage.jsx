@@ -1,9 +1,12 @@
 import { useParams } from "react-router-dom";
 import ImageSlider from "../Slider/ImageSlider";
 import Reviews from "../Reviews/Reviews";
+import ReviewForm from "../ReviewForm/ReviewForm";
+import { useState } from "react";
 
 const SingleEventPage = () => {
   const { id } = useParams();
+  const [showReviewForm, setShowReviewForm] = useState(false);
 
   const event = {
     id: 1,
@@ -119,10 +122,14 @@ const SingleEventPage = () => {
           <h2 className="text-dark-navy font-bold text-2xl sm:text-3xl">
             Reviews
           </h2>
-          <button className="px-3 py-2 bg-state-blue text-white rounded-xl text-sm">
-            Write Review
+          <button
+            onClick={() => setShowReviewForm(!showReviewForm)}
+            className="px-3 py-2 bg-state-blue text-white rounded-xl text-sm"
+          >
+            {showReviewForm ? "Cancel" : "Write Review"}
           </button>
         </div>
+        <div>{showReviewForm && <ReviewForm />}</div>
         <div className="mt-8 space-y-6 mb-16">
           <Reviews />
           <Reviews />
