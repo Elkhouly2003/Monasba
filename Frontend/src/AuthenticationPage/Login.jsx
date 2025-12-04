@@ -5,82 +5,88 @@ import { AppContext } from "./context/AppContext";
 import { toast } from "react-toastify";
 import { assets } from "./assets/assets";
 
-
-
 const Login = () => {
-    const [isCreatingAccount, setIsCreatingAccount] = useState(false);  
-    const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [loading, setLoading] = useState(false);
-    const {backendUrl,setIsLoggedIn,getUserData} = useContext(AppContext);
-    const navigate = useNavigate();
+  const [isCreatingAccount, setIsCreatingAccount] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { backendUrl, setIsLoggedIn, getUserData } = useContext(AppContext);
+  const navigate = useNavigate();
 
-    // Handle form submission
-    const onSubmitHandler = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  axios.defaults.withCredentials = true;
-  try {
-    if (isCreatingAccount) {
-      // Sign Up
-      const response = await axios.post(`${backendUrl}/register`, { name, email, password });
-      if (response.status === 201) {
-        toast.success("Account created successfully!");
-        setIsCreatingAccount(false);
-        navigate("/");
+  // Handle form submission
+  const onSubmitHandler = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    axios.defaults.withCredentials = true;
+    try {
+      if (isCreatingAccount) {
+        // Sign Up
+        const response = await axios.post(`${backendUrl}/register`, {
+          name,
+          email,
+          password,
+        });
+        if (response.status === 201) {
+          toast.success("Account created successfully!");
+          setIsCreatingAccount(false);
+          navigate("/");
+        }
+      } else {
+        // Login
+        // Login
+        const response = await axios.post(`${backendUrl}/login`, {
+          email,
+          password,
+        });
+        if (response.status === 200) {
+          toast.success("Logged in successfully!");
+          getUserData();
+          setIsLoggedIn(true);
+          navigate("/");
+        } else {
+          toast.error("Email or password is incorrect");
+        }
       }
-    } else {
-      // Login
-       // Login
-      const response = await axios.post(`${backendUrl}/login`, { email, password });
-      if (response.status === 200) {
-        toast.success("Logged in successfully!");
-        getUserData();
-        setIsLoggedIn(true);
-        navigate("/");
-      }
-      else {
-        toast.error("Email or password is incorrect");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Something went wrong!");
+    } finally {
+      setLoading(false);
     }
-
-    }
-  } catch (error) {
-    toast.error(error.response?.data?.message || "Something went wrong!");
-  } finally {
-    setLoading(false);
-  }
-}
+  };
 
   return (
-    <div
-      className="relative min-h-screen flex items-center justify-center bg-gradient-to-r from-[#6a5af9] to-[#8268f9]"
-    >
-      {/* Logo section */}
-      <div className="absolute top-0 left-1 p-4 flex items-center gap-2 no-underline">
-        <Link to="/" className="flex items-center gap-2 font-bold text-2xl no-underline">
-          <img src={assets.logo2} alt="Logo" width={150} height={150} />
-          <span className="font-bold text-xl text-white"></span>
-        </Link>
+    <div className="min-h-screen bg-light-neutral">
+      <div className="bg-steel-blue w-full">
+        <div className="max-w-8xl px-2 sm:px-4 py-4 mx-auto flex justify-between items-center">
+          <Link to="/" className="">
+            <img src={assets.logo2} alt="Logo" className="h-8" />
+          </Link>
+          <Link to="/" className="flex gap-2 items-center">
+            <span className="text-white text-lg">Back to Home</span>
+            <i class="fa-solid fa-chevron-right text-white text-sm"></i>
+          </Link>
+        </div>
       </div>
 
-      {/* Login Card */}
-      <div className="bg-white/90 backdrop-blur rounded-lg p-6 shadow-md w-full max-w-md">
-        <h2 className="text-center mb-4 text-xl font-semibold text-gray-800">
-          {isCreatingAccount ? "Create Account" : "Login"}
-        </h2>
+      <div className="max-w-8xl px-2 sm:px-4 py-4 mx-auto flex justify-center mt-16">
+        <div className="bg-dark-navy py-8 px-10 rounded-xl shadow-2xl lg:min-w-lg md:min-w-md ">
+          <h2 className="text-center mb-8 text-3xl font-semibold text-light-neutral">
+            {isCreatingAccount ? "Create Account" : "Welcome Back"}
+          </h2>
 
-        <form onSubmit={onSubmitHandler}>
-            {
-
-            isCreatingAccount && (
+          <form onSubmit={onSubmitHandler}>
+            {isCreatingAccount && (
               <div className="mb-4">
-                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="fullName"
+                  className="block text-sm font-medium text-light-neutral mb-1"
+                >
                   Full Name
                 </label>
                 <input
                   type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="bg-steel-blue py-3 w-full px-3 text-light-neutral border border-state-blue rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   id="fullName"
                   placeholder="Enter fullname"
                   required
@@ -88,70 +94,86 @@ const Login = () => {
                   value={name}
                 />
               </div>
-            )
-
-            }
-
-
-
-          <div className="mb-4">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email address
-            </label>
-            <input
-              type="email"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              id="email"
-              placeholder="Enter email"
-              required
-              onChange={(e) => setEmail(e.target.value)}
-              value={email}
-            />
-          </div>
-
-          <div className="mb-4">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-              Password
-            </label>
-            <input
-              type="password"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              id="password"
-              placeholder="**********"
-              required
-              onChange={(e) => setPassword(e.target.value)}
-              value={password}
-            />
-          </div>
-          <div className="flex justify-between mb-4">
-            <Link to="/reset-password" className="text-sm text-indigo-600 hover:underline">
-              Forgot Password?
-            </Link>
-          </div>
-
-          <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-md font-medium disabled:opacity-50" disabled={loading}>
-            {loading ? "Loading..." : isCreatingAccount ? "Sign Up" : "Login"}
-          </button>
-        </form>
-
-        <div className="text-center mt-3">
-          <p className="mb-0 text-sm text-gray-700">
-            {isCreatingAccount ? (
-              <>
-                Already have an account?{' '}
-                <span onClick={() => setIsCreatingAccount(false)} className="underline cursor-pointer text-indigo-600">
-                  Login
-                </span>
-              </>
-            ) : (
-              <>
-                Don't have an account?{' '}
-                <span onClick={() => setIsCreatingAccount(true)} className="underline cursor-pointer text-indigo-600">
-                  Sign up
-                </span>
-              </>
             )}
-          </p>
+
+            <div className="mb-4">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-light-neutral mb-1"
+              >
+                Email address
+              </label>
+              <input
+                type="email"
+                className="bg-steel-blue py-3 w-full px-3 text-light-neutral border border-state-blue rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                id="email"
+                placeholder="Enter email"
+                required
+                onChange={(e) => setEmail(e.target.value)}
+                value={email}
+              />
+            </div>
+
+            <div className="mb-4">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-light-neutral mb-1"
+              >
+                Password
+              </label>
+              <input
+                type="password"
+                className="bg-steel-blue py-3 w-full px-3 text-light-neutral border border-state-blue rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                id="password"
+                placeholder="**********"
+                required
+                onChange={(e) => setPassword(e.target.value)}
+                value={password}
+              />
+            </div>
+            <div className="flex justify-between mb-4">
+              <Link
+                to="/reset-password"
+                className="text-sm text-light-neutral hover:underline"
+              >
+                Forgot Password?
+              </Link>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full cursor-pointer bg-state-blue hover:bg-cool-gray/50 text-white py-3 rounded-md font-medium disabled:opacity-50"
+              disabled={loading}
+            >
+              {loading ? "Loading..." : isCreatingAccount ? "Sign Up" : "Login"}
+            </button>
+          </form>
+
+          <div className="text-center mt-3">
+            <p className="mb-0 text-sm text-light-neutral">
+              {isCreatingAccount ? (
+                <>
+                  Already have an account?{" "}
+                  <span
+                    onClick={() => setIsCreatingAccount(false)}
+                    className="underline cursor-pointer text-light-neutral"
+                  >
+                    Login
+                  </span>
+                </>
+              ) : (
+                <>
+                  Don't have an account?{" "}
+                  <span
+                    onClick={() => setIsCreatingAccount(true)}
+                    className="underline cursor-pointer text-light-neutral"
+                  >
+                    Sign up
+                  </span>
+                </>
+              )}
+            </p>
+          </div>
         </div>
       </div>
     </div>
