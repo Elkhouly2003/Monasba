@@ -13,7 +13,7 @@ import img12 from "../../assets/icons/Secure_Booking_Icon.png";
 import img13 from "../../assets/icons/Relax_Icon.png";
 import img14 from "../../assets/icons/Star_Filled_Icon.png";
 import img15 from "../../assets/icons/sumatra-weddings.png";
-import Categorie from "../Categorie/categorie";
+import Categorie from "../Categorie/Categorie";
 import SearchBar from "../SearchBar/SearchBar";
 
 function Home() {
@@ -152,7 +152,7 @@ function Home() {
       <div className="flex justify-center items-center">
         <SearchBar />
       </div>
-      
+
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl pt-6 px-3 font-bold text-gray-900">
           Categories
