@@ -7,12 +7,12 @@ import SingleEventPage from "./Components/SinglePage/SingleEventPage";
 import { ToastContainer } from "react-toastify";
 import Login from "./AuthenticationPage/Login.jsx";
 import ResetPassword from "./AuthenticationPage/ResetPassword.jsx";
+import Profile from "./Components/Profile/profile.jsx";
 
 function App() {
   const router = createBrowserRouter([
-
-     { path: "/login", element: <Login /> },
-     { path: "/reset-password", element: <ResetPassword /> },
+    { path: "/login", element: <Login /> },
+    { path: "/reset-password", element: <ResetPassword /> },
     {
       path: "/",
       element: <Layout />,
@@ -20,13 +20,14 @@ function App() {
         { index: true, element: <Home /> },
         { path: "/search", element: <Search /> },
         { path: "place/:id", element: <SingleEventPage /> },
+        { path: "/profile", element: <Profile /> },
       ],
     },
   ]);
   return (
     <>
       <RouterProvider router={router} />
-        <ToastContainer />
+      <ToastContainer />
     </>
   );
 }
