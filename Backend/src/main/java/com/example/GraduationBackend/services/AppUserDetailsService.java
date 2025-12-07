@@ -1,4 +1,4 @@
-package com.example.GraduationBackend.service;
+package com.example.GraduationBackend.services;
 
 
 import com.example.GraduationBackend.repository.UserRepository;

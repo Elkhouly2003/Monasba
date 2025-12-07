@@ -1,4 +1,4 @@
-package com.example.GraduationBackend.service;
+package com.example.GraduationBackend.services;
 
 import com.example.GraduationBackend.io.ProfileRequest;
 import com.example.GraduationBackend.io.ProfileResponse;
@@ -15,7 +15,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @RequiredArgsConstructor
-public class ProfileServiceImpl implements ProfileService{
+public class ProfileServiceImpl implements ProfileService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;

@@ -2,8 +2,8 @@ package com.example.GraduationBackend.controller;
 
 import com.example.GraduationBackend.io.ProfileRequest;
 import com.example.GraduationBackend.io.ProfileResponse;
-import com.example.GraduationBackend.service.EmailService;
-import com.example.GraduationBackend.service.ProfileService;
+import com.example.GraduationBackend.services.EmailService;
+import com.example.GraduationBackend.services.ProfileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

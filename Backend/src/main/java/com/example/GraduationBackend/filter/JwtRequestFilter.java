@@ -1,7 +1,7 @@
 package com.example.GraduationBackend.filter;
 
 
-import com.example.GraduationBackend.service.AppUserDetailsService;
+import com.example.GraduationBackend.services.AppUserDetailsService;
 import com.example.GraduationBackend.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

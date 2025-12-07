@@ -2,7 +2,7 @@ package com.example.GraduationBackend.config;
 
 
 import com.example.GraduationBackend.filter.JwtRequestFilter;
-import com.example.GraduationBackend.service.AppUserDetailsService;
+import com.example.GraduationBackend.services.AppUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
