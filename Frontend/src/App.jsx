@@ -8,11 +8,13 @@ import { ToastContainer } from "react-toastify";
 import Login from "./AuthenticationPage/Login.jsx";
 import ResetPassword from "./AuthenticationPage/ResetPassword.jsx";
 import Profile from "./Components/Profile/profile.jsx";
+import EmailVerify from "./AuthenticationPage/EmailVerify.jsx";
 
 function App() {
   const router = createBrowserRouter([
     { path: "/login", element: <Login /> },
     { path: "/reset-password", element: <ResetPassword /> },
+    { path: "/email-verify", element: <EmailVerify /> },
     {
       path: "/",
       element: <Layout />,
