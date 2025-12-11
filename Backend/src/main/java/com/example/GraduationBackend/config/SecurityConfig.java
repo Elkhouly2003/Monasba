@@ -2,11 +2,14 @@ package com.example.GraduationBackend.config;
 
 
 import com.example.GraduationBackend.filter.JwtRequestFilter;
+import com.example.GraduationBackend.model.Category;
 import com.example.GraduationBackend.services.AppUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
+import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -23,6 +26,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 
 import java.util.List;
 
@@ -45,13 +49,39 @@ public class SecurityConfig {
     }
 
     @Bean
+    public RepositoryRestConfigurer repositoryRestConfigurer() {
+        return new RepositoryRestConfigurer() {
+            @Override
+            public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config,
+                                                             CorsRegistry cors) {
+
+                // اظهار IDs للـ entities
+                config.exposeIdsFor( Category.class);
+
+                // ممكن كمان تعمل CORS لو حابب
+                cors.addMapping("/**").allowedOrigins("http://localhost:3000");
+            }
+        };
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http.cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
 
-                        .requestMatchers("/login", "/register", "/send-reset-otp", "/reset-password", "/logout")
+                        .requestMatchers(
+                                "/login", "/register", "/send-reset-otp", "/reset-password", "/logout",
+                                        // Swagger
+                                        "/v3/api-docs/**",
+                                        "/swagger-ui/**",
+                                        "/swagger-ui.html",
+                                // Search API
+                                "/places/search/searchPlaces",
+                                // Categories API
+                                "/categories/**"
+                        )
                         .permitAll()
 
                         .anyRequest().authenticated())

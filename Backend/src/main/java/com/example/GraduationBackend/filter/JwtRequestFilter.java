@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -25,11 +26,28 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     final AppUserDetailsService appUserDetailsService;
     final JwtUtil jwtUtil;
+    private static final AntPathMatcher pathMatcher = new AntPathMatcher();
 
-    // URLs that don't require authentication
-    static final List<String> PUBLIC_URLS = List.of(
-            "/login", "/register", "/send-reset-otp", "/reset-password", "/logout"
-    );
+//    // URLs that don't require authentication
+//    static final List<String> PUBLIC_URLS = List.of(
+//            "/login", "/register", "/send-reset-otp", "/reset-password", "/logout"
+//    );
+static final List<String> PUBLIC_URLS = List.of(
+        "/login",
+        "/register",
+        "/send-reset-otp",
+        "/reset-password",
+        "/logout",
+
+        // Swagger
+        "/v3/api-docs/**",
+        "/swagger-ui/**",
+        "/swagger-ui.html",
+        // Search API
+        "/places/search/searchPlaces",
+        // Categories API
+        "/categories/**"
+);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -39,10 +57,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         String path = request.getServletPath();
 
-        //  Skip filter for public endpoints
-        if (PUBLIC_URLS.contains(path)) {
-            filterChain.doFilter(request, response);
-            return;
+        for (String publicUrl : PUBLIC_URLS) {
+            if (pathMatcher.match(publicUrl, path)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
         }
 
         String jwt = null;
