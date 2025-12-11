@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import img1 from "../../assets/icons/Wedding_Icon.png";
 import img2 from "../../assets/icons/Birthday_Cake_Icon.png";
 import img3 from "../../assets/icons/Graduation_Cap_Icon.png";
@@ -17,27 +18,48 @@ import Categorie from "../Categorie/Categorie";
 import SearchBar from "../SearchBar/SearchBar";
 
 function Home() {
-  const texts = [
-    "“Celebrate love in style”",
-    "“Your special day.”",
-    "“Celebrate your success.”",
-    "“Every dinner is special.”",
-    "“A new chapter begins.”,",
-    '"Relax for a day."',
-    '"Discover new skills."',
-    '"See every event."',
-  ];
-  const titles = [
-    "wedding",
-    "Birthday",
-    "Graduation party",
-    "Dinner",
-    "Engagement",
-    "Day Use",
-    "Workshops",
-    "Explore All",
-  ];
+  // descriptions will come from backend `description` field for each category
   const images = [img1, img2, img3, img4, img5, img6, img7, img8];
+
+  const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [httpError, setHttpError] = useState(null);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const baseUrl = "http://localhost:8080/api/v1.0/categories";
+        const url = `${baseUrl}?page=0&size=20`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Failed to fetch categories");
+        const responseJson = await response.json();
+        const responseData = responseJson._embedded?.categories || [];
+        const loaded = responseData.map((c) => ({ id: c.id, name: c.name, description: c.description || "", href: c._links?.self?.href }));
+        
+        setCategories(loaded);
+      } catch (err) {
+        setHttpError(err.message || "Unknown error");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  function getImageForCategory(name, index) {
+    if (!name) return images[index] ?? images[0];
+    const n = name.toLowerCase();
+    if (n.includes("wedding")) return img1;
+    if (n.includes("birthday")) return img2;
+    if (n.includes("graduation")) return img3;
+    if (n.includes("dinner")) return img4;
+    if (n.includes("engagement")) return img5;
+    if (n.includes("day")) return img6;
+    if (n.includes("workshop")) return img7;
+    if (n.includes("explore")) return img8;
+    return images[index] ?? images[0];
+  }
 
   return (
     <>
@@ -169,14 +191,28 @@ function Home() {
       lg:grid-cols-4
     "
         >
-          {titles.map((title, index) => (
-            <Categorie
-              key={index}
-              title={title}
-              image={images[index]}
-              text={texts[index]}
-            />
-          ))}
+          {isLoading ? (
+            <div className="container m-5">
+              <p>Loading categories...</p>
+            </div>
+          ) : httpError ? (
+            <div className="container m-5">
+              <p>{httpError}</p>
+            </div>
+          ) : categories.length === 0 ? (
+            <div className="container m-5">
+              <p>No categories to display.</p>
+            </div>
+          ) : (
+            categories.map((cat, index) => (
+              <Categorie
+                key={cat.id ?? index}
+                title={cat.name}
+                image={getImageForCategory(cat.name, index)}
+                text={cat.description ?? ""}
+              />
+            ))
+          )}
         </div>
       </div>
 
