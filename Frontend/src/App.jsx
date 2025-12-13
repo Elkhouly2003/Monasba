@@ -9,6 +9,7 @@ import Login from "./AuthenticationPage/Login.jsx";
 import ResetPassword from "./AuthenticationPage/ResetPassword.jsx";
 import Profile from "./Components/Profile/profile.jsx";
 import EmailVerify from "./AuthenticationPage/EmailVerify.jsx";
+import Provider from "./Components/Provider/Provider.jsx";
 
 function App() {
   const router = createBrowserRouter([
@@ -23,6 +24,7 @@ function App() {
         { path: "/search", element: <Search /> },
         { path: "place/:id", element: <SingleEventPage /> },
         { path: "/profile", element: <Profile /> },
+        { path: "/provider", element: <Provider /> },
       ],
     },
   ]);

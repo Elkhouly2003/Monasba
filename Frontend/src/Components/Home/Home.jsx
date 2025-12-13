@@ -18,7 +18,6 @@ import Categorie from "../Categorie/Categorie";
 import SearchBar from "../SearchBar/SearchBar";
 
 function Home() {
-  // descriptions will come from backend `description` field for each category
   const images = [img1, img2, img3, img4, img5, img6, img7, img8];
 
   const [categories, setCategories] = useState([]);
@@ -34,8 +33,13 @@ function Home() {
         if (!response.ok) throw new Error("Failed to fetch categories");
         const responseJson = await response.json();
         const responseData = responseJson._embedded?.categories || [];
-        const loaded = responseData.map((c) => ({ id: c.id, name: c.name, description: c.description || "", href: c._links?.self?.href }));
-        
+        const loaded = responseData.map((c) => ({
+          id: c.id,
+          name: c.name,
+          description: c.description || "",
+          href: c._links?.self?.href,
+        }));
+
         setCategories(loaded);
       } catch (err) {
         setHttpError(err.message || "Unknown error");
