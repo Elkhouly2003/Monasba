@@ -28,26 +28,26 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     final JwtUtil jwtUtil;
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
 
-//    // URLs that don't require authentication
+    //    // URLs that don't require authentication
 //    static final List<String> PUBLIC_URLS = List.of(
 //            "/login", "/register", "/send-reset-otp", "/reset-password", "/logout"
 //    );
-static final List<String> PUBLIC_URLS = List.of(
-        "/login",
-        "/register",
-        "/send-reset-otp",
-        "/reset-password",
-        "/logout",
+    static final List<String> PUBLIC_URLS = List.of(
+            "/login",
+            "/register",
+            "/send-reset-otp",
+            "/reset-password",
+            "/logout",
 
-        // Swagger
-        "/v3/api-docs/**",
-        "/swagger-ui/**",
-        "/swagger-ui.html",
-        // Search API
-        "/places/search/searchPlaces",
-        // Categories API
-        "/categories/**"
-);
+            // Swagger
+            "/v3/api-docs/",
+            "/swagger-ui/",
+            "/swagger-ui.html",
+            // Search API
+            "/places/search/searchPlaces",
+            // Categories API
+            "/categories/"
+    );
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
