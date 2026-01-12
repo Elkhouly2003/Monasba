@@ -15,7 +15,7 @@
     "@okta/okta-signin-widget": "^6.9.0",
     "@tailwindcss/postcss": "^4.1.16",
     "@tailwindcss/vite": "^4.1.14",
-    "@tanstack/react-query": "^5.90.5",
+    "@tanstack/react-query": "^5.90.16",
     "axios": "^1.13.2",
     "bootstrap": "^5.3.8",
     "flowbite": "^3.1.2",

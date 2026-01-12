@@ -1,12 +1,28 @@
+import React from "react";
 import img1 from "../../assets/icons/booking.png";
 import img2 from "../../assets/icons/bookmark.png";
 import img3 from "../../assets/icons/star.png";
 import img4 from "../../assets/icons/bell.png";
 import img5 from "../../assets//icons/sumatra-weddings.png";
 import { useState } from "react";
+import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
 
-export default function Profile() {
+const getNotifications = async (userId) => {
+  const { data } = await axios.get(
+    `http://localhost:8080/api/v1.0/notifications/user/${userId}`
+  );
+  return data;
+};
+
+export default function Profile({ userId }) {
   const [active, setActive] = useState("My Bookings");
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["notifications", userId],
+    queryFn: () => getNotifications(userId),
+    enabled: !!userId,
+  });
 
   return (
     <>
@@ -850,83 +866,33 @@ export default function Profile() {
               Mark all as read
             </button>
           </div>
-          <div className="container bg-white rounded-2xl shadow-sm p-6 space-y-4 mb-3 border border-gray-300 ">
-            <div className=" mx-4">
-              <div className="flex items-center justify-between">
+
+          {isLoading && <p className="text-center">Loading...</p>}
+          {error && (
+            <p className="text-center text-red-500">
+              Error loading notifications
+            </p>
+          )}
+
+          {data?.length === 0 && !isLoading && (
+            <p className="text-center text-gray-500">No notifications</p>
+          )}
+
+          <div className="container bg-white rounded-xl shadow-sm p-6 space-y-4 border border-gray-300">
+            {data?.map((notif) => (
+              <div
+                key={notif.id}
+                className="flex justify-between items-center border-b border-gray-200 pb-2"
+              >
                 <div>
-                  <h3 className="font-semibold text-xl">
-                    Your booking for "Wedding Gala" is confirmed!
-                  </h3>
+                  <p className="font-semibold">{notif.message}</p>
+                  <span className="text-gray-500 text-sm">
+                    {new Date(notif.createdAt).toLocaleString()}
+                  </span>
                 </div>
+                <button className="text-sm text-blue-600">View</button>
               </div>
-              <div className=" container pt-2">
-                <span className="text-(--color-steel-blue)">
-                  Event date: Oct 20, 7 PM
-                </span>
-              </div>
-              <div className="flex items-center justify-between pt-0.5">
-                <div>
-                  <p className="text-(--color-state-blue) text-xs">2h ago</p>
-                </div>
-                <div>
-                  <button className="text-white bg-neutral-800 rounded-xl text-sm py-1 px-3">
-                    View Event
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>{" "}
-          <div className="container bg-white rounded-2xl shadow-sm p-6 space-y-4 mb-3 border border-gray-300 ">
-            <div className=" mx-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-xl">
-                    Your booking for "Wedding Gala" is confirmed!
-                  </h3>
-                </div>
-              </div>
-              <div className=" container pt-2">
-                <span className="text-(--color-steel-blue)">
-                  Event date: Oct 20, 7 PM
-                </span>
-              </div>
-              <div className="flex items-center justify-between pt-0.5">
-                <div>
-                  <p className="text-(--color-state-blue) text-xs">2h ago</p>
-                </div>
-                <div>
-                  <button className="text-white bg-neutral-800 rounded-xl text-sm py-1 px-3">
-                    View Event
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>{" "}
-          <div className="container bg-white rounded-2xl shadow-sm p-6 space-y-4 mb-3 border border-gray-300 ">
-            <div className=" mx-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-xl">
-                    Your booking for "Wedding Gala" is confirmed!
-                  </h3>
-                </div>
-              </div>
-              <div className=" container pt-2">
-                <span className="text-(--color-steel-blue)">
-                  Event date: Oct 20, 7 PM
-                </span>
-              </div>
-              <div className="flex items-center justify-between pt-0.5">
-                <div>
-                  <p className="text-(--color-state-blue) text-xs">2h ago</p>
-                </div>
-                <div>
-                  <button className="text-white bg-neutral-800 rounded-xl text-sm py-1 px-3">
-                    View Event
-                  </button>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       )}
