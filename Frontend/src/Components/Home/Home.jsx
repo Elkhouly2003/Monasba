@@ -180,7 +180,10 @@ function Home() {
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl pt-6 px-3 font-bold text-gray-900">
+        <h1
+          className="text-3xl pt-6 px-3 font-bold text-gray-900"
+          id="categories"
+        >
           Categories
         </h1>
 
@@ -220,7 +223,7 @@ function Home() {
         </div>
       </div>
 
-      <div className="w-full bg-(--color-steel-blue) py-16">
+      <div id="about" className="w-full bg-(--color-steel-blue) py-16">
         <div className="container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 text-white p-5">
           <div className="flex flex-col justify-center pr-0 lg:pr-24">
             <h3 className="text-3xl font-bold mb-4">
