@@ -1,7 +1,11 @@
 import { NavLink } from "react-router-dom";
 import img1 from "../../assets/icons/LOGO.png";
+import { useUser } from "../../store/useUser";
 
 export default function Nav() {
+  const { user } = useUser();
+  console.log(user);
+
   return (
     <>
       <nav className=" border-gray-200 bg-(--color-steel-blue)">
@@ -38,7 +42,7 @@ export default function Nav() {
             </svg>
           </button>
           <div className="hidden w-full md:block md:w-auto" id="navbar-default">
-            <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border  rounded-lg md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0  dark:bg-(--color-steel-blue) ">
+            <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border  rounded-lg md:flex-row md:items-center md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0  dark:bg-(--color-steel-blue) ">
               <li>
                 <NavLink
                   to={"/"}
@@ -80,12 +84,21 @@ export default function Nav() {
                 </NavLink>
               </li>
               <li>
-                <NavLink
-                  to="/login"
-                  className="text-(--color-light-neutral) bg-(--color-state-blue) focus:outline-none font-medium rounded-full text-sm px-4 py-0.5 border-2 border-(--color-state-blue) hover:text-(--color-gold) cursor-pointer"
-                >
-                  Sign in
-                </NavLink>
+                {user ? (
+                  <NavLink
+                    to={"profile"}
+                    className="text-(--color-state-blue) min-w-12 min-h-12 flex justify-center items-center rounded-4xl bg-(--color-light-neutral) cursor-pointer"
+                  >
+                    <i class="fa-solid fa-user text-2xl"></i>
+                  </NavLink>
+                ) : (
+                  <NavLink
+                    to="/login"
+                    className="text-(--color-light-neutral) bg-(--color-state-blue) focus:outline-none font-medium rounded-full text-sm px-4 py-0.5 border-2 border-(--color-state-blue) hover:text-(--color-gold) cursor-pointer"
+                  >
+                    Sign in
+                  </NavLink>
+                )}
               </li>
             </ul>
           </div>
