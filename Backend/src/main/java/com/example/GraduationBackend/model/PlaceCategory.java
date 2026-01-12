@@ -22,8 +22,8 @@ public class PlaceCategory {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @ManyToOne
-    @JoinColumn(name = "place_id")
-    private Place place ;
+//    @ManyToOne
+//    @JoinColumn(name = "place_id")
+//    private Place place ;
 
 }

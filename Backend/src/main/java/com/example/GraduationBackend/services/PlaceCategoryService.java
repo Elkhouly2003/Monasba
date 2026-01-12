@@ -34,7 +34,7 @@ public class PlaceCategoryService {
         if (!exists) {
             PlaceCategory placeCategory = new PlaceCategory();
             placeCategory.setCategory(category);
-            placeCategory.setPlace(place);
+//            placeCategory.setPlace(place);
             placeCategoryRepository.save(placeCategory);
         }
 
