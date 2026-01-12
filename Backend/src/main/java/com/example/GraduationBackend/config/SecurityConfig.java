@@ -80,7 +80,8 @@ public class SecurityConfig {
                                 "/places/search/searchPlaces",
                                 // Categories API
                                 "/categories/**",
-                                "/users"
+                                "/users",
+                                "/places"
                         )
                         .permitAll()
 
