@@ -44,7 +44,7 @@ export default function Provider() {
 
       console.log("Done");
     } catch (err) {
-      console.error(err);
+      console.error(err.message);
     }
   };
 
