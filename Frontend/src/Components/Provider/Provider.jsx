@@ -9,10 +9,14 @@ import { useState } from "react";
 export default function Provider() {
   const [active, setActive] = useState("overview");
   const [activeTab, setActiveTab] = useState("All");
-  const [title, setTitle] = useState("");
+
+  const [placeName, setPlaceName] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("wedding");
-  const [location, setLocation] = useState("");
+  const [country, setCountry] = useState("");
+  const [phone, setPhone] = useState();
+  const [city, setCity] = useState("");
+  const [address, setAddress] = useState("");
   const [price, setPrice] = useState(0);
   const [capacity, setCapacity] = useState(0);
   const [startDate, setStartDate] = useState(0);
@@ -28,9 +32,14 @@ export default function Provider() {
 
     try {
       await postData({
-        title,
+        placeName,
         description,
+        country,
+        city,
+        address,
         price,
+        capacity,
+        phone,
       });
 
       console.log("Done");
@@ -438,8 +447,8 @@ export default function Provider() {
                   type="text"
                   placeholder="e.g. Al-Lu'lu'a Venue"
                   className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  value={placeName}
+                  onChange={(e) => setPlaceName(e.target.value)}
                 />
               </div>
 
@@ -469,14 +478,36 @@ export default function Provider() {
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Location
+                  Country
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. Egypt, Cairo"
+                  placeholder="e.g. Egypt"
                   className="w-full border border-gray-300 rounded-xl px-4 py-2"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">City</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Cairo"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-2"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Address
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Cairo"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-2"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
                 />
               </div>
               <div>
@@ -502,6 +533,16 @@ export default function Provider() {
                   className="w-full border border-gray-300 rounded-xl px-4 py-2"
                   value={capacity}
                   onChange={(e) => setCapacity(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Phone</label>
+                <input
+                  type="number"
+                  placeholder="e.g. 011111111"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-2"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
                 />
               </div>
 
