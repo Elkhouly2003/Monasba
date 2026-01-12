@@ -3,11 +3,50 @@ import img2 from "../../assets/icons/overView.png";
 import img3 from "../../assets/icons/star.png";
 import img4 from "../../assets/icons/bell.png";
 import img5 from "../../assets//icons/sumatra-weddings.png";
+import usePost from "../../hooks/usePost";
 import { useState } from "react";
 
 export default function Provider() {
   const [active, setActive] = useState("overview");
   const [activeTab, setActiveTab] = useState("All");
+
+  const [placeName, setPlaceName] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("wedding");
+  const [country, setCountry] = useState("");
+  const [phone, setPhone] = useState();
+  const [city, setCity] = useState("");
+  const [address, setAddress] = useState("");
+  const [price, setPrice] = useState(0);
+  const [capacity, setCapacity] = useState(0);
+  const [startDate, setStartDate] = useState(0);
+  const [endDate, setEndDate] = useState(0);
+  const [time, setTime] = useState("6:00");
+
+  const { postData, data, loading, error } = usePost(
+    "http://localhost:8080/api/v1.0/places"
+  );
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      await postData({
+        placeName,
+        description,
+        country,
+        city,
+        address,
+        price,
+        capacity,
+        phone,
+      });
+
+      console.log("Done");
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <>
@@ -408,6 +447,8 @@ export default function Provider() {
                   type="text"
                   placeholder="e.g. Al-Lu'lu'a Venue"
                   className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={placeName}
+                  onChange={(e) => setPlaceName(e.target.value)}
                 />
               </div>
 
@@ -430,49 +471,78 @@ export default function Provider() {
                   rows="4"
                   placeholder="Describe your event..."
                   className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                 ></textarea>
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Location
+                  Country
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. Egypt, Cairo"
+                  placeholder="e.g. Egypt"
                   className="w-full border border-gray-300 rounded-xl px-4 py-2"
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
                 />
               </div>
-
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Has Tickets
-                </label>
-                <select className="w-full border border-gray-300 rounded-xl px-4 py-2 bg-gray-100">
-                  <option>Yes</option>
-                  <option>No</option>
-                </select>
+                <label className="block text-sm font-medium mb-1">City</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Cairo"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-2"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                />
               </div>
-
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Price Per Ticket OR Price per Booking
+                  Address
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Cairo"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-2"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Booking Price
                 </label>
                 <input
                   type="number"
                   placeholder="e.g. 35"
                   className="w-full border border-gray-300 rounded-xl px-4 py-2"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Max Tickets OR Capacity
+                  Capacity
                 </label>
                 <input
                   type="number"
                   placeholder="e.g. 200"
                   className="w-full border border-gray-300 rounded-xl px-4 py-2"
+                  value={capacity}
+                  onChange={(e) => setCapacity(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Phone</label>
+                <input
+                  type="number"
+                  placeholder="e.g. 011111111"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-2"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
                 />
               </div>
 
@@ -483,6 +553,8 @@ export default function Provider() {
                 <input
                   type="date"
                   className="w-full border border-gray-300 rounded-xl px-4 py-2"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
                 />
               </div>
 
@@ -493,6 +565,8 @@ export default function Provider() {
                 <input
                   type="date"
                   className="w-full border border-gray-300 rounded-xl px-4 py-2"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
                 />
               </div>
 
@@ -522,7 +596,10 @@ export default function Provider() {
               <button className="px-5 py-2 rounded-xl bg-gray-500 text-white">
                 Preview Event
               </button>
-              <button className="px-5 py-2 rounded-xl bg-(--color-dark-navy) text-white">
+              <button
+                onClick={(e) => handleSubmit(e)}
+                className="px-5 py-2 rounded-xl bg-(--color-dark-navy) text-white"
+              >
                 Publish Event
               </button>
             </div>

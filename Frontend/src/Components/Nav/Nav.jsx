@@ -41,7 +41,7 @@ export default function Nav() {
             <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border  rounded-lg md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0  dark:bg-(--color-steel-blue) ">
               <li>
                 <NavLink
-                  href="#"
+                  to={"/"}
                   className="block py-2 px-3  rounded-sm md:bg-transparent  md:p-0 hover:text-(--color-gold) text-(--color-light-neutral)"
                   aria-current="page"
                 >
@@ -50,7 +50,11 @@ export default function Nav() {
               </li>
               <li>
                 <NavLink
-                  href="#"
+                  onClick={() => {
+                    document.getElementById("categories")?.scrollIntoView({
+                      behavior: "smooth",
+                    });
+                  }}
                   className="block py-2 px-3 rounded-sm  md:border-0 hover:text-(--color-gold) md:p-0 text-(--color-light-neutral)"
                 >
                   Categories
@@ -58,25 +62,20 @@ export default function Nav() {
               </li>
               <li>
                 <NavLink
-                  href="#"
+                  to={"/search"}
                   className="block py-2 px-3  rounded-sm  md:p-0 text-(--color-light-neutral) hover:text-(--color-gold)"
                 >
-                  Browe Events
+                  Browse Events
                 </NavLink>
               </li>
-              <li>
-                <NavLink
-                  href="#"
-                  className="block py-2 px-3 rounded-sm  md:border-0 hover:text-(--color-gold) md:p-0 text-(--color-light-neutral)"
-                >
-                  Exclusive Offers
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  href="#"
-                  className="block py-2 px-3 rounded-sm  md:border-0 hover:text-(--color-gold) md:p-0 text-(--color-light-neutral)"
-                >
+              <li
+                onClick={() => {
+                  document.getElementById("about")?.scrollIntoView({
+                    behavior: "smooth",
+                  });
+                }}
+              >
+                <NavLink className="block py-2 px-3 rounded-sm  md:border-0 hover:text-(--color-gold) md:p-0 text-(--color-light-neutral)">
                   About
                 </NavLink>
               </li>
