@@ -10,8 +10,11 @@ import ResetPassword from "./AuthenticationPage/ResetPassword.jsx";
 import Profile from "./Components/Profile/profile.jsx";
 import EmailVerify from "./AuthenticationPage/EmailVerify.jsx";
 import Provider from "./Components/Provider/Provider.jsx";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 function App() {
+  const queryClient = new QueryClient();
+
   const router = createBrowserRouter([
     { path: "/login", element: <Login /> },
     { path: "/reset-password", element: <ResetPassword /> },
@@ -30,8 +33,10 @@ function App() {
   ]);
   return (
     <>
-      <RouterProvider router={router} />
-      <ToastContainer />
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+        <ToastContainer />
+      </QueryClientProvider>
     </>
   );
 }
