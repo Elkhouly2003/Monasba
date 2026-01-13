@@ -56,6 +56,6 @@ public class Booking {
     private Double price ;
 
     @Column(name = "status")
-    private String status ;
+    private String status  ;
 
 }

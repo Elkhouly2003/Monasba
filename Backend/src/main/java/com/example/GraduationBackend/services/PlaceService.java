@@ -37,7 +37,7 @@ public class PlaceService {
                 () -> new ResourceNotFoundException("User with id : " + ownerId + " not found")
         );
 
-        // ✅ Manual Mapping - أوضح وأأمن
+
         Place place = new Place();
         place.setPlaceName(placeRequest.getPlaceName());
         place.setAddress(placeRequest.getAddress());
@@ -103,6 +103,7 @@ public class PlaceService {
         }
 
         PlaceDTO placeDTO = new PlaceDTO() ;
+        placeDTO.setOwnerID(place.getOwner().getUserId());
         placeDTO.setPlaceName(place.getPlaceName());
         placeDTO.setAddress(place.getAddress());
         placeDTO.setCity(place.getCity());
@@ -156,7 +157,7 @@ public class PlaceService {
     public void deletePlaceById(int placeId) {
         Place place = placeRepository.findById(placeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Place with id: " + placeId + " not found"));
-        place.getPlaceCategories().size();
+       // place.getPlaceCategories().size();
         placeRepository.delete(place);
     }
 
@@ -176,6 +177,8 @@ public class PlaceService {
         Optional.ofNullable(placeRequest.getPhone()).ifPresent(place::setPhone);
         Optional.ofNullable(placeRequest.getOpenTime()).ifPresent(place::setOpenTime);
         Optional.ofNullable(placeRequest.getCloseTime()).ifPresent(place::setCloseTime);
+
+        placeRepository.save(place);
     }
 
 
