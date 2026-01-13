@@ -1,19 +1,67 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 const EventCard = ({ event }) => {
+  const [userData, setUserData] = useState(null);
+  const [imageSrc, setImageSrc] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/api/v1.0/users/${event.ownerID}`
+        );
+        if (response.ok) {
+          const result = await response.json();
+          setUserData(result.data);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    const fetchImage = async () => {
+      if (event.imagesID && event.imagesID.length > 0) {
+        try {
+          const response = await fetch(
+            `http://localhost:8080/api/v1.0/imagess/${event.imagesID[0]}`
+          );
+          if (response.ok) {
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            setImageSrc(url);
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    };
+
+    fetchUser();
+    fetchImage();
+
+    return () => {
+      if (imageSrc) URL.revokeObjectURL(imageSrc);
+    };
+  }, [event.ownerID, event.imagesID, imageSrc]);
+
   return (
     <div className="bg-white text-steel-blue rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 relative group">
       <div className="absolute top-3 left-3 z-20 bg-state-blue text-light-neutral px-3 py-1 text-sm font-medium rounded-full opacity-90 backdrop-blur-sm">
-        {"category"}
+        {event.categories?.[0]}
       </div>
 
       <Link to={`/place/${event.placeId}`}>
-        <div className="overflow-hidden">
-          <img
-            className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500"
-            src={event.img || "https://picsum.photos/300/200?random=1"}
-            alt={event.placeName}
-          />
+        <div className="overflow-hidden bg-gray-200 h-56 flex items-center justify-center">
+          {imageSrc ? (
+            <img
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              src={imageSrc}
+              alt={event.placeName}
+            />
+          ) : (
+            <i className="fa-regular fa-image text-4xl text-gray-400"></i>
+          )}
         </div>
       </Link>
 
@@ -24,7 +72,7 @@ const EventCard = ({ event }) => {
           </h1>
           <div className="flex items-center gap-1">
             <i className="fa-solid fa-star text-yellow-400"></i>
-            <span className="font-medium">{4}</span>
+            <span className="font-medium">4</span>
           </div>
         </div>
 
@@ -34,8 +82,7 @@ const EventCard = ({ event }) => {
 
         <div className="flex justify-between items-center mt-4 text-sm text-gray-500">
           <div className="flex items-center gap-2">
-            <i className="fa-regular fa-calendar"></i>
-            <span>{event.date}</span>
+            {userData && <span>{userData.name}</span>}
           </div>
           <div className="flex items-center gap-2">
             <i className="fa-solid fa-location-dot"></i>

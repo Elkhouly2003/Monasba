@@ -1,5 +1,6 @@
 import EventCard from "../EventCard/EventCard";
 import Pagination from "../Pagination/Pagination";
+
 const Results = ({ events }) => {
   let pagesNum = 4;
 
@@ -23,7 +24,7 @@ const Results = ({ events }) => {
 
       <div className="mt-6 mb-8 grid gap-8 grid-cols-1 [@media(min-width:650px)_and_(max-width:764px)]:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {events.map((event) => (
-          <EventCard key={event.placeId} event={event} />
+          <EventCard key={event.placeId || event.placeName} event={event} />
         ))}
       </div>
 
