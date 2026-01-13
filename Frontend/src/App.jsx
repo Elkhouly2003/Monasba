@@ -11,6 +11,7 @@ import Profile from "./Components/Profile/profile.jsx";
 import EmailVerify from "./AuthenticationPage/EmailVerify.jsx";
 import Provider from "./Components/Provider/Provider.jsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import ProfileAdmin from "./Components/ProfileAdmin/ProfileAdmin.jsx";
 
 function App() {
   const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ function App() {
         { path: "place/:id", element: <SingleEventPage /> },
         { path: "/profile", element: <Profile /> },
         { path: "/provider", element: <Provider /> },
+        { path: "/admin", element: <ProfileAdmin /> },
       ],
     },
   ]);

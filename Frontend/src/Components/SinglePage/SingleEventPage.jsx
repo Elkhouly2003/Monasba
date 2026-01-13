@@ -7,6 +7,7 @@ import { useState } from "react";
 const SingleEventPage = () => {
   const { id } = useParams();
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [active, setActive] = useState("");
 
   const event = {
     id: 1,
@@ -108,7 +109,10 @@ const SingleEventPage = () => {
           </div>
         </div>
         <div className="flex justify-center items-center gap-5 mt-16">
-          <button className="bg-state-blue px-12 py-3 text-white font-bold text-base md:text-xl rounded-2xl">
+          <button
+            onClick={() => setActive("Request")}
+            className="bg-state-blue px-12 py-3 text-white font-bold text-base md:text-xl rounded-2xl cursor-pointer"
+          >
             Request Booking
           </button>
           <button className="bg-white border-2 border-state-blue px-12 py-3 text-state-blue font-bold text-base md:text-xl rounded-2xl">
@@ -117,6 +121,65 @@ const SingleEventPage = () => {
         </div>
         <div className="hidden">Hidden Booking</div>
       </div>
+
+      {active === "Request" && (
+        <div className="container bg-white p-4 sm:p-6 rounded-2xl shadow-sm mt-6 sm:mt-10 pb-8 sm:pb-10">
+          <div className="flex justify-between items-center mb-4 sm:mb-6">
+            <h2 className="font-bold text-xl sm:text-2xl">Booking Details</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            <div className="md:col-span-2">
+              <label className="block text-xs sm:text-sm font-medium mb-1">
+                Select Date
+              </label>
+              <input
+                type="date"
+                className="w-full border border-gray-300 rounded-xl px-3 sm:px-4 py-2 text-sm"
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-xs sm:text-sm font-medium mb-1">
+                Number of Tickets
+              </label>
+              <input
+                type="number"
+                placeholder="1"
+                className="w-full border border-gray-300 rounded-xl px-3 sm:px-4 py-2 text-sm"
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-xs sm:text-sm font-medium mb-1">
+                Select Time Slot
+              </label>
+              <select className="w-full border border-gray-300 rounded-xl px-3 sm:px-4 py-2 bg-gray-100 text-sm">
+                <option>6:00 PM - 10:00 PM</option>
+                <option>8:00 PM - 12:00 AM</option>
+              </select>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-xs sm:text-sm font-medium mb-1">
+                Special Requests (Optional)
+              </label>
+              <textarea
+                rows="3"
+                placeholder="e.g Wheelchair access, Parking, etc"
+                className="w-full border border-gray-300 rounded-xl px-3 sm:px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              ></textarea>
+            </div>
+          </div>
+
+          <div className="flex justify-center mt-6 sm:mt-8">
+            <button className="bg-state-blue w-full sm:w-auto px-6 py-2 rounded-xl text-white text-sm sm:text-base">
+              Booking Now
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="mt-10">
         <div className="flex justify-between items-center">
           <h2 className="text-dark-navy font-bold text-2xl sm:text-3xl">
