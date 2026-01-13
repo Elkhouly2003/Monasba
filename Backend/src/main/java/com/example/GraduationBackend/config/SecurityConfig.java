@@ -87,7 +87,9 @@ public class SecurityConfig {
                                 "/places/*",
                                 "/place/*",
                                 "/places/*/images",
-                                "/reviews/**"
+                                "/reviews/**",
+                                "/imagess/**",
+                                "/placess/**"
                         )
                         .permitAll()
 

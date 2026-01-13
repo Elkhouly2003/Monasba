@@ -45,7 +45,8 @@ public class AuthController {
 
             // Generate JWT token
             final String jwtToken = jwtUtil.generateToken(userDetails);
-
+            // Get userId from ProfileService
+            Integer userId = profileService.getUserIdByEmail(request.getEmail());
             // Create HTTP-only cookie with JWT
             ResponseCookie cookie = ResponseCookie.from("jwt", jwtToken)
                     .httpOnly(true) // prevent JS access
@@ -57,7 +58,7 @@ public class AuthController {
             // Return JWT in cookie and in response body
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .body(new AuthResponse(request.getEmail(), jwtToken));
+                    .body(new AuthResponse(request.getEmail(), jwtToken, userId));
 
         } catch (BadCredentialsException ex) {
             // Wrong email or password
@@ -88,7 +89,7 @@ public class AuthController {
     }
     @GetMapping("/is-authenticated")
     public ResponseEntity<Boolean> isAuthenticated(@CurrentSecurityContext(expression = "authentication?.name")String email){
-            return ResponseEntity.ok(email!=null);
+        return ResponseEntity.ok(email!=null);
     }
     @PostMapping("/send-reset-otp")
     public void sendRestOtp(@RequestParam String email){
@@ -126,11 +127,11 @@ public class AuthController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Missing details");
 
         }
-       try{
-           profileService.verifyOtp(email,request.get("otp").toString());
-       }catch (Exception e){
-           throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
-       }
+        try{
+            profileService.verifyOtp(email,request.get("otp").toString());
+        }catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,e.getMessage());
+        }
     }
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletResponse response){

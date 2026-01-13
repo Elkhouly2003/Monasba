@@ -15,7 +15,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/images")
+@RequestMapping("/imagess")
 @RequiredArgsConstructor
 public class ImageController {
     private final ImageService imageService;
@@ -45,21 +45,14 @@ public class ImageController {
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Success", images));
     }
 
-    @GetMapping("/place/{placeId}")
-    public ResponseEntity<ApiResponse> getImagesByPlaceId(@PathVariable int placeId) {
-        List<Image> images = imageService.getImagesByPlaceId(placeId);
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Success", images));
-    }
-
-
     @PostMapping("/{userId}")
     public ResponseEntity<ApiResponse> uploadProfileImage(@RequestParam MultipartFile file, @PathVariable int userId) {
         imageService.uploadUserImage(file, userId);
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Success !", "Profile Image Uploaded Successfully"));
     }
 
-    @PostMapping("/place/{placeId}")
-    public ResponseEntity<ApiResponse> uploadImagesForPlace(@RequestParam List<MultipartFile> files, @PathVariable int placeId) {
+    @PostMapping
+    public ResponseEntity<ApiResponse> uploadImagesForPlace(@RequestParam List<MultipartFile> files, @RequestParam int placeId) {
         imageService.uploadPlaceImages(files, placeId);
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Success", "images uploaded successfully"));
     }

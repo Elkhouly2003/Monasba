@@ -1,13 +1,14 @@
 package com.example.GraduationBackend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.sql.Blob;
-
 
 @Setter
 @Getter
@@ -29,6 +30,8 @@ public class Image {
     private String fileType ;
 
     @Lob
+    @JsonIgnore   // ✅ تجاهل Blob عند تحويل JSON → حل مشكلة Type definition error
+    @Schema(type = "string", format = "binary", description = "يرجى اختيار ملف الصورة من جهازك")
     private Blob image ;
 
     @Column(name = "image_url")
@@ -36,7 +39,6 @@ public class Image {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "place_id")
+    @JsonIgnore   // ✅ منع loop مع Place
     private Place place ;
-
-
 }

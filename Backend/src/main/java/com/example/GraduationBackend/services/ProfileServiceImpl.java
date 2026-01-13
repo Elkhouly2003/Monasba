@@ -20,9 +20,9 @@ public class ProfileServiceImpl implements ProfileService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
-   public ProfileResponse createProfile(ProfileRequest request) {
+    public ProfileResponse createProfile(ProfileRequest request) {
         User newUserProfile=convertToUserEntity(request);
-        if (!userRepository.existsByEmail(request.getEmail())) {
+        if (!userRepository.    existsByEmail(request.getEmail())) {
             newUserProfile = userRepository.save(newUserProfile);
             return convertToProfileResponse(newUserProfile);
         }
@@ -32,9 +32,9 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public ProfileResponse getProfile(String email) {
-       User existingUser= userRepository.findByEmail(email)
-               .orElseThrow(()->new UsernameNotFoundException("User not found: "+email));
-       return convertToProfileResponse(existingUser);
+        User existingUser= userRepository.findByEmail(email)
+                .orElseThrow(()->new UsernameNotFoundException("User not found: "+email));
+        return convertToProfileResponse(existingUser);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class ProfileServiceImpl implements ProfileService {
             throw new RuntimeException("Unable to send email");
 
         }
-   }
+    }
 
     @Override
     public void restPassword(String email, String otp, String newPassword) {
@@ -124,6 +124,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     private ProfileResponse convertToProfileResponse(User newUserProfile) {
         return ProfileResponse.builder()
+                .userId(newUserProfile.getUserId())
                 .name(newUserProfile.getName())
                 .email(newUserProfile.getEmail())
                 .isAccountVerified(newUserProfile.getIsAccountVerified())
@@ -132,7 +133,7 @@ public class ProfileServiceImpl implements ProfileService {
 
 
     private User convertToUserEntity(ProfileRequest request) {
-      return   User.builder()
+        return   User.builder()
                 .email(request.getEmail())
                 .name(request.getName())
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -143,5 +144,10 @@ public class ProfileServiceImpl implements ProfileService {
                 .resetOtp(null)
                 .build();
 
+    }
+    @Override
+    public Integer getUserIdByEmail(String email) {
+        return userRepository.findIdByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 }

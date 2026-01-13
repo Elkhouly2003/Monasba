@@ -77,7 +77,11 @@ public class ImageService {
 
                 Image savedImage = imageRepository.save(image);
 
-                String imageUrl = "api/v1/images/" + savedImage.getId();
+//                String imageUrl = "api/v1.0/imagess/" + savedImage.getId();
+//                image.setImageUrl(imageUrl);
+
+                String baseUrl = "http://localhost:8080/";
+                String imageUrl = baseUrl + "api/v1.0/imagess/" + savedImage.getId();
                 image.setImageUrl(imageUrl);
 
                 imageRepository.save(image);
@@ -103,10 +107,6 @@ public class ImageService {
         } catch (SQLException | IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public List<Image> getImagesByPlaceId(Integer placeId){
-        return imageRepository.findByPlacePlaceId(placeId);
     }
 
 

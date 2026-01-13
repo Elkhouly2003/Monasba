@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class ProfileResponse {
+    private Integer userId;
     private String name;
     private String email;
     private Boolean isAccountVerified;
