@@ -27,7 +27,7 @@ public class PlaceController {
 
     @GetMapping()
     public ResponseEntity<ApiResponse> getAllPlaces() {
-        List<Place> places = placeService.getAllPlaces();
+        List<PlaceDTO> places = placeService.getAllPlaces();
 
         if (places.isEmpty()) {
             return ResponseEntity.noContent().build();
@@ -41,7 +41,6 @@ public class PlaceController {
         PlaceDTO place = placeService.getPlaceDTOById(placeId);
         return ResponseEntity.ok(new ApiResponse("Success", place));
     }
-
     @DeleteMapping("/{placeId}")
     public ResponseEntity<ApiResponse> deletePlace(@PathVariable int placeId) {
         placeService.deletePlaceById(placeId);

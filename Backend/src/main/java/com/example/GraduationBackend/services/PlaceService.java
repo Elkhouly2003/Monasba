@@ -79,8 +79,15 @@ public class PlaceService {
         }
     }
 
-    public List<Place> getAllPlaces() {
-        return placeRepository.findAll();
+    public List<PlaceDTO> getAllPlaces() {
+        List<Place> places = placeRepository.findAll();
+        List<PlaceDTO> placeDTOs = new ArrayList<>();
+        for (Place place : places) {
+            PlaceDTO placeDTO = getPlaceDTOById(place.getPlaceId());
+            placeDTOs.add(placeDTO);
+        }
+
+        return  placeDTOs ;
     }
 
     public Place getPlaceById(int placeId) {
@@ -88,6 +95,7 @@ public class PlaceService {
                 () -> new ResourceNotFoundException("Place with id : " + placeId + "not found")
         );
     }
+
     public PlaceDTO getPlaceDTOById(int placeId) {
         Place place = placeRepository.findById(placeId).orElseThrow(null) ;
         if(place == null){

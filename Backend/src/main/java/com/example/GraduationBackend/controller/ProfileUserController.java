@@ -1,5 +1,6 @@
 package com.example.GraduationBackend.controller;
 
+import com.example.GraduationBackend.dto.UserDTO;
 import com.example.GraduationBackend.dto.response.ApiResponse;
 import com.example.GraduationBackend.io.ProfileRequest;
 import com.example.GraduationBackend.io.ProfileResponse;
@@ -33,7 +34,7 @@ public class ProfileUserController {
    }
     @GetMapping("users/{userId}")
     public ResponseEntity<ApiResponse> getUser(@PathVariable Integer userId) {
-        User user = userService.getUserById(userId);
+        UserDTO user = userService.getUserDtoById(userId);
         return ResponseEntity.ok(new ApiResponse("Success !", user));
     }
 }
