@@ -5,21 +5,22 @@ import { toast } from "react-toastify";
 import { useUser } from "../../store/useUser";
 
 export const AppContext = createContext();
+
 export const AppContextProvider = (props) => {
   const { setUser } = useUser();
   axios.defaults.withCredentials = true;
   const backendUrl = AppConstants.BACKEND_URL;
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState(false);
+
   const getUserData = async () => {
-    // Function to fetch user data from backend
     try {
       const response = await axios.get(backendUrl + "/profile");
       if (response.status === 200) {
         setUserData(response.data);
         setUser(response.data);
       } else {
-        toast.error("Unable to retrieve user profile ");
+        toast.error("Unable to retrieve user profile");
       }
     } catch (error) {
       toast.error(error.message);
@@ -34,9 +35,24 @@ export const AppContextProvider = (props) => {
         await getUserData();
       } else {
         setIsLoggedIn(false);
+        setUser(null);
       }
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      const response = await axios.post(backendUrl + "/logout");
+      if (response.status === 200) {
+        setIsLoggedIn(false);
+        setUserData(null);
+        setUser(null);
+        toast.success("Logged out successfully");
+      }
+    } catch (error) {
+      toast.error(error.message);
     }
   };
 
@@ -51,6 +67,7 @@ export const AppContextProvider = (props) => {
     userData,
     setUserData,
     getUserData,
+    logout,
   };
 
   return (
@@ -59,4 +76,5 @@ export const AppContextProvider = (props) => {
     </AppContext.Provider>
   );
 };
+
 export default AppContextProvider;

@@ -1,21 +1,22 @@
 import { NavLink } from "react-router-dom";
 import img1 from "../../assets/icons/LOGO.png";
 import { useUser } from "../../store/useUser";
-import { use } from "react";
+import { useContext } from "react";
+import { AppContext } from "../../AuthenticationPage/context/AppContext";
 
 export default function Nav() {
-  const { user, setUser } = useUser();
-  console.log(user);
+  const { user } = useUser();
+  const { logout } = useContext(AppContext);
 
   return (
     <>
-      <nav className=" border-gray-200 bg-(--color-steel-blue)">
-        <div className="max-w-8xl flex flex-wrap items-center justify-between mx-auto py-4 px-2 sm:px-4 ">
+      <nav className="border-gray-200 bg-(--color-steel-blue)">
+        <div className="max-w-8xl flex flex-wrap items-center justify-between mx-auto py-4 px-2 sm:px-4">
           <NavLink
-            href="https://flowbite.com/"
+            to="/home"
             className="flex items-center space-x-3 rtl:space-x-reverse"
           >
-            <img src={img1} className="h-8" alt="Flowbite Logo" />
+            <img src={img1} className="h-8" alt="Logo" />
             <span className="self-center text-2xl font-semibold whitespace-nowrap text-(--color-gold)"></span>
           </NavLink>
           <button
@@ -43,33 +44,32 @@ export default function Nav() {
             </svg>
           </button>
           <div className="hidden w-full md:block md:w-auto" id="navbar-default">
-            <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border  rounded-lg md:flex-row md:items-center md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0  dark:bg-(--color-steel-blue) ">
+            <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border rounded-lg md:flex-row md:items-center md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 dark:bg-(--color-steel-blue)">
               <li>
                 <NavLink
-                  to={"/home"}
-                  className="block py-2 px-3  rounded-sm md:bg-transparent  md:p-0 hover:text-(--color-gold) text-(--color-light-neutral)"
-                  aria-current="page"
+                  to="/home"
+                  className="block py-2 px-3 rounded-sm md:bg-transparent md:p-0 hover:text-(--color-gold) text-(--color-light-neutral)"
                 >
                   Home
                 </NavLink>
               </li>
               <li>
                 <NavLink
-                  to={"/home"}
+                  to="/home"
                   onClick={() => {
                     document.getElementById("categories")?.scrollIntoView({
                       behavior: "smooth",
                     });
                   }}
-                  className="block py-2 px-3 rounded-sm  md:border-0 hover:text-(--color-gold) md:p-0 text-(--color-light-neutral)"
+                  className="block py-2 px-3 rounded-sm md:border-0 hover:text-(--color-gold) md:p-0 text-(--color-light-neutral)"
                 >
                   Categories
                 </NavLink>
               </li>
               <li>
                 <NavLink
-                  to={"/search"}
-                  className="block py-2 px-3  rounded-sm  md:p-0 text-(--color-light-neutral) hover:text-(--color-gold)"
+                  to="/search"
+                  className="block py-2 px-3 rounded-sm md:p-0 text-(--color-light-neutral) hover:text-(--color-gold)"
                 >
                   Browse Events
                 </NavLink>
@@ -81,36 +81,32 @@ export default function Nav() {
                   });
                 }}
               >
-                <NavLink className="block py-2 px-3 rounded-sm  md:border-0 hover:text-(--color-gold) md:p-0 text-(--color-light-neutral)">
+                <NavLink className="block py-2 px-3 rounded-sm md:border-0 hover:text-(--color-gold) md:p-0 text-(--color-light-neutral)">
                   About
                 </NavLink>
               </li>
               <li>
                 {user ? (
-                  <>
-                    <NavLink
-                      to="/profile"
-                      className="text-(--color-state-blue) min-w-12 min-h-12 flex justify-center items-center rounded-4xl bg-(--color-light-neutral) cursor-pointer"
-                    >
-                      <i class="fa-solid fa-user text-2xl"></i>
-                    </NavLink>
-                  </>
+                  <NavLink
+                    to="/profile"
+                    className="text-(--color-state-blue) min-w-12 min-h-12 flex justify-center items-center rounded-4xl bg-(--color-light-neutral) cursor-pointer"
+                  >
+                    <i className="fa-solid fa-user text-2xl"></i>
+                  </NavLink>
                 ) : (
-                  <>
-                    <NavLink
-                      to="/login"
-                      className="text-(--color-light-neutral) bg-(--color-state-blue) focus:outline-none font-medium rounded-full text-sm px-4 py-0.5 border-2 border-(--color-state-blue) hover:text-(--color-gold) cursor-pointer"
-                    >
-                      Sign in
-                    </NavLink>
-                  </>
+                  <NavLink
+                    to="/login"
+                    className="text-(--color-light-neutral) bg-(--color-state-blue) focus:outline-none font-medium rounded-full text-sm px-4 py-0.5 border-2 border-(--color-state-blue) hover:text-(--color-gold) cursor-pointer"
+                  >
+                    Sign in
+                  </NavLink>
                 )}
               </li>
               <li>
                 {user ? (
                   <button
-                    onClick={() => setUser(null)}
-                    className=" cursor-pointer block py-2 px-3 text-gray-900 rounded-sm hover:bg-red-100 md:hover:bg-transparent md:border-0 md:hover:text-red-700 md:p-0 dark:text-white md:dark:hover:text-red-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
+                    onClick={logout}
+                    className="cursor-pointer block py-2 px-3 text-white rounded-sm hover:text-red-500 md:p-0"
                   >
                     Log Out
                   </button>
