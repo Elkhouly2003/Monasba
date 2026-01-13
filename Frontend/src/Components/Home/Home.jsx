@@ -16,6 +16,7 @@ import img14 from "../../assets/icons/Star_Filled_Icon.png";
 import img15 from "../../assets/icons/sumatra-weddings.png";
 import Categorie from "../Categorie/Categorie";
 import SearchBar from "../SearchBar/SearchBar";
+import Nav from "../Nav/Nav";
 
 function Home() {
   const images = [img1, img2, img3, img4, img5, img6, img7, img8];
@@ -67,6 +68,7 @@ function Home() {
 
   return (
     <>
+      <Nav />
       <div className="w-full py-10">
         <div className="container mx-auto mb-6 pl-5">
           <h2 className="font-bold text-2xl">Recommended for You</h2>

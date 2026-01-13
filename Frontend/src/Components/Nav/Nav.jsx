@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import img1 from "../../assets/icons/LOGO.png";
 import { useUser } from "../../store/useUser";
+import { use } from "react";
 
 export default function Nav() {
   const { user } = useUser();
@@ -45,7 +46,7 @@ export default function Nav() {
             <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border  rounded-lg md:flex-row md:items-center md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0  dark:bg-(--color-steel-blue) ">
               <li>
                 <NavLink
-                  to={"/"}
+                  to={"/home"}
                   className="block py-2 px-3  rounded-sm md:bg-transparent  md:p-0 hover:text-(--color-gold) text-(--color-light-neutral)"
                   aria-current="page"
                 >
@@ -54,6 +55,7 @@ export default function Nav() {
               </li>
               <li>
                 <NavLink
+                  to={"/home"}
                   onClick={() => {
                     document.getElementById("categories")?.scrollIntoView({
                       behavior: "smooth",
@@ -85,20 +87,31 @@ export default function Nav() {
               </li>
               <li>
                 {user ? (
-                  <NavLink
-                    to={"profile"}
-                    className="text-(--color-state-blue) min-w-12 min-h-12 flex justify-center items-center rounded-4xl bg-(--color-light-neutral) cursor-pointer"
-                  >
-                    <i class="fa-solid fa-user text-2xl"></i>
-                  </NavLink>
+                  <>
+                    <NavLink
+                      to="/profile"
+                      className="text-(--color-state-blue) min-w-12 min-h-12 flex justify-center items-center rounded-4xl bg-(--color-light-neutral) cursor-pointer"
+                    >
+                      <i class="fa-solid fa-user text-2xl"></i>
+                    </NavLink>
+                  </>
                 ) : (
-                  <NavLink
-                    to="/login"
-                    className="text-(--color-light-neutral) bg-(--color-state-blue) focus:outline-none font-medium rounded-full text-sm px-4 py-0.5 border-2 border-(--color-state-blue) hover:text-(--color-gold) cursor-pointer"
-                  >
-                    Sign in
-                  </NavLink>
+                  <>
+                    <NavLink
+                      to="/login"
+                      className="text-(--color-light-neutral) bg-(--color-state-blue) focus:outline-none font-medium rounded-full text-sm px-4 py-0.5 border-2 border-(--color-state-blue) hover:text-(--color-gold) cursor-pointer"
+                    >
+                      Sign in
+                    </NavLink>
+                  </>
                 )}
+              </li>
+              <li>
+                {user ? (
+                  <button className=" cursor-pointer block py-2 px-3 text-gray-900 rounded-sm hover:bg-red-100 md:hover:bg-transparent md:border-0 md:hover:text-red-700 md:p-0 dark:text-white md:dark:hover:text-red-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">
+                    Log Out
+                  </button>
+                ) : null}
               </li>
             </ul>
           </div>
