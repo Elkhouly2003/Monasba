@@ -3,6 +3,7 @@ package com.example.GraduationBackend.io;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,11 +15,22 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class ProfileRequest {
-   @NotBlank(message = "Name should be not empty")
+
+    @NotBlank(message = "Name should not be empty")
     private String name;
-   @Email(message = "Enter valid email address")
-   @NotNull(message = "Email should be not empty")
+
+    @Email(message = "Enter valid email address")
+    @NotNull(message = "Email should not be empty")
     private String email;
-   @Size(min=6,message = "password must be at least 6 characters")
+
+    @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
+
+    @NotBlank(message = "Role should not be empty")
+    @Pattern(
+            regexp = "user|provider|admin",
+            flags = Pattern.Flag.CASE_INSENSITIVE,
+            message = "Role must be one of 'user', 'provider', or 'admin'"
+    )
+    private String role;
 }

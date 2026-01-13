@@ -125,6 +125,7 @@ public class ProfileServiceImpl implements ProfileService {
     private ProfileResponse convertToProfileResponse(User newUserProfile) {
         return ProfileResponse.builder()
                 .userId(newUserProfile.getUserId())
+                .role(newUserProfile.getRole())
                 .name(newUserProfile.getName())
                 .email(newUserProfile.getEmail())
                 .isAccountVerified(newUserProfile.getIsAccountVerified())
@@ -136,6 +137,7 @@ public class ProfileServiceImpl implements ProfileService {
         return   User.builder()
                 .email(request.getEmail())
                 .name(request.getName())
+                .role(request.getRole())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .isAccountVerified(false)
                 .resetOtpExpireAt(0L)
