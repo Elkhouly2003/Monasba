@@ -105,5 +105,9 @@ public class ImageService {
         }
     }
 
+    public List<Image> getImagesByPlaceId(Integer placeId){
+        return imageRepository.findByPlacePlaceId(placeId);
+    }
+
 
 }

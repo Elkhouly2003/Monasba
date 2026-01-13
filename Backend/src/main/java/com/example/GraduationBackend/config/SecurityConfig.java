@@ -2,7 +2,7 @@ package com.example.GraduationBackend.config;
 
 
 import com.example.GraduationBackend.filter.JwtRequestFilter;
-import com.example.GraduationBackend.model.Category;
+import com.example.GraduationBackend.model.*;
 import com.example.GraduationBackend.services.AppUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -55,7 +55,7 @@ public class SecurityConfig {
                                                              CorsRegistry cors) {
 
                 // اظهار IDs للـ entities
-                config.exposeIdsFor( Category.class);
+                config.exposeIdsFor( Category.class, Place.class, Booking.class, Review.class, User.class, Notification.class, Image.class, PlaceCategory.class, Services.class, ServiceProviders.class);
 
                 // ممكن كمان تعمل CORS لو حابب
                 cors.addMapping("/**").allowedOrigins("http://localhost:3000");
@@ -81,7 +81,13 @@ public class SecurityConfig {
                                 // Categories API
                                 "/categories/**",
                                 "/users",
-                                "/places"
+                                "/users/*"
+                                ,
+                                "/places",
+                                "/places/*",
+                                "/place/*",
+                                "/places/*/images",
+                                "/reviews/**"
                         )
                         .permitAll()
 

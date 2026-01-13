@@ -1,10 +1,32 @@
 import { useState } from "react";
-
-const ReviewForm = () => {
+const ReviewForm = (id) => {
   const [rate, setRate] = useState(0);
   const [hover, setHover] = useState(0);
   const [comment, setComment] = useState("");
 
+  const handleSubmit = async () => {
+    if (rate === 0 || comment.trim() === "") {
+      alert("Please add rating and comment");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("rating", rate);
+    formData.append("comment", comment);
+
+    try {
+      await fetch(
+        `http://localhost:8080/api/v1.0/reviews?placeId=${2}&userId=${2}`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      setRate(0);
+      setComment("");
+    } catch (err) {
+      console.error("Error:", err);
+    }
+  };
   return (
     <div className="mt-8 p-4 bg-white rounded-2xl shadow-xl">
       <div className="flex gap-3 items-center mb-4">
@@ -37,7 +59,10 @@ const ReviewForm = () => {
       </div>
 
       <div className="text-right">
-        <button className="px-4 py-2 bg-state-blue text-white rounded-xl font-semibold">
+        <button
+          onClick={handleSubmit}
+          className="px-4 py-2 bg-state-blue text-white rounded-xl font-semibold"
+        >
           Submit
         </button>
       </div>

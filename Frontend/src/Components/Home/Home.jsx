@@ -16,7 +16,6 @@ import img14 from "../../assets/icons/Star_Filled_Icon.png";
 import img15 from "../../assets/icons/sumatra-weddings.png";
 import Categorie from "../Categorie/Categorie";
 import SearchBar from "../SearchBar/SearchBar";
-import { useUser } from "../../store/useUser";
 
 function Home() {
   const images = [img1, img2, img3, img4, img5, img6, img7, img8];
@@ -24,9 +23,6 @@ function Home() {
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [httpError, setHttpError] = useState(null);
-
-  const { user } = useUser();
-  console.log(user);
 
   useEffect(() => {
     const fetchCategories = async () => {
