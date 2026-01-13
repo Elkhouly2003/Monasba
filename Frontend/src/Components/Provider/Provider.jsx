@@ -6,6 +6,7 @@ import img5 from "../../assets//icons/sumatra-weddings.png";
 import usePost from "../../hooks/usePost";
 import { useState } from "react";
 import { useUser } from "../../store/useUser";
+import Nav from "../Nav/Nav";
 export default function Provider() {
   const [active, setActive] = useState("overview");
   const [activeTab, setActiveTab] = useState("All");
@@ -84,6 +85,7 @@ export default function Provider() {
 
   return (
     <>
+      <Nav />
       <div className="w-full bg-(--color-dark-navy)">
         <div className=" container pt-10 pb-10">
           <form className="max-w-sm mx-auto space-y-4">

@@ -30,9 +30,9 @@ function App() {
         { path: "/home", element:<Home /> },
         { path: "/search", element: <Search /> },
         { path: "place/:id", element:<Guard><SingleEventPage /></Guard> },
-        { path: "/profile", element: <Profile /> },
-        { path: "/provider", element: <Provider /> },
-        { path: "/admin", element: <ProfileAdmin /> },
+        { path: "/profile", element:<Guard><Profile /></Guard> },
+        { path: "/provider", element: <Guard><Provider /></Guard> },
+        { path: "/admin", element:  <Guard><ProfileAdmin /></Guard> },
         { path: "*", element: <NotFound /> },
 
       ],
