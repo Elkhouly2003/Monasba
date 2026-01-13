@@ -5,44 +5,78 @@ import img4 from "../../assets/icons/bell.png";
 import img5 from "../../assets//icons/sumatra-weddings.png";
 import usePost from "../../hooks/usePost";
 import { useState } from "react";
-
+import { useUser } from "../../store/useUser";
 export default function Provider() {
   const [active, setActive] = useState("overview");
   const [activeTab, setActiveTab] = useState("All");
 
   const [placeName, setPlaceName] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("wedding");
+  const [categories, setCategories] = useState([]);
   const [country, setCountry] = useState("");
   const [phone, setPhone] = useState();
   const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
   const [price, setPrice] = useState(0);
   const [capacity, setCapacity] = useState(0);
-  const [startDate, setStartDate] = useState(0);
-  const [endDate, setEndDate] = useState(0);
-  const [time, setTime] = useState("6:00");
+  const [openingTime, setOpeningTime] = useState("");
+  const [closeTime, setCloseTime] = useState("");
+  const [images, setImages] = useState([]);
 
-  const { postData, data, loading, error } = usePost(
-    "http://localhost:8080/api/v1.0/places"
-  );
+  const { user } = useUser();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      await postData({
-        placeName,
-        description,
-        country,
-        city,
-        address,
-        price,
-        capacity,
-        phone,
-      });
+    if (!user || (!user.userId && !user.id)) {
+      alert("User session not found.");
+      return;
+    }
 
-      console.log("Done");
+    const userId = user.userId || user.id;
+    const formData = new FormData();
+
+    formData.append("placeName", placeName);
+    formData.append("description", description);
+    formData.append("country", country);
+    formData.append("city", city);
+    formData.append("address", address);
+    formData.append("price", price);
+    formData.append("capacity", capacity);
+    formData.append("phone", phone);
+
+    const formatTime = (timeStr) => {
+      if (!timeStr) return "00:00";
+      return timeStr.includes(":") ? timeStr : `${timeStr}:00`;
+    };
+
+    formData.append("openTime", formatTime(openingTime));
+    formData.append("closeTime", formatTime(closeTime));
+
+    categories.forEach((cat) => {
+      formData.append("categories", cat);
+    });
+
+    images.forEach((img) => {
+      formData.append("images", img);
+    });
+
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/v1.0/placess?ownerId=${userId}`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log(result);
+      } else {
+        const errorData = await response.json();
+        console.error(errorData);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -452,15 +486,34 @@ export default function Provider() {
                 />
               </div>
 
-              <div>
+              <div className="md:col-span-1">
                 <label className="block text-sm font-medium mb-1">
-                  Category
+                  Categories
                 </label>
-                <select className="w-full border border-gray-300 rounded-xl px-4 py-2 bg-gray-100 focus:outline-none">
-                  <option>Wedding</option>
-                  <option>Birthday</option>
-                  <option>Conference</option>
-                </select>
+                <div className="flex flex-wrap gap-3 p-2 border border-gray-300 rounded-xl bg-gray-50">
+                  {["Wedding", "Birthday", "Party"].map((cat) => (
+                    <label
+                      key={cat}
+                      className="flex items-center space-x-2 cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        className="rounded border-gray-300 text-cyan-900 focus:ring-cyan-900"
+                        checked={categories.includes(cat)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setCategories([...categories, cat]);
+                          } else {
+                            setCategories(
+                              categories.filter((item) => item !== cat)
+                            );
+                          }
+                        }}
+                      />
+                      <span className="text-sm">{cat}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
 
               <div className="md:col-span-2">
@@ -548,38 +601,26 @@ export default function Provider() {
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Start Date
+                  Opening Time
                 </label>
                 <input
-                  type="date"
+                  type="time"
                   className="w-full border border-gray-300 rounded-xl px-4 py-2"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
+                  value={openingTime}
+                  onChange={(e) => setOpeningTime(e.target.value)}
                 />
               </div>
-
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  End Date
+                  Closing Time
                 </label>
                 <input
-                  type="date"
+                  type="time"
                   className="w-full border border-gray-300 rounded-xl px-4 py-2"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
+                  value={closeTime}
+                  onChange={(e) => setCloseTime(e.target.value)}
                 />
               </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium mb-1">
-                  Time Slot
-                </label>
-                <select className="w-full border border-gray-300 rounded-xl px-4 py-2 bg-gray-100">
-                  <option>6:00 PM - 10:00 PM</option>
-                  <option>8:00 PM - 12:00 AM</option>
-                </select>
-              </div>
-
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium mb-1">
                   Upload Gallery
@@ -587,8 +628,15 @@ export default function Provider() {
                 <input
                   type="file"
                   multiple
+                  accept="image/*"
+                  onChange={(e) => setImages([...e.target.files])}
                   className="w-full border border-dashed border-gray-400 rounded-xl px-4 py-6 bg-gray-50"
                 />
+                {images.length > 0 && (
+                  <p className="text-xs mt-2 text-gray-500">
+                    {images.length} images selected
+                  </p>
+                )}
               </div>
             </div>
 

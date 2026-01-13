@@ -8,13 +8,12 @@ const Search = () => {
   const [places, setPlaces] = useState([]);
 
   const { data, loading, error } = useGet(
-    "http://localhost:8080/api/v1.0/places"
+    "http://localhost:8080/api/v1.0/placess"
   );
 
   useEffect(() => {
     if (data) {
-      setPlaces(data._embedded.places);
-      console.log(data._embedded.places);
+      setPlaces(data.data);
     }
   }, [data]);
 
