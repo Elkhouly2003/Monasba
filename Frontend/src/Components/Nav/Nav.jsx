@@ -4,7 +4,7 @@ import { useUser } from "../../store/useUser";
 import { use } from "react";
 
 export default function Nav() {
-  const { user } = useUser();
+  const { user, setUser } = useUser();
   console.log(user);
 
   return (
@@ -108,7 +108,10 @@ export default function Nav() {
               </li>
               <li>
                 {user ? (
-                  <button className=" cursor-pointer block py-2 px-3 text-gray-900 rounded-sm hover:bg-red-100 md:hover:bg-transparent md:border-0 md:hover:text-red-700 md:p-0 dark:text-white md:dark:hover:text-red-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">
+                  <button
+                    onClick={() => setUser(null)}
+                    className=" cursor-pointer block py-2 px-3 text-gray-900 rounded-sm hover:bg-red-100 md:hover:bg-transparent md:border-0 md:hover:text-red-700 md:p-0 dark:text-white md:dark:hover:text-red-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
+                  >
                     Log Out
                   </button>
                 ) : null}
