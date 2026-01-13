@@ -1,5 +1,6 @@
 package com.example.GraduationBackend.controller;
 
+import com.example.GraduationBackend.dto.PlaceDTO;
 import com.example.GraduationBackend.dto.request.PlaceRequest;
 import com.example.GraduationBackend.dto.response.ApiResponse;
 import com.example.GraduationBackend.model.Place;
@@ -37,7 +38,7 @@ public class PlaceController {
 
     @GetMapping("/{placeId}")
     public ResponseEntity<ApiResponse> getPlaces(@PathVariable int placeId) {
-        Place place = placeService.getPlaceById(placeId);
+        PlaceDTO place = placeService.getPlaceDTOById(placeId);
         return ResponseEntity.ok(new ApiResponse("Success", place));
     }
 
@@ -55,7 +56,7 @@ public class PlaceController {
 
     @GetMapping("owner/{ownerId}")
     public ResponseEntity<ApiResponse> getPlacesByOwnerId(@PathVariable Integer ownerId) {
-        List<Place> places = placeService.getPlacesByUserId(ownerId);
+        List<PlaceDTO> places = placeService.getPlacesByUserId(ownerId);
 
         if (places.isEmpty()) {
             return ResponseEntity.ok(new ApiResponse("no places found", null));

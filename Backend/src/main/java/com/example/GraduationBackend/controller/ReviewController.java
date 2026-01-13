@@ -1,5 +1,6 @@
 package com.example.GraduationBackend.controller;
 
+import com.example.GraduationBackend.dto.ReviewDTO;
 import com.example.GraduationBackend.dto.request.ReviewRequest;
 import com.example.GraduationBackend.dto.response.ApiResponse;
 import com.example.GraduationBackend.model.Review;
@@ -40,14 +41,14 @@ public class ReviewController {
 
     @GetMapping("user/{userId}")
     public ResponseEntity<ApiResponse> getReviewByUser(@PathVariable Integer userId) {
-        List<Review> userReviews = reviewService.getReviewsByUserId(userId);
+        List<ReviewDTO> userReviews = reviewService.getReviewsByUserId(userId);
 
         return ResponseEntity.ok(new ApiResponse("User Reviews", userReviews));
     }
 
     @GetMapping("place/{placeId}")
     public ResponseEntity<ApiResponse> getReviewsByPlace(@PathVariable Integer placeId) {
-        List<Review> userReviews = reviewService.getReviewsPlaceId(placeId);
+        List<ReviewDTO> userReviews = reviewService.getReviewsPlaceId(placeId);
 
         return ResponseEntity.ok(new ApiResponse("Place Reviews", userReviews));
     }

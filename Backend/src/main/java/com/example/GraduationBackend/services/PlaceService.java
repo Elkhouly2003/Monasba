@@ -1,14 +1,15 @@
 package com.example.GraduationBackend.services;
 
+import com.example.GraduationBackend.dto.PlaceDTO;
+import com.example.GraduationBackend.dto.request.BookingRequest;
 import com.example.GraduationBackend.dto.request.PlaceRequest;
-import com.example.GraduationBackend.model.Category;
-import com.example.GraduationBackend.model.Place;
-import com.example.GraduationBackend.model.User;
+import com.example.GraduationBackend.model.*;
 import com.example.GraduationBackend.repository.CategoryRepository;
 import com.example.GraduationBackend.repository.PlaceRepository;
 import com.example.GraduationBackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,32 +34,49 @@ public class PlaceService {
     public void addPlace(PlaceRequest placeRequest, int ownerId) {
 
         User user = userRepository.findById(ownerId).orElseThrow(
-                () -> new ResourceNotFoundException("User with id : " + ownerId + "not found")
+                () -> new ResourceNotFoundException("User with id : " + ownerId + " not found")
         );
 
-        Place place = modelMapper.map(placeRequest, Place.class);
+        // ✅ Manual Mapping - أوضح وأأمن
+        Place place = new Place();
+        place.setPlaceName(placeRequest.getPlaceName());
+        place.setAddress(placeRequest.getAddress());
+        place.setCity(placeRequest.getCity());
+        place.setCountry(placeRequest.getCountry());
+        place.setPhone(placeRequest.getPhone());
+        place.setDescription(placeRequest.getDescription());
+        place.setShortDescription(placeRequest.getShortDescription());
+        place.setCapacity(placeRequest.getCapacity());
+        place.setOpenTime(placeRequest.getOpenTime());
+        place.setCloseTime(placeRequest.getCloseTime());
+        place.setPrice(placeRequest.getPrice());
+        place.setDiscount(placeRequest.getDiscount());
+
         place.setImages(new ArrayList<>());
         place.setPlaceCategories(new ArrayList<>());
         place.setCertified(false);
         place.setOwner(user);
+
         Place savedPlace = placeRepository.save(place);
 
         List<String> categories = placeRequest.getCategories();
+        if (categories != null && !categories.isEmpty()) {
+            for (String categoryName : categories) {
+                Category category = categoryRepository.findByName(categoryName)
+                        .orElseGet(() -> {
+                            Category newCat = new Category();
+                            newCat.setName(categoryName);
+                            return categoryService.addCategory(newCat);
+                        });
 
-        for (String categoryName : categories) {
-            Category category = categoryRepository.findByName(categoryName)
-                    .orElseGet(() -> {
-                        Category newCat = new Category();
-                        newCat.setName(categoryName);
-                        return categoryService.addCategory(newCat);
-                    });
-
-
-            placeCategoryService.addPlaceCategory(savedPlace.getPlaceId(), category.getId());
+                placeCategoryService.addPlaceCategory(savedPlace.getPlaceId(), category.getId());
+            }
         }
 
-        imageService.uploadPlaceImages(placeRequest.getImages(), savedPlace.getPlaceId());
 
+        if (placeRequest.getImages() != null && !placeRequest.getImages().isEmpty()) {
+            imageService.uploadPlaceImages(placeRequest.getImages(), savedPlace.getPlaceId());
+        }
     }
 
     public List<Place> getAllPlaces() {
@@ -70,9 +88,60 @@ public class PlaceService {
                 () -> new ResourceNotFoundException("Place with id : " + placeId + "not found")
         );
     }
+    public PlaceDTO getPlaceDTOById(int placeId) {
+        Place place = placeRepository.findById(placeId).orElseThrow(null) ;
+        if(place == null){
+            throw  new ResourceNotFoundException("Place with id : " + placeId + "not found") ;
+        }
 
-    public List<Place> getPlacesByUserId(Integer userId) {
-        return placeRepository.findByOwnerUserId(userId);
+        PlaceDTO placeDTO = new PlaceDTO() ;
+        placeDTO.setPlaceName(place.getPlaceName());
+        placeDTO.setAddress(place.getAddress());
+        placeDTO.setCity(place.getCity());
+        placeDTO.setCountry(place.getCountry());
+        placeDTO.setPhone(place.getPhone());
+        placeDTO.setDescription(place.getDescription());
+        placeDTO.setShortDescription(place.getShortDescription());
+        placeDTO.setCapacity(place.getCapacity());
+        placeDTO.setOpenTime(place.getOpenTime());
+        placeDTO.setCloseTime(place.getCloseTime());
+        placeDTO.setPrice(place.getPrice());
+        placeDTO.setDiscount(place.getDiscount());
+
+        List<Integer>imageIds = new ArrayList<>();
+        List<Image> images = place.getImages();
+
+        for(Image image : images){
+            imageIds.add(image.getId());
+        }
+        placeDTO.setImagesID(imageIds);
+
+        List<Review> reviews = place.getReviews();
+        List<Integer> reviewIds = new ArrayList<>();
+        for(Review review : reviews){
+            reviewIds.add(review.getId());
+        }
+        placeDTO.setReviewsId(reviewIds);
+
+        List<PlaceCategory> categories = place.getPlaceCategories();
+        List<String> categoriesName = new ArrayList<>();
+        for(PlaceCategory category : categories){
+            categoriesName.add(category.getCategory().getName());
+        }
+        placeDTO.setCategories(categoriesName);
+
+        return placeDTO ;
+    }
+
+    public List<PlaceDTO> getPlacesByUserId(Integer userId) {
+        List<Place> place = placeRepository.findByOwnerUserId(userId);
+        List<PlaceDTO> placeDTOs = new ArrayList<>();
+        for (Place place1 : place) {
+            PlaceDTO placeDTO = getPlaceDTOById(place1.getPlaceId());
+            placeDTOs.add(placeDTO);
+        }
+
+        return placeDTOs ;
     }
 
     @Transactional

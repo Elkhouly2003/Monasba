@@ -82,7 +82,6 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
         }
     }
-
     private void authentication(String email, String password) {
         //if problem methode do exception
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));

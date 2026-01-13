@@ -1,5 +1,6 @@
 package com.example.GraduationBackend.services;
 
+import com.example.GraduationBackend.dto.ReviewDTO;
 import com.example.GraduationBackend.dto.request.ReviewRequest;
 import com.example.GraduationBackend.model.Place;
 import com.example.GraduationBackend.model.Review;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,14 +65,42 @@ public class ReviewService {
         review.ifPresent(reviewRepository::delete);
     }
 
-    public List<Review> getReviewsByUserId(Integer userId) {
+    public List<ReviewDTO> getReviewsByUserId(Integer userId) {
         User user = userService.getUserById(userId);
-        return reviewRepository.findReviewsByUser(user);
+        List<Review> reviews = reviewRepository.findReviewsByUser(user);
+        List<ReviewDTO> reviewsDto = new ArrayList<>() ;
+
+        for(Review review : reviews) {
+            ReviewDTO dto = new ReviewDTO();
+            dto.setComment( review.getComment() );
+            dto.setRatings(review.getRatings());
+            dto.setPlaceId(review.getPlace().getPlaceId());
+            dto.setUserId(review.getUser().getUserId());
+            dto.setReviewId(review.getId());
+            reviewsDto.add(dto);
+        }
+        return  reviewsDto ;
+
     }
 
-    public List<Review> getReviewsPlaceId(Integer placeId) {
-        User user = userService.getUserById(placeId);
-        return reviewRepository.findReviewsByUser(user);
+    public List<ReviewDTO> getReviewsPlaceId(Integer placeId) {
+        Place place = placeService.getPlaceById(placeId);
+        List<Review> reviews = reviewRepository.findReviewsByPlace(place);
+
+        List<ReviewDTO> reviewsDto = new ArrayList<>() ;
+
+        for(Review review : reviews) {
+            ReviewDTO dto = new ReviewDTO();
+            dto.setComment( review.getComment() );
+            dto.setRatings(review.getRatings());
+            dto.setPlaceId(review.getPlace().getPlaceId());
+            dto.setUserId(review.getUser().getUserId());
+            dto.setReviewId(review.getId());
+            reviewsDto.add(dto);
+        }
+        return  reviewsDto ;
+
+
     }
 
 }
