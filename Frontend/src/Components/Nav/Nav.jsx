@@ -8,6 +8,8 @@ export default function Nav() {
   const { user } = useUser();
   const { logout } = useContext(AppContext);
 
+  if (user) console.log(user);
+
   return (
     <>
       <nav className="border-gray-200 bg-(--color-steel-blue)">

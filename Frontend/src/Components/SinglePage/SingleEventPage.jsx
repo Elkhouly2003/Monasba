@@ -1,24 +1,53 @@
-import { data, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import ImageSlider from "../Slider/ImageSlider";
 import Reviews from "../Reviews/Reviews";
 import ReviewForm from "../ReviewForm/ReviewForm";
-import { useState } from "react";
-import useGet from "../../hooks/useGet";
+import StarRating from "../StarRating/StarRating";
+import { useState, useEffect } from "react";
 
 const SingleEventPage = () => {
   const { id } = useParams();
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [active, setActive] = useState("");
+  const [event, setEvent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const {
-    data: event,
-    loading,
-    error,
-  } = useGet(`http://localhost:8080/api/v1.0/placess/${id}`);
+  useEffect(() => {
+    const fetchPlace = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `http://localhost:8080/api/v1.0/placess/${id}`
+        );
+        if (!response.ok) throw new Error("Failed to fetch event details");
+        const result = await response.json();
+        setEvent(result.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const overviewDesc = event.largeDesc.split(/\n\s*\n/);
+    fetchPlace();
+  }, [id]);
 
-  if (event) console.log(event.data);
+  if (loading)
+    return (
+      <div className="text-center mt-20 text-2xl">Loading event details...</div>
+    );
+  if (error)
+    return (
+      <div className="text-center mt-20 text-red-500 text-2xl">
+        Error: {error}
+      </div>
+    );
+  if (!event) return <div className="text-center mt-20">No event found.</div>;
+
+  const overviewDesc = event.description
+    ? event.description.split(/\n\s*\n/)
+    : [];
 
   return (
     <div className="max-w-8xl px-2 sm:px-4 mx-auto">
@@ -29,7 +58,7 @@ const SingleEventPage = () => {
       <div className="mt-8 sm:mt-12">
         <div className="flex justify-between items-center">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-dark-navy">
-            {event.eventName}
+            {event.placeName}
           </h2>
 
           <button>
@@ -43,44 +72,50 @@ const SingleEventPage = () => {
               <h3 className="text-xl sm:text-2xl font-semibold text-dark-navy">
                 Capacity:
               </h3>
-              <p className="text-lg text-state-blue">{event.capacity}</p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <h3 className="text-xl sm:text-2xl font-semibold text-dark-navy">
-                Indoor / Outdoor:
-              </h3>
-              <p className="text-lg text-state-blue">
-                {event.indoor ? "indoor" : "outdoor"}
-              </p>
+              <p className="text-lg text-state-blue">{event.capacity} people</p>
             </div>
 
             <div className="flex items-center gap-2">
               <h3 className="text-xl sm:text-2xl font-semibold text-dark-navy">
                 Rating:
               </h3>
-              <p className="text-lg text-state-blue">{event.rate}</p>
+              <StarRating rate={4.5} />{" "}
             </div>
 
             <div className="flex items-center gap-2">
               <h3 className="text-xl sm:text-2xl font-semibold text-dark-navy">
                 Categories:
               </h3>
-              <p className="text-lg text-state-blue">{event.category}</p>
+              <p className="text-lg text-state-blue">
+                {event.categories?.join(", ")}
+              </p>
             </div>
 
             <div className="flex items-center gap-2">
               <h3 className="text-xl sm:text-2xl font-semibold text-dark-navy">
                 Working Hours:
               </h3>
-              <p className="text-lg text-state-blue">{event.workingHours}</p>
+              <p className="text-lg text-state-blue">
+                {event.openTime} – {event.closeTime}
+              </p>
             </div>
 
             <div className="flex items-center gap-2">
               <h3 className="text-xl sm:text-2xl font-semibold text-dark-navy">
                 Location:
               </h3>
-              <p className="text-lg text-state-blue">{event.location}</p>
+              <p className="text-lg text-state-blue">
+                {event.city}, {event.country}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <h3 className="text-xl sm:text-2xl font-semibold text-dark-navy">
+                Price:
+              </h3>
+              <p className="text-lg text-state-blue">
+                {event.price - (event.discount || 0)} EGP
+              </p>
             </div>
           </div>
 
@@ -101,6 +136,7 @@ const SingleEventPage = () => {
             </div>
           </div>
         </div>
+
         <div className="flex justify-center items-center gap-5 mt-16">
           <button
             onClick={() => setActive("Request")}
@@ -112,7 +148,6 @@ const SingleEventPage = () => {
             Ask Question
           </button>
         </div>
-        <div className="hidden">Hidden Booking</div>
       </div>
 
       {active === "Request" && (
@@ -148,8 +183,9 @@ const SingleEventPage = () => {
                 Select Time Slot
               </label>
               <select className="w-full border border-gray-300 rounded-xl px-3 sm:px-4 py-2 bg-gray-100 text-sm">
-                <option>6:00 PM - 10:00 PM</option>
-                <option>8:00 PM - 12:00 AM</option>
+                <option>
+                  {event.openTime} - {event.closeTime}
+                </option>
               </select>
             </div>
 
@@ -187,7 +223,6 @@ const SingleEventPage = () => {
         </div>
         <div>{showReviewForm && <ReviewForm />}</div>
         <div className="mt-8 space-y-6 mb-16">
-          <Reviews />
           <Reviews />
           <Reviews />
         </div>
