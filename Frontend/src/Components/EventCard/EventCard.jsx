@@ -40,10 +40,12 @@ const EventCard = ({ event }) => {
     fetchUser();
     fetchImage();
 
+    console.log("first");
+
     return () => {
       if (imageSrc) URL.revokeObjectURL(imageSrc);
     };
-  }, [event.ownerID, event.imagesID, imageSrc]);
+  }, []);
 
   return (
     <div className="bg-white text-steel-blue rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 relative group">

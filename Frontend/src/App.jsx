@@ -19,22 +19,63 @@ function App() {
   const queryClient = new QueryClient();
 
   const router = createBrowserRouter([
-    { path: "/login", element:<AuGuard><Login /></AuGuard> },
-    { path: "/reset-password", element:<AuGuard><ResetPassword /></AuGuard> },
-    { path: "/email-verify", element:<AuGuard><EmailVerify /></AuGuard> },
+    {
+      path: "/login",
+      element: (
+        <AuGuard>
+          <Login />
+        </AuGuard>
+      ),
+    },
+    {
+      path: "/reset-password",
+      element: (
+        <AuGuard>
+          <ResetPassword />
+        </AuGuard>
+      ),
+    },
+    {
+      path: "/email-verify",
+      element: (
+        <AuGuard>
+          <EmailVerify />
+        </AuGuard>
+      ),
+    },
     {
       path: "/",
       element: <Layout />,
       children: [
         { index: true, element: <Home /> },
-        { path: "/home", element:<Home /> },
+        { path: "/home", element: <Home /> },
         { path: "/search", element: <Search /> },
-        { path: "place/:id", element:<Guard><SingleEventPage /></Guard> },
-        { path: "/profile", element:<Guard><Profile /></Guard> },
-        { path: "/provider", element: <Guard><Provider /></Guard> },
-        { path: "/admin", element:  <Guard><ProfileAdmin /></Guard> },
+        {
+          path: "place/:id",
+          element: (
+            <Guard>
+              <SingleEventPage />
+            </Guard>
+          ),
+        },
+        {
+          path: "/profile",
+          element: (
+            <Guard>
+              <Profile />
+            </Guard>
+          ),
+        },
+        { path: "/provider", element: <Provider /> },
+        {
+          path: "/admin",
+          element: (
+            <Guard>
+              <ProfileAdmin />
+            </Guard>
+          ),
+        },
         { path: "*", element: <NotFound /> },
-
       ],
     },
   ]);

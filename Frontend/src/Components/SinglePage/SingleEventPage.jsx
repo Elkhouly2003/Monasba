@@ -1,31 +1,24 @@
-import { useParams } from "react-router-dom";
+import { data, useParams } from "react-router-dom";
 import ImageSlider from "../Slider/ImageSlider";
 import Reviews from "../Reviews/Reviews";
 import ReviewForm from "../ReviewForm/ReviewForm";
 import { useState } from "react";
+import useGet from "../../hooks/useGet";
 
 const SingleEventPage = () => {
   const { id } = useParams();
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [active, setActive] = useState("");
 
-  const event = {
-    id: 1,
-    category: "Music",
-    img: "https://picsum.photos/300/200?random=1",
-    eventName: "Cairo Jazz Festival",
-    rate: 4.7,
-    desc: "Experience live jazz performances from global artists.",
-    largeDesc:
-      "The Cairo Jazz Festival is a multi-day celebration of music, culture, and artistic expression, bringing together world-renowned jazz musicians and rising talents from across the globe.\n\nThe festival also features interactive jam sessions, music workshops, and industry talks where artists share insights about their creative journeys.\n\nWhether you're a dedicated jazz fan or simply looking to experience something unique, the Cairo Jazz Festival promises unforgettable evenings filled with rhythm, creativity, and vibrant cultural energy.",
-    capacity: 2500,
-    indoor: true,
-    workingHours: "5:00 PM – 11:30 PM",
-    date: "2025-11-25",
-    location: "Cairo",
-  };
+  const {
+    data: event,
+    loading,
+    error,
+  } = useGet(`http://localhost:8080/api/v1.0/placess/${id}`);
 
   const overviewDesc = event.largeDesc.split(/\n\s*\n/);
+
+  if (event) console.log(event.data);
 
   return (
     <div className="max-w-8xl px-2 sm:px-4 mx-auto">
