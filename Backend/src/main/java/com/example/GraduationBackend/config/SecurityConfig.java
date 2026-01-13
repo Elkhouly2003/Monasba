@@ -81,10 +81,13 @@ public class SecurityConfig {
                                 // Categories API
                                 "/categories/**",
                                 "/users",
+                                "/users/*"
+                                ,
                                 "/places",
                                 "/places/*",
                                 "/place/*",
-                                "/places/*/images"
+                                "/places/*/images",
+                                "/reviews/**"
                         )
                         .permitAll()
 

@@ -16,23 +16,11 @@ const SingleEventPage = () => {
     error,
   } = useGet(`http://localhost:8080/api/v1.0/places/${id}`);
 
-  console.log(id);
-
-  // const event = {
-  //   id: 1,
-  //   category: "Music",
-  //   img: "https://picsum.photos/300/200?random=1",
-  //   eventName: "Cairo Jazz Festival",
-  //   rate: 4.7,
-  //   desc: "Experience live jazz performances from global artists.",
-  //   largeDesc:
-  //     "The Cairo Jazz Festival is a multi-day celebration of music, culture, and artistic expression, bringing together world-renowned jazz musicians and rising talents from across the globe.\n\nThe festival also features interactive jam sessions, music workshops, and industry talks where artists share insights about their creative journeys.\n\nWhether you're a dedicated jazz fan or simply looking to experience something unique, the Cairo Jazz Festival promises unforgettable evenings filled with rhythm, creativity, and vibrant cultural energy.",
-  //   capacity: 2500,
-  //   indoor: true,
-  //   workingHours: "5:00 PM – 11:30 PM",
-  //   date: "2025-11-25",
-  //   location: "Cairo",
-  // };
+  const {
+    data: review,
+    loading: reviewLoading,
+    error: reviewError,
+  } = useGet(`http://localhost:8080/api/v1.0/reviews/places/${id}`);
 
   useEffect(() => {
     if (event?.description) {
@@ -151,11 +139,14 @@ const SingleEventPage = () => {
                 {showReviewForm ? "Cancel" : "Write Review"}
               </button>
             </div>
-            <div>{showReviewForm && <ReviewForm />}</div>
+            <div>{showReviewForm && <ReviewForm id={id} />}</div>
             <div className="mt-8 space-y-6 mb-16">
-              <Reviews />
-              <Reviews />
-              <Reviews />
+              <Reviews
+                userName={"ali"}
+                rate={3.3}
+                date={"Nov 2025"}
+                comment={"good venue"}
+              />
             </div>
           </div>
         </div>
