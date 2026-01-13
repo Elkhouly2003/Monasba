@@ -1,8 +1,10 @@
 import img5 from "../../assets//icons/sumatra-weddings.png";
+import Nav from "../Nav/Nav";
 
 const ProfileAdmin = () => {
   return (
     <>
+    <Nav />
       <div className="w-full mb-6 mt-5">
         <div className="container mx-auto mb-6 pl-5">
           <h2 className="font-bold text-2xl">My Bookings</h2>

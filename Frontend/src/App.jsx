@@ -12,24 +12,29 @@ import EmailVerify from "./AuthenticationPage/EmailVerify.jsx";
 import Provider from "./Components/Provider/Provider.jsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ProfileAdmin from "./Components/ProfileAdmin/ProfileAdmin.jsx";
-
+import Guard from "./Components/Guard/Guard.jsx";
+import AuGuard from "./Components/AuGuard/AuGuard.jsx";
+import NotFound from "./Components/NotFound/NotFound.jsx";
 function App() {
   const queryClient = new QueryClient();
 
   const router = createBrowserRouter([
-    { path: "/login", element: <Login /> },
-    { path: "/reset-password", element: <ResetPassword /> },
-    { path: "/email-verify", element: <EmailVerify /> },
+    { path: "/login", element:<AuGuard><Login /></AuGuard> },
+    { path: "/reset-password", element:<AuGuard><ResetPassword /></AuGuard> },
+    { path: "/email-verify", element:<AuGuard><EmailVerify /></AuGuard> },
     {
       path: "/",
       element: <Layout />,
       children: [
         { index: true, element: <Home /> },
+        { path: "/home", element:<Home /> },
         { path: "/search", element: <Search /> },
-        { path: "place/:id", element: <SingleEventPage /> },
+        { path: "place/:id", element:<Guard><SingleEventPage /></Guard> },
         { path: "/profile", element: <Profile /> },
         { path: "/provider", element: <Provider /> },
         { path: "/admin", element: <ProfileAdmin /> },
+        { path: "*", element: <NotFound /> },
+
       ],
     },
   ]);

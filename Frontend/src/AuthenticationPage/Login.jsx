@@ -62,9 +62,8 @@ const Login = () => {
           <Link to="/" className="">
             <img src={assets.logo2} alt="Logo" className="h-8" />
           </Link>
-          <Link to="/" className="flex gap-2 items-center">
-            <span className="text-white text-lg">Back to Home</span>
-            <i class="fa-solid fa-chevron-right text-white text-sm"></i>
+          <Link to="/home" className="flex gap-2 items-center">
+            <span className="text-white text-lg">Home</span>
           </Link>
         </div>
       </div>

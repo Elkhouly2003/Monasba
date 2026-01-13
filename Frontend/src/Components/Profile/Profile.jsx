@@ -7,6 +7,8 @@ import img5 from "../../assets//icons/sumatra-weddings.png";
 import { useState } from "react";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
+import { useUser } from "../../store/useUser";
+import Nav from "../Nav/Nav";
 
 const getNotifications = async (userId) => {
   const { data } = await axios.get(
@@ -16,6 +18,8 @@ const getNotifications = async (userId) => {
 };
 
 export default function Profile({ userId }) {
+  const { user } = useUser();
+  
   const [active, setActive] = useState("My Bookings");
 
   const { data, isLoading, error } = useQuery({
@@ -26,6 +30,7 @@ export default function Profile({ userId }) {
 
   return (
     <>
+    <Nav />
       <div className="w-full bg-(--color-dark-navy)">
         <div className=" container pt-10 pb-10">
           <form className="max-w-sm mx-auto space-y-4">
@@ -40,7 +45,7 @@ export default function Profile({ userId }) {
                 type="text"
                 id="visitors"
                 className="bg-(--color-steel-blue) rounded-xl border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-2.5 py-2 shadow-xs placeholder:text-body"
-                placeholder=""
+                placeholder={user?.name || ""}
                 required
               />
             </div>
@@ -55,7 +60,7 @@ export default function Profile({ userId }) {
                 type="email"
                 id="email"
                 className="bg-(--color-steel-blue) rounded-xl border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-2.5 py-2 shadow-xs placeholder:text-body"
-                placeholder=""
+                placeholder={user?.email || ""}
                 required
               />
             </div>
