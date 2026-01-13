@@ -104,6 +104,7 @@ public class PlaceService {
 
         PlaceDTO placeDTO = new PlaceDTO() ;
         placeDTO.setOwnerID(place.getOwner().getUserId());
+        placeDTO.setPlaceId(place.getPlaceId());
         placeDTO.setPlaceName(place.getPlaceName());
         placeDTO.setAddress(place.getAddress());
         placeDTO.setCity(place.getCity());

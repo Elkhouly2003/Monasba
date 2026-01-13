@@ -11,6 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PlaceDTO {
+    private Integer placeId;
     private Integer ownerID ;
     private String placeName;
     private String address;
