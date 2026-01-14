@@ -81,7 +81,9 @@ public class SecurityConfig {
                                 // Categories API
                                 "/categories/**",
                                 "/users",
-                                "/users/*"
+                                "/users/*",
+                                "/user/*/place/*",
+                                "/savedPlaces/*"
                                 ,
                                 "/places",
                                 "/places/*",
