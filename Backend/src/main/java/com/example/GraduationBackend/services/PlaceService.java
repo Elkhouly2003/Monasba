@@ -154,6 +154,33 @@ public class PlaceService {
         return placeDTOs ;
     }
 
+    public List<PlaceDTO> getSavedPlacesForUser(Integer userId ) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new RuntimeException("User with id "+userId+" not found")
+        );
+
+        List<Place> savedPlaces = user.getSavedPlaces() ;
+        List<PlaceDTO> placeDTOs = new ArrayList<>() ;
+        for (Place place : savedPlaces) {
+            PlaceDTO placeDTO = new PlaceDTO();
+            placeDTO =  getPlaceDTOById(place.getPlaceId()) ;
+            placeDTOs.add(placeDTO);
+        }
+        return placeDTOs ;
+    }
+
+    public void removeSavedPlace(Integer userId, Integer placeId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new RuntimeException("User with id "+userId+" not found")
+        );
+        Place place = placeRepository.findById(placeId).orElseThrow(
+                () -> new RuntimeException("Place with id : " + placeId + "not found")
+        );
+
+        user.getSavedPlaces().remove(place);
+        userRepository.save(user);
+    }
+
     @Transactional
     public void deletePlaceById(int placeId) {
         Place place = placeRepository.findById(placeId)

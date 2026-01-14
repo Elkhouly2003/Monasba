@@ -8,6 +8,7 @@ import com.example.GraduationBackend.model.Place;
 import com.example.GraduationBackend.model.Review;
 import com.example.GraduationBackend.model.User;
 import com.example.GraduationBackend.repository.NotificationRepository;
+import com.example.GraduationBackend.repository.PlaceRepository;
 import com.example.GraduationBackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
@@ -21,6 +22,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final PlaceRepository placeRepository;
+
+
     private final NotificationRepository notificationRepository;
 
     public User getUserById(Integer userId) {
@@ -77,5 +81,23 @@ public class UserService {
         userDTO.setNotificationsIds(notificationIDs);
         return userDTO;
     }
+
+    public void savePlaceForUser(Integer userId, Integer placeId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Place place = placeRepository.findById(placeId)
+                .orElseThrow(() -> new RuntimeException("Place not found"));
+
+
+        if (!user.getSavedPlaces().contains(place)) {
+            user.getSavedPlaces().add(place);
+        }
+
+        userRepository.save(user);
+    }
+
+
 
 }
