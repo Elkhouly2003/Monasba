@@ -238,7 +238,7 @@ const SingleEventPage = () => {
             reviews.map((rev) => (
               <Reviews
                 key={rev.reviewId}
-                userName={rev.userName}
+                userId={rev.userId || "Anonymous User"}
                 date={
                   rev.createdAt
                     ? new Date(rev.createdAt).toLocaleDateString()
