@@ -22,6 +22,10 @@ export default function Profile({ userId }) {
   const { user } = useUser();
   const [reviews, setReviews] = useState([]);
   const [active, setActive] = useState("My Bookings");
+  const [editingReview, setEditingReview] = useState(null);
+  const [editComment, setEditComment] = useState("");
+  const [editRating, setEditRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
 
   const fetchReviews = useCallback(async () => {
     if (!user?.userId) return;
@@ -98,6 +102,34 @@ export default function Profile({ userId }) {
     } catch (err) {
       console.error("Error deleting review:", err);
     }
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const formData = new FormData();
+      formData.append("comment", editComment);
+      formData.append("ratings", editRating);
+      formData.append("userId", user.userId);
+      formData.append("placeId", editingReview.placeId);
+      const response = await fetch(`http://localhost:8080/api/v1.0/reviews`, {
+        method: "PUT",
+        body: formData,
+      });
+      if (response.ok) {
+        setEditingReview(null);
+        fetchReviews();
+      }
+    } catch (err) {
+      console.error("Error updating review:", err);
+    }
+  };
+
+  const startEditing = (rev) => {
+    setEditingReview(rev);
+    setEditComment(rev.comment);
+    setEditRating(rev.ratings);
+    setHoverRating(0);
   };
   return (
     <>
@@ -669,29 +701,78 @@ export default function Profile({ userId }) {
                           </span>
                         </div>
                       </div>
-                      <StarRating rate={rev.ratings} />
-                    </div>
-                    <div className="pt-2">
-                      <p className="text-(--color-state-blue) text-lg">
-                        “{rev.comment}”
-                      </p>
+                      {editingReview?.reviewId !== rev.reviewId && (
+                        <StarRating rate={rev.ratings} />
+                      )}
                     </div>
 
-                    {rev.userId === user?.userId && (
-                      <div className="flex justify-end gap-2 mt-4">
-                        <button
-                          onClick={() => console.log("Edit review", rev.id)}
-                          className="text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-full text-sm flex items-center cursor-pointer"
-                        >
-                          <i className="fa-solid fa-pen px-1"></i> Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(rev)}
-                          className="text-red-600 hover:bg-red-50 px-4 py-2 rounded-full text-sm flex items-center cursor-pointer"
-                        >
-                          <i className="fa-solid fa-trash px-1"></i> Delete
-                        </button>
+                    {editingReview?.reviewId === rev.reviewId ? (
+                      <div className="mt-4 p-4 bg-gray-50 rounded-2xl border border-gray-200">
+                        <div className="flex gap-3 items-center mb-4">
+                          <p className="font-semibold">Your Rating:</p>
+                          <div className="flex">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <i
+                                key={star}
+                                className={`text-yellow-500 text-2xl cursor-pointer transition-transform hover:scale-110 ${
+                                  star <= (hoverRating || editRating)
+                                    ? "fa-solid fa-star"
+                                    : "fa-regular fa-star"
+                                }`}
+                                onMouseEnter={() => setHoverRating(star)}
+                                onMouseLeave={() => setHoverRating(0)}
+                                onClick={() => setEditRating(star)}
+                              ></i>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="mb-4">
+                          <textarea
+                            className="w-full resize-none p-4 rounded-xl text-dark-navy border border-cool-gray focus:ring-2 focus:ring-state-blue focus:outline-0 transition-all bg-white"
+                            rows="4"
+                            value={editComment}
+                            onChange={(e) => setEditComment(e.target.value)}
+                          />
+                        </div>
+                        <div className="flex justify-end gap-3">
+                          <button
+                            onClick={() => setEditingReview(null)}
+                            className="px-6 py-2 bg-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-300 transition-colors cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={handleEditSubmit}
+                            className="px-6 py-2 bg-cyan-900 text-white rounded-xl font-bold hover:bg-opacity-90 transition-colors cursor-pointer"
+                          >
+                            Update Review
+                          </button>
+                        </div>
                       </div>
+                    ) : (
+                      <>
+                        <div className="pt-2">
+                          <p className="text-(--color-state-blue) text-lg">
+                            “{rev.comment}”
+                          </p>
+                        </div>
+                        {rev.userId === user?.userId && (
+                          <div className="flex justify-end gap-2 mt-4">
+                            <button
+                              onClick={() => startEditing(rev)}
+                              className="text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-full text-sm flex items-center cursor-pointer"
+                            >
+                              <i className="fa-solid fa-pen px-1"></i> Edit
+                            </button>
+                            <button
+                              onClick={() => handleDelete(rev)}
+                              className="text-red-600 hover:bg-red-50 px-4 py-2 rounded-full text-sm flex items-center cursor-pointer"
+                            >
+                              <i className="fa-solid fa-trash px-1"></i> Delete
+                            </button>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
