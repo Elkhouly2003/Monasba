@@ -12,6 +12,7 @@ const SingleEventPage = () => {
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [images, setImages] = useState([]);
 
   useEffect(() => {
     const fetchPlace = async () => {
@@ -23,6 +24,13 @@ const SingleEventPage = () => {
         if (!response.ok) throw new Error("Failed to fetch event details");
         const result = await response.json();
         setEvent(result.data);
+
+        if (result.data.imagesID && result.data.imagesID.length > 0) {
+          const formattedImages = result.data.imagesID.map(
+            (imgId) => `http://localhost:8080/api/v1.0/imagess/${imgId}`
+          );
+          setImages(formattedImages);
+        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -52,7 +60,7 @@ const SingleEventPage = () => {
   return (
     <div className="max-w-8xl px-2 sm:px-4 mx-auto">
       <div className="mt-6 sm:mt-10">
-        <ImageSlider />
+        <ImageSlider images={images} />
       </div>
 
       <div className="mt-8 sm:mt-12">
@@ -79,7 +87,7 @@ const SingleEventPage = () => {
               <h3 className="text-xl sm:text-2xl font-semibold text-dark-navy">
                 Rating:
               </h3>
-              <StarRating rate={4.5} />{" "}
+              <StarRating rate={4.5} />
             </div>
 
             <div className="flex items-center gap-2">
