@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import img1 from "../../assets/icons/booking.png";
 import img2 from "../../assets/icons/bookmark.png";
 import img3 from "../../assets/icons/star.png";
@@ -9,6 +9,7 @@ import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { useUser } from "../../store/useUser";
 import Nav from "../Nav/Nav";
+import StarRating from "../StarRating/StarRating";
 
 const getNotifications = async (userId) => {
   const { data } = await axios.get(
@@ -19,8 +20,54 @@ const getNotifications = async (userId) => {
 
 export default function Profile({ userId }) {
   const { user } = useUser();
-  
+  const [reviews, setReviews] = useState([]);
   const [active, setActive] = useState("My Bookings");
+
+  const fetchReviews = useCallback(async () => {
+    if (!user?.userId) return;
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/v1.0/reviews/user/${user.userId}`
+      );
+      if (response.ok) {
+        const result = await response.json();
+        const reviewsData = result.data || [];
+
+        const enrichedReviews = await Promise.all(
+          reviewsData.map(async (rev) => {
+            let userName = "Anonymous";
+            let placeName = "Unknown Venue";
+            let city = "N/A";
+
+            try {
+              const [userRes, placeRes] = await Promise.all([
+                fetch(`http://localhost:8080/api/v1.0/users/${rev.userId}`),
+                fetch(`http://localhost:8080/api/v1.0/placess/${rev.placeId}`),
+              ]);
+
+              if (userRes.ok) {
+                const userData = await userRes.json();
+                userName = userData.data.name;
+              }
+
+              if (placeRes.ok) {
+                const placeData = await placeRes.json();
+                placeName = placeData.data.placeName;
+                city = placeData.data.city;
+              }
+            } catch (err) {
+              console.error("Error enrichment", err);
+            }
+
+            return { ...rev, userName, placeName, city };
+          })
+        );
+        setReviews(enrichedReviews);
+      }
+    } catch (err) {
+      console.error("Failed to fetch reviews", err);
+    }
+  }, [user?.userId]);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["notifications", userId],
@@ -28,9 +75,12 @@ export default function Profile({ userId }) {
     enabled: !!userId,
   });
 
+  useEffect(() => {
+    fetchReviews();
+  }, [fetchReviews]);
   return (
     <>
-    <Nav />
+      <Nav />
       <div className="w-full bg-(--color-dark-navy)">
         <div className=" container pt-10 pb-10">
           <form className="max-w-sm mx-auto space-y-4">
@@ -574,291 +624,57 @@ export default function Profile({ userId }) {
       {active === "Reviews" && (
         <div className="w-full mb-6">
           <div className="container mx-auto mb-6 pl-5">
-            <h2 className="font-bold text-2xl">My Reviews</h2>
+            <h2 className="font-bold text-2xl">Reviews</h2>
           </div>
-          <div>
-            <div className="container bg-white rounded-2xl shadow-sm p-6 space-y-4 mb-3 border border-gray-300 ">
-              <div className=" mx-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-xl">Al-Lu’lu’a Venue</h3>
-                  </div>
-                  <div class="flex items-center space-x-1">
-                    <svg
-                      className="w-5 h-5 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-5 h-5 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-5 h-5 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-5 h-5 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-5 h-5 text-fg-disabled"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
+          <div className="container space-y-4">
+            {reviews.length > 0 ? (
+              reviews.map((rev) => (
+                <div
+                  key={rev.id}
+                  className="bg-white rounded-2xl shadow-sm p-6 space-y-4 mb-3 border border-gray-300"
+                >
+                  <div className="mx-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-semibold text-xl">
+                          {rev.placeName}
+                        </h3>
+                        <div className="flex flex-col">
+                          <span className="text-xs text-(--color-state-blue)">
+                            {rev.city}
+                          </span>
+                          <span className="text-sm text-gray-500">
+                            By: {rev.userName}
+                          </span>
+                        </div>
+                      </div>
+                      <StarRating rate={rev.ratings} />
+                    </div>
+                    <div className="pt-2">
+                      <p className="text-(--color-state-blue) text-lg">
+                        “{rev.comment}”
+                      </p>
+                    </div>
+
+                    {rev.userId === user?.userId && (
+                      <div className="flex justify-end gap-2 mt-4">
+                        <button
+                          onClick={() => console.log("Edit review", rev.id)}
+                          className="text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-full text-sm flex items-center cursor-pointer"
+                        >
+                          <i className="fa-solid fa-pen px-1"></i> Edit
+                        </button>
+                        <button className="text-red-600 hover:bg-red-50 px-4 py-2 rounded-full text-sm flex items-center cursor-pointer">
+                          <i className="fa-solid fa-trash px-1"></i> Delete
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
-                <div className=" container">
-                  <span className="text-(--color-state-blue) text-xs">
-                    Cairo, Egypt
-                  </span>
-                </div>
-                <div className="flex items-center justify-between pt-2">
-                  <div>
-                    <p className="text-(--color-state-blue) text-lg">
-                      “Venue was good and the view was very beautiful”
-                    </p>
-                  </div>
-                  <div>
-                    <button
-                      type="button"
-                      className="text-heading text-(--color-state-blue) cursor-pointer bg-transparent box-border border border-transparent hover:bg-neutral-secondary-medium focus:ring-4 focus:ring-neutral-tertiary font-medium leading-5 rounded-full text-sm px-4 py-2.5 focus:outline-none"
-                    >
-                      <i className="fa-solid fa-pen px-1"></i>
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      className="text-heading text-(--color-state-blue) cursor-pointer bg-transparent box-border border border-transparent hover:bg-neutral-secondary-medium focus:ring-4 focus:ring-neutral-tertiary font-medium leading-5 rounded-full text-sm px-4 py-2.5 focus:outline-none"
-                    >
-                      <i className="fa-solid fa-trash-arrow-up px-1"></i>
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="container bg-white rounded-2xl shadow-sm p-6 space-y-4 mb-3 border border-gray-300 ">
-              <div className=" mx-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-xl">Al-Lu’lu’a Venue</h3>
-                  </div>
-                  <div class="flex items-center space-x-1">
-                    <svg
-                      className="w-5 h-5 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-5 h-5 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-5 h-5 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-5 h-5 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-5 h-5 text-fg-disabled"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                  </div>
-                </div>
-                <div className=" container">
-                  <span className="text-(--color-state-blue) text-xs">
-                    Cairo, Egypt
-                  </span>
-                </div>
-                <div className="flex items-center justify-between pt-2">
-                  <div>
-                    <p className="text-(--color-state-blue) text-lg">
-                      “Venue was good and the view was very beautiful”
-                    </p>
-                  </div>
-                  <div>
-                    <button
-                      type="button"
-                      className="text-heading text-(--color-state-blue) cursor-pointer bg-transparent box-border border border-transparent hover:bg-neutral-secondary-medium focus:ring-4 focus:ring-neutral-tertiary font-medium leading-5 rounded-full text-sm px-4 py-2.5 focus:outline-none"
-                    >
-                      <i className="fa-solid fa-pen px-1"></i>
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      className="text-heading text-(--color-state-blue) cursor-pointer bg-transparent box-border border border-transparent hover:bg-neutral-secondary-medium focus:ring-4 focus:ring-neutral-tertiary font-medium leading-5 rounded-full text-sm px-4 py-2.5 focus:outline-none"
-                    >
-                      <i className="fa-solid fa-trash-arrow-up px-1"></i>
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="container bg-white rounded-2xl shadow-sm p-6 space-y-4 mb-3 border border-gray-300 ">
-              <div className=" mx-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-xl">Al-Lu’lu’a Venue</h3>
-                  </div>
-                  <div class="flex items-center space-x-1">
-                    <svg
-                      className="w-5 h-5 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-5 h-5 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-5 h-5 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-5 h-5 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-5 h-5 text-fg-disabled"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                  </div>
-                </div>
-                <div className=" container">
-                  <span className="text-(--color-state-blue) text-xs">
-                    Cairo, Egypt
-                  </span>
-                </div>
-                <div className="flex items-center justify-between pt-2">
-                  <div>
-                    <p className="text-(--color-state-blue) text-lg">
-                      “Venue was good and the view was very beautiful”
-                    </p>
-                  </div>
-                  <div>
-                    <button
-                      type="button"
-                      className="text-heading text-(--color-state-blue) cursor-pointer bg-transparent box-border border border-transparent hover:bg-neutral-secondary-medium focus:ring-4 focus:ring-neutral-tertiary font-medium leading-5 rounded-full text-sm px-4 py-2.5 focus:outline-none"
-                    >
-                      <i className="fa-solid fa-pen px-1"></i>
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      className="text-heading text-(--color-state-blue) cursor-pointer bg-transparent box-border border border-transparent hover:bg-neutral-secondary-medium focus:ring-4 focus:ring-neutral-tertiary font-medium leading-5 rounded-full text-sm px-4 py-2.5 focus:outline-none"
-                    >
-                      <i className="fa-solid fa-trash-arrow-up px-1"></i>
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+              ))
+            ) : (
+              <p className="text-center text-gray-500">No reviews found.</p>
+            )}
           </div>
         </div>
       )}
