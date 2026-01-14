@@ -1,5 +1,6 @@
 package com.example.GraduationBackend.services;
 
+import com.example.GraduationBackend.dto.BookingDTO;
 import com.example.GraduationBackend.dto.request.BookingRequest;
 import com.example.GraduationBackend.model.Booking;
 import com.example.GraduationBackend.model.Place;
@@ -13,6 +14,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,18 +60,50 @@ public class BookingService {
         bookingRepository.save(booking);
     }
 
-    public List<Booking> getAllBookings() {
-        return bookingRepository.findAll();
+    public List<BookingDTO> getAllBookings() {
+        List<Booking> bookings = bookingRepository.findAll();
+        List<BookingDTO> bookingDTOS = new ArrayList<>();
+
+        for (Booking booking : bookings) {
+             BookingDTO bookingDTO = getBookingById(booking.getId().longValue()) ;
+
+             bookingDTOS.add(bookingDTO);
+        }
+
+        return bookingDTOS ;
     }
 
-   public List<Booking> getAllBookingsByUserId(int userID ) {
-      return  bookingRepository.findByUserUserId(userID);
+   public List<BookingDTO> getAllBookingsByUserId(int userID ) {
+        List<Booking> bookings = bookingRepository.findByUserUserId(userID);
+        List<BookingDTO> bookingDTOS = new ArrayList<>();
+
+        for (Booking booking : bookings) {
+            BookingDTO bookingDTO = getBookingById(booking.getId().longValue()) ;
+            bookingDTOS.add(bookingDTO);
+        }
+      return   bookingDTOS ;
    }
 
-   public Booking getBookingById(Long bookingID) {
-        return bookingRepository.findById(bookingID).orElseThrow(
+   public BookingDTO getBookingById(Long bookingID) {
+        Booking booking =  bookingRepository.findById(bookingID).orElseThrow(
                 () -> new ResourceNotFoundException("Booking with id "+ bookingID +" not found")
         );
+
+       BookingDTO bookingDTO = new BookingDTO();
+       bookingDTO.setBookingId(booking.getId());
+       bookingDTO.setUserId(booking.getUser().getUserId());
+       bookingDTO.setPlaceId(booking.getPlace().getPlaceId());
+       bookingDTO.setPrice(booking.getPrice());
+       bookingDTO.setCategory(booking.getCategory());
+       bookingDTO.setStatus(booking.getStatus());
+       bookingDTO.setBookingDate(booking.getBookingDate()+"");
+       bookingDTO.setStartDate(booking.getStartDate()+"");
+       bookingDTO.setEndDate(booking.getEndDate()+"");
+       bookingDTO.setCapacity(booking.getCapacity());
+       bookingDTO.setTitle(booking.getTitle());
+       bookingDTO.setDescription(booking.getDescription());
+
+        return  bookingDTO ;
    }
 
     public void deleteBooking(Long bookingID) {
@@ -95,7 +129,6 @@ public class BookingService {
         Optional.ofNullable(bookingRequest.getEndDate()).ifPresent(booking::setEndDate);
         Optional.ofNullable(bookingRequest.getTitle()).ifPresent(booking::setTitle);
         Optional.ofNullable(bookingRequest.getCapacity()).ifPresent(booking::setCapacity);
-
         booking.setLastUpdate(LocalDateTime.now());
         bookingRepository.save(booking);
 
