@@ -78,6 +78,27 @@ export default function Profile({ userId }) {
   useEffect(() => {
     fetchReviews();
   }, [fetchReviews]);
+
+  const handleDelete = async (rev) => {
+    try {
+      const formData = new FormData();
+      formData.append("userId", user.userId);
+      formData.append("placeId", rev.placeId);
+
+      const response = await fetch(`http://localhost:8080/api/v1.0/reviews`, {
+        method: "DELETE",
+        body: formData,
+      });
+
+      if (response.ok) {
+        fetchReviews();
+      } else {
+        console.error("Failed to delete review");
+      }
+    } catch (err) {
+      console.error("Error deleting review:", err);
+    }
+  };
   return (
     <>
       <Nav />
@@ -630,7 +651,7 @@ export default function Profile({ userId }) {
             {reviews.length > 0 ? (
               reviews.map((rev) => (
                 <div
-                  key={rev.id}
+                  key={rev.reviewId}
                   className="bg-white rounded-2xl shadow-sm p-6 space-y-4 mb-3 border border-gray-300"
                 >
                   <div className="mx-4">
@@ -664,7 +685,10 @@ export default function Profile({ userId }) {
                         >
                           <i className="fa-solid fa-pen px-1"></i> Edit
                         </button>
-                        <button className="text-red-600 hover:bg-red-50 px-4 py-2 rounded-full text-sm flex items-center cursor-pointer">
+                        <button
+                          onClick={() => handleDelete(rev)}
+                          className="text-red-600 hover:bg-red-50 px-4 py-2 rounded-full text-sm flex items-center cursor-pointer"
+                        >
                           <i className="fa-solid fa-trash px-1"></i> Delete
                         </button>
                       </div>
