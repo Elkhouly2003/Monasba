@@ -73,9 +73,11 @@ export default function Provider() {
       formData.append("categories", cat);
     });
 
-    images.forEach((img) => {
-      formData.append("images", img);
-    });
+    if (images.length > 0) {
+      images.forEach((img) => {
+        formData.append("images", img);
+      });
+    }
 
     const url = isEdit
       ? `http://localhost:8080/api/v1.0/placess/${placeId}`
@@ -94,13 +96,11 @@ export default function Provider() {
       }
 
       queryClient.invalidateQueries({
-        queryKey: ["placesByOwner", user.userId],
+        queryKey: ["placesByOwner", userId],
       });
 
       resetForm();
-
-      const result = await response.json();
-      console.log(result);
+      setActive2("");
 
       if (isEdit) {
         setIsEdit(false);
@@ -789,8 +789,9 @@ export default function Provider() {
                             setOpeningTime(place.openTime);
                             setCloseTime(place.closeTime);
                             setCategories(place.categories || []);
+                            setActive2("overview2");
                           }}
-                          className="bg-state-blue text-light-neutral font-semibold px-5 rounded-xl cursor-pointer "
+                          className="bg-state-blue text-light-neutral font-semibold px-5 rounded-xl cursor-pointer"
                         >
                           Edit
                         </button>
