@@ -5,7 +5,7 @@ import img3 from "../../assets/icons/star.png";
 import img4 from "../../assets/icons/bell.png";
 import { useState } from "react";
 import axios from "axios";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useUser } from "../../store/useUser";
 import Nav from "../Nav/Nav";
 import StarRating from "../StarRating/StarRating";
@@ -161,6 +161,22 @@ export default function Profile({ userId }) {
     queryFn: () => getBookingByUser(user.userId),
     enabled: !!user?.userId,
   });
+
+  const queryClient = useQueryClient();
+
+  async function deleteBook(bookingId) {
+    try {
+      await axios.patch(
+        `http://localhost:8080/api/v1.0/bookingss/cancel/${bookingId}`
+      );
+
+      queryClient.invalidateQueries({
+        queryKey: ["bookByuser", user.userId],
+      });
+    } catch (er) {
+      console.log(er);
+    }
+  }
 
   return (
     <>
@@ -458,20 +474,32 @@ export default function Profile({ userId }) {
                 </div>
 
                 <div className="flex flex-wrap gap-2 justify-start md:justify-end">
-                  <button className="bg-green-600 text-white text-sm px-4 py-1.5 rounded-lg hover:bg-green-500 transition">
-                    Confirmed
-                  </button>
+                  {booking.status == "cancelled" && (
+                    <button className="bg-red-300 text-white text-sm px-4 py-1.5 rounded-lg">
+                      Cancelled
+                    </button>
+                  )}
 
-                  <button className="bg-amber-500 text-white text-sm px-4 py-1.5 rounded-lg hover:bg-amber-400 transition">
-                    Pending
-                  </button>
+                  {booking.status == "pending" && (
+                    <>
+                      <button className="bg-amber-500 text-white text-sm px-4 py-1.5 rounded-lg">
+                        Pending
+                      </button>
 
-                  <button className="bg-red-600 text-white text-sm px-4 py-1.5 rounded-lg hover:bg-red-500 transition">
-                    Cancel
-                  </button>
-                  <button className="bg-red-300 text-white text-sm px-4 py-1.5 rounded-lg hover:bg-red-500 transition">
-                    Cancelled
-                  </button>
+                      <button
+                        onClick={() => deleteBook(booking.bookingId)}
+                        className="bg-red-600 text-white cursor-pointer text-sm px-4 py-1.5 rounded-lg hover:bg-red-500 transition"
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  )}
+
+                  {booking.status == "accepted" && (
+                    <button className="bg-green-600 text-white text-sm px-4 py-1.5 rounded-lg">
+                      Confirmed
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
