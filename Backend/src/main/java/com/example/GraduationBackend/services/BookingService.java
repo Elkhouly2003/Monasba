@@ -3,9 +3,11 @@ package com.example.GraduationBackend.services;
 import com.example.GraduationBackend.dto.BookingDTO;
 import com.example.GraduationBackend.dto.request.BookingRequest;
 import com.example.GraduationBackend.model.Booking;
+import com.example.GraduationBackend.model.Notification;
 import com.example.GraduationBackend.model.Place;
 import com.example.GraduationBackend.model.User;
 import com.example.GraduationBackend.repository.BookingRepository;
+import com.example.GraduationBackend.repository.NotificationRepository;
 import com.example.GraduationBackend.repository.PlaceRepository;
 import com.example.GraduationBackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,8 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +29,10 @@ public class BookingService {
     private final ModelMapper modelMapper ;
     private final UserRepository userRepository ;
     private final PlaceRepository placeRepository ;
+    private final NotificationRepository notificationRepository ;
 
 
+    @Transactional
     public void createBooking(BookingRequest bookingRequest) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
@@ -58,6 +64,15 @@ public class BookingService {
         booking.setStatus("pending");
 
         bookingRepository.save(booking);
+
+        Notification notification = new Notification();
+        notification.setPlaceOwner(place.getOwner());
+        notification.setPlace(place);
+        notification.setUserId(userID);
+        notification.setMessage(place.getPlaceName()+"Has Been Booked For Event Successfully In Monasba Website ");
+        notificationRepository.save(notification);
+
+
     }
 
     public List<BookingDTO> getAllBookings() {
@@ -111,12 +126,38 @@ public class BookingService {
             throw new ResourceNotFoundException("Booking with id "+ bookingID +" not found");
         });
     }
+    @Transactional
     public void cancelBooking(Long bookingID) {
         Booking booking = bookingRepository.findById(bookingID).orElseThrow(
                 () -> new ResourceNotFoundException("Booking with id "+ bookingID +" not found")
         );
         booking.setStatus("cancelled");
         bookingRepository.save(booking);
+
+
+        Notification notification = new Notification();
+        notification.setPlaceOwner(booking.getPlace().getOwner());
+        notification.setPlace(booking.getPlace());
+        notification.setUserId(booking.getUser().getUserId());
+        notification.setMessage("  Booking on Place "+ booking.getPlace().getPlaceName()+" Has Been Canceled");
+        notificationRepository.save(notification);
+
+    }
+
+    @Transactional
+    public void acceptBooking(Long bookingID) {
+        Booking booking = bookingRepository.findById(bookingID).orElseThrow(
+                () -> new ResourceNotFoundException("Booking with id "+ bookingID +" not found")
+        );
+        booking.setStatus("accepted");
+        bookingRepository.save(booking);
+
+        Notification notification = new Notification();
+        notification.setPlaceOwner(booking.getPlace().getOwner());
+        notification.setPlace(booking.getPlace());
+        notification.setUserId(booking.getUser().getUserId());
+        notification.setMessage("Booking on Place "+ booking.getPlace().getPlaceName()+" Has Been Accepted");
+        notificationRepository.save(notification);
     }
 
     public void updateBooking(Long bookingID, BookingRequest bookingRequest) {
@@ -133,4 +174,26 @@ public class BookingService {
         bookingRepository.save(booking);
 
     }
+
+    public List<BookingDTO> getAllBookingForPlace(Integer placeID) {
+        List<Booking> bookings = bookingRepository.findBookingByPlacePlaceId(placeID);
+        List<BookingDTO> bookingDTOS = new ArrayList<>();
+        for (Booking booking : bookings) {
+            BookingDTO bookingDTO = getBookingById(booking.getId().longValue()) ;
+            bookingDTOS.add(bookingDTO);
+        }
+        return  bookingDTOS;
+    }
+
+    public List<BookingDTO> getAllBookingForOwner(Integer ownerId){
+        List<Booking> bookings = bookingRepository.findByPlaceOwnerUserId(ownerId);
+        List<BookingDTO> bookingDTOS = new ArrayList<>();
+        for (Booking booking : bookings) {
+            BookingDTO bookingDTO = getBookingById(booking.getId().longValue()) ;
+            bookingDTOS.add(bookingDTO);
+        }
+        return  bookingDTOS;
+    }
+
+
 }

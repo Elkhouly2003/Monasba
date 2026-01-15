@@ -5,6 +5,7 @@ import com.example.GraduationBackend.dto.request.BookingRequest;
 import com.example.GraduationBackend.dto.request.PlaceRequest;
 import com.example.GraduationBackend.model.*;
 import com.example.GraduationBackend.repository.CategoryRepository;
+import com.example.GraduationBackend.repository.NotificationRepository;
 import com.example.GraduationBackend.repository.PlaceRepository;
 import com.example.GraduationBackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class PlaceService {
 
     private final PlaceRepository placeRepository;
     private final UserRepository userRepository;
+    private final NotificationRepository notificationRepository;
     private final CategoryRepository categoryRepository;
     private final CategoryService categoryService;
     private final PlaceCategoryService placeCategoryService;
@@ -33,7 +35,7 @@ public class PlaceService {
 
     public void addPlace(PlaceRequest placeRequest, int ownerId) {
 
-        User user = userRepository.findById(ownerId).orElseThrow(
+        User owner = userRepository.findById(ownerId).orElseThrow(
                 () -> new ResourceNotFoundException("User with id : " + ownerId + " not found")
         );
 
@@ -55,7 +57,7 @@ public class PlaceService {
         place.setImages(new ArrayList<>());
         place.setPlaceCategories(new ArrayList<>());
         place.setCertified(false);
-        place.setOwner(user);
+        place.setOwner(owner);
 
         Place savedPlace = placeRepository.save(place);
 
@@ -77,6 +79,13 @@ public class PlaceService {
         if (placeRequest.getImages() != null && !placeRequest.getImages().isEmpty()) {
             imageService.uploadPlaceImages(placeRequest.getImages(), savedPlace.getPlaceId());
         }
+
+        Notification notification = new Notification();
+        notification.setPlaceOwner(owner);
+        notification.setPlace(place);
+        notification.setMessage("a New Place Uploaded  Successfully In Monasba Website ");
+        notificationRepository.save(notification);
+
     }
 
     public List<PlaceDTO> getAllPlaces() {
