@@ -25,6 +25,10 @@ const SingleEventPage = () => {
   const [endTime, setEndTime] = useState("");
   const [capacity, setCapacity] = useState("");
   const [price, setPrice] = useState("");
+  const [isSaved, setIsSaved] = useState(false);
+
+  const { user } = useUser();
+
   const resetBookingForm = () => {
     setTitle("");
     setDescription("");
@@ -36,7 +40,43 @@ const SingleEventPage = () => {
     setEndTime("");
   };
 
-  const { user } = useUser();
+  const checkIfSaved = useCallback(async () => {
+    if (!user?.userId || !id) return;
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/v1.0/savedPlaces/${user.userId}`
+      );
+      if (response.ok) {
+        const result = await response.json();
+        const savedPlacesList = result.data || [];
+        const exists = savedPlacesList.some(
+          (p) => String(p.placeId) === String(id)
+        );
+        setIsSaved(exists);
+      }
+    } catch (err) {
+      console.error("Error checking saved state:", err);
+    }
+  }, [user?.userId, id]);
+
+  const handleToggleSave = async () => {
+    if (!user || !user.userId) return;
+
+    const method = isSaved ? "DELETE" : "POST";
+    const url = `http://localhost:8080/api/v1.0/user/${user.userId}/place/${id}`;
+
+    try {
+      const response = await fetch(url, { method });
+
+      if (response.ok) {
+        setIsSaved(!isSaved);
+      } else {
+        console.error(`Failed to ${isSaved ? "unsave" : "save"} place`);
+      }
+    } catch (err) {
+      console.error("Network error:", err);
+    }
+  };
 
   const handleConfirmBooking = async () => {
     const formattedStartDate = `${startDate}T${startTime}:00`;
@@ -52,12 +92,10 @@ const SingleEventPage = () => {
       capacity: Number(capacity),
       price: Number(price),
     };
-    
+
     try {
       await axios.post("http://localhost:8080/api/v1.0/bookingss", book);
-
       alert("Booking confirmed successfully");
-
       resetBookingForm();
     } catch (err) {
       console.error(err);
@@ -115,7 +153,7 @@ const SingleEventPage = () => {
           setImages(formattedImages);
         }
 
-        fetchReviews();
+        await fetchReviews();
       } catch (err) {
         setError(err.message);
       } finally {
@@ -125,6 +163,12 @@ const SingleEventPage = () => {
 
     fetchPlace();
   }, [id, fetchReviews]);
+
+  useEffect(() => {
+    if (user?.userId && id) {
+      checkIfSaved();
+    }
+  }, [user?.userId, id, checkIfSaved]);
 
   const handleReviewSuccess = () => {
     setShowReviewForm(false);
@@ -154,8 +198,17 @@ const SingleEventPage = () => {
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-dark-navy">
               {event.placeName}
             </h2>
-            <button>
-              <i className="fa-regular fa-bookmark text-2xl sm:text-3xl"></i>
+            <button
+              onClick={handleToggleSave}
+              className={`${
+                isSaved ? "text-state-blue" : "text-gray-500"
+              } hover:text-state-blue transition-colors duration-300 cursor-pointer outline-none border-none bg-transparent`}
+            >
+              <i
+                className={`${
+                  isSaved ? "fa-solid" : "fa-regular"
+                } fa-bookmark text-2xl sm:text-3xl`}
+              ></i>
             </button>
           </div>
 
