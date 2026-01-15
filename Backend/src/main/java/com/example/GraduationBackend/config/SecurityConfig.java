@@ -92,7 +92,8 @@ public class SecurityConfig {
                                 "/reviews/**",
                                 "/imagess/**",
                                 "/placess/**",
-                                "/images"
+                                "/images",
+                                "/bookingss"
                         )
                         .permitAll()
 
