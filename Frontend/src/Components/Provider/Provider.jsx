@@ -150,9 +150,11 @@ export default function Provider() {
     enabled: !!user?.userId,
   });
 
-  async function deleteItem(userId) {
+  async function deleteItem(userId, placeId) {
     try {
-      await axios.delete(`http://localhost:8080/api/v1.0/placess/${userId}`);
+      await axios.delete(
+        `http://localhost:8080/api/v1.0/placess/place/${placeId}/user/${userId}`
+      );
 
       queryClient.invalidateQueries({
         queryKey: ["placesByOwner", user.userId],
@@ -821,7 +823,7 @@ export default function Provider() {
                         </button>
 
                         <button
-                          onClick={() => deleteItem(place.placeId)}
+                          onClick={() => deleteItem(user.userId, place.placeId)}
                           className="text-white bg-red-600 rounded-3xl px-5 cursor-pointer "
                         >
                           Delete
