@@ -1,9 +1,12 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useUser } from "../../store/useUser";
 
 const EventCard = ({ event }) => {
+  const { user } = useUser();
   const [userData, setUserData] = useState(null);
   const [imageSrc, setImageSrc] = useState(null);
+  const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -37,15 +40,52 @@ const EventCard = ({ event }) => {
       }
     };
 
+    const checkIfSaved = async () => {
+      if (!user?.userId) return;
+      try {
+        const response = await fetch(
+          `http://localhost:8080/api/v1.0/savedPlaces/${user.userId}`
+        );
+        if (response.ok) {
+          const result = await response.json();
+          const savedPlacesList = result.data || [];
+          const exists = savedPlacesList.some(
+            (p) => p.placeId === event.placeId
+          );
+          setIsSaved(exists);
+        }
+      } catch (err) {
+        console.error("Error checking saved state:", err);
+      }
+    };
+
     fetchUser();
     fetchImage();
-
-    console.log("first");
+    checkIfSaved();
 
     return () => {
       if (imageSrc) URL.revokeObjectURL(imageSrc);
     };
-  }, []);
+  }, [event.ownerID, event.imagesID, event.placeId, user?.userId]);
+
+  const handleSave = async () => {
+    if (!user || !user.userId) return;
+
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/v1.0/user/${user.userId}/place/${event.placeId}`,
+        {
+          method: "POST",
+        }
+      );
+
+      if (response.ok) {
+        setIsSaved(true);
+      }
+    } catch (err) {
+      console.error("Network error:", err);
+    }
+  };
 
   return (
     <div className="bg-white text-steel-blue rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 relative group">
@@ -100,8 +140,17 @@ const EventCard = ({ event }) => {
               Book Now
             </button>
           </Link>
-          <button className="text-gray-500 hover:text-state-blue transition-colors duration-300">
-            <i className="fa-regular fa-bookmark fa-lg"></i>
+          <button
+            onClick={handleSave}
+            className={`${
+              isSaved ? "text-state-blue" : "text-gray-500"
+            } hover:text-state-blue transition-colors duration-300 cursor-pointer outline-none border-none bg-transparent`}
+          >
+            <i
+              className={`${
+                isSaved ? "fa-solid" : "fa-regular"
+              } fa-bookmark fa-lg`}
+            ></i>
           </button>
         </div>
       </div>

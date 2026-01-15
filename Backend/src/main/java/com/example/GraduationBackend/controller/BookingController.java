@@ -1,5 +1,6 @@
 package com.example.GraduationBackend.controller;
 
+import com.example.GraduationBackend.dto.BookingDTO;
 import com.example.GraduationBackend.dto.request.BookingRequest;
 import com.example.GraduationBackend.dto.response.ApiResponse;
 import com.example.GraduationBackend.model.Booking;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/bookings")
+@RequestMapping("/bookingss")
 @RequiredArgsConstructor
 public class BookingController {
     private final BookingService bookingService;
@@ -31,13 +32,13 @@ public class BookingController {
 
     @GetMapping("user/{userId}")
     public ResponseEntity<ApiResponse> getBookingsByUserId(@PathVariable int userId) {
-        List<Booking> bookings = bookingService.getAllBookingsByUserId(userId);
+        List<BookingDTO> bookings = bookingService.getAllBookingsByUserId(userId);
         return ResponseEntity.ok(new ApiResponse("Success !", bookings));
     }
 
     @GetMapping("/booking/{bookingId}")
     public ResponseEntity<ApiResponse> getBookingById(@PathVariable Long bookingId) {
-        Booking booking = bookingService.getBookingById(bookingId);
+        BookingDTO booking = bookingService.getBookingById(bookingId);
         return ResponseEntity.ok(new ApiResponse("Success !", booking));
     }
 
@@ -47,8 +48,9 @@ public class BookingController {
         return ResponseEntity.ok(new ApiResponse("Success !", "Booking updated successfully"));
     }
 
+    @GetMapping()
     public ResponseEntity<ApiResponse> getAllBookings() {
-        List<Booking> bookings = bookingService.getAllBookings();
+        List<BookingDTO> bookings = bookingService.getAllBookings();
         return ResponseEntity.ok(new ApiResponse("Success !", bookings));
     }
 
