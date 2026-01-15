@@ -8,8 +8,6 @@ import Nav from "../Nav/Nav";
 import { useUser } from "../../store/useUser";
 import axios from "axios";
 
-
-
 const SingleEventPage = () => {
   const { id } = useParams();
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -21,39 +19,40 @@ const SingleEventPage = () => {
   const [reviews, setReviews] = useState([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [startDate, setStartDate] = useState("");
   const [startTime, setStartTime] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [endTime, setEndTime] = useState("");
   const [capacity, setCapacity] = useState("");
   const [price, setPrice] = useState("");
   const resetBookingForm = () => {
     setTitle("");
     setDescription("");
-    setStartTime("");
-    setEndTime("");
+    setStartDate("");
+    setEndDate("");
     setCapacity("");
     setPrice("");
-  };
-  const buildDateTime = (date, time) => {
-    return `${date}T${time}:00`;
+    setStartTime("");
+    setEndTime("");
   };
 
   const { user } = useUser();
-  
-console.log(user.userId);
-
 
   const handleConfirmBooking = async () => {
+    const formattedStartDate = `${startDate}T${startTime}:00`;
+    const formattedEndDate = `${endDate}T${endTime}:00`;
+
     const book = {
       userId: user.userId,
       placeId: id,
       title,
       description,
-      startDate: buildDateTime("2025-10-30", startTime),
-      endDate: buildDateTime("2025-10-30", endTime),
+      startDate: formattedStartDate,
+      endDate: formattedEndDate,
       capacity: Number(capacity),
       price: Number(price),
     };
-
+    
     try {
       await axios.post("http://localhost:8080/api/v1.0/bookingss", book);
 
@@ -246,7 +245,30 @@ console.log(user.userId);
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Start Time
+                  Start date
+                </label>
+                <input
+                  type="date"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-2"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  End date
+                </label>
+                <input
+                  type="date"
+                  className="w-full border border-gray-300 rounded-xl px-4 py-2"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Start time
                 </label>
                 <input
                   type="time"

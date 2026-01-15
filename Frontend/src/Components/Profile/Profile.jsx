@@ -148,6 +148,20 @@ export default function Profile({ userId }) {
     setEditRating(rev.ratings);
     setHoverRating(0);
   };
+
+  const getBookingByUser = async (userId) => {
+    const { data } = await axios.get(
+      `http://localhost:8080/api/v1.0/bookingss/user/${userId}`
+    );
+    return data;
+  };
+
+  const { data: bookByuser } = useQuery({
+    queryKey: ["bookByuser", user?.userId],
+    queryFn: () => getBookingByUser(user.userId),
+    enabled: !!user?.userId,
+  });
+
   return (
     <>
       <Nav />
@@ -410,70 +424,58 @@ export default function Profile({ userId }) {
             <h2 className="font-bold text-2xl">My Bookings</h2>
           </div>
 
-          <div className="container bg-white rounded-xl shadow-sm p-6 space-y-4">
-            <div className="pb-4 border-b border-gray-200 mx-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-xl">
-                    Wedding at Cairo Hall
+          {bookByuser?.data?.map((booking) => (
+            <div
+              key={booking.bookingId}
+              className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-4"
+            >
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="space-y-1">
+                  <h3 className="font-semibold text-lg text-gray-900">
+                    {booking.title}
                   </h3>
-                  <span className="text-(--color-state-blue) text-sm">
-                    12 Oct 2025
+
+                  <p className="text-sm text-gray-600">{booking.description}</p>
+
+                  <div className="text-sm text-gray-500 space-y-1">
+                    <p>📅 Start: {booking.startDate}</p>
+                    <p>📅 End: {booking.endDate}</p>
+                  </div>
+
+                  <span
+                    className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium
+            ${
+              booking.status === "CONFIRMED"
+                ? "bg-green-100 text-green-700"
+                : booking.status === "CANCELLED"
+                ? "bg-red-100 text-red-700"
+                : "bg-amber-100 text-amber-700"
+            }
+          `}
+                  >
+                    {booking.status}
                   </span>
                 </div>
 
-                <div className="flex gap-2">
-                  <button className="text-white bg-neutral-800 rounded-xl text-sm py-1 px-3">
-                    View Invitation
-                  </button>
-                  <button className="text-white bg-green-700 rounded-xl text-sm py-1 px-3">
+                <div className="flex flex-wrap gap-2 justify-start md:justify-end">
+                  <button className="bg-green-600 text-white text-sm px-4 py-1.5 rounded-lg hover:bg-green-500 transition">
                     Confirmed
                   </button>
-                </div>
-              </div>
-            </div>
 
-            <div className="pb-4 border-b border-gray-200 mx-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-xl">
-                    Wedding at Cairo Hall
-                  </h3>
-                  <span className="text-(--color-state-blue) text-sm">
-                    12 Oct 2025
-                  </span>
-                </div>
-
-                <div className="flex gap-2">
-                  <button className="text-white bg-amber-300 rounded-xl text-sm py-1 px-3">
+                  <button className="bg-amber-500 text-white text-sm px-4 py-1.5 rounded-lg hover:bg-amber-400 transition">
                     Pending
                   </button>
-                  <button className="text-white bg-red-600 rounded-xl text-sm py-1 px-3">
+
+                  <button className="bg-red-600 text-white text-sm px-4 py-1.5 rounded-lg hover:bg-red-500 transition">
                     Cancel
                   </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="mx-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-xl">
-                    Wedding at Cairo Hall
-                  </h3>
-                  <span className="text-(--color-state-blue) text-sm">
-                    12 Oct 2025
-                  </span>
-                </div>
-
-                <div className="flex gap-2">
-                  <button className="text-white bg-red-300 rounded-xl text-sm py-1 px-3">
+                  <button className="bg-red-300 text-white text-sm px-4 py-1.5 rounded-lg hover:bg-red-500 transition">
                     Cancelled
                   </button>
                 </div>
               </div>
             </div>
-          </div>
+          ))}
         </div>
       )}
 

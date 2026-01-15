@@ -70,9 +70,7 @@ function App() {
         {
           path: "/admin",
           element: (
-            <Guard>
               <ProfileAdmin />
-            </Guard>
           ),
         },
         { path: "*", element: <NotFound /> },
