@@ -13,7 +13,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 export default function Provider() {
   const [active, setActive] = useState("overview");
   const [activeTab, setActiveTab] = useState("All");
-
+  const [active2, setActive2] = useState("");
   const [placeName, setPlaceName] = useState("");
   const [description, setDescription] = useState("");
   const [categories, setCategories] = useState([]);
@@ -26,6 +26,24 @@ export default function Provider() {
   const [openingTime, setOpeningTime] = useState("");
   const [closeTime, setCloseTime] = useState("");
   const [images, setImages] = useState([]);
+  const [isEdit, setIsEdit] = useState(false);
+  const [placeId, setPlaceId] = useState(null);
+  const resetForm = () => {
+    setPlaceName("");
+    setDescription("");
+    setCountry("");
+    setCity("");
+    setAddress("");
+    setPrice("");
+    setCapacity("");
+    setPhone("");
+    setOpeningTime("");
+    setCloseTime("");
+    setCategories([]);
+    setImages([]);
+    setIsEdit(false);
+    setPlaceId(null);
+  };
 
   const { user } = useUser();
 
@@ -48,14 +66,8 @@ export default function Provider() {
     formData.append("price", price);
     formData.append("capacity", capacity);
     formData.append("phone", phone);
-
-    const formatTime = (timeStr) => {
-      if (!timeStr) return "00:00";
-      return timeStr.includes(":") ? timeStr : `${timeStr}:00`;
-    };
-
-    formData.append("openTime", formatTime(openingTime));
-    formData.append("closeTime", formatTime(closeTime));
+    formData.append("openTime", openingTime);
+    formData.append("closeTime", closeTime);
 
     categories.forEach((cat) => {
       formData.append("categories", cat);
@@ -65,21 +77,34 @@ export default function Provider() {
       formData.append("images", img);
     });
 
-    try {
-      const response = await fetch(
-        `http://localhost:8080/api/v1.0/placess?ownerId=${userId}`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+    const url = isEdit
+      ? `http://localhost:8080/api/v1.0/placess/${placeId}`
+      : `http://localhost:8080/api/v1.0/placess?ownerId=${userId}`;
 
-      if (response.ok) {
-        const result = await response.json();
-        console.log(result);
-      } else {
-        const errorData = await response.json();
-        console.error(errorData);
+    const method = isEdit ? "PUT" : "POST";
+
+    try {
+      const response = await fetch(url, {
+        method,
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Request failed");
+      }
+
+      queryClient.invalidateQueries({
+        queryKey: ["placesByOwner", user.userId],
+      });
+
+      resetForm();
+
+      const result = await response.json();
+      console.log(result);
+
+      if (isEdit) {
+        setIsEdit(false);
+        setPlaceId(null);
       }
     } catch (err) {
       console.error(err);
@@ -493,197 +518,212 @@ export default function Provider() {
         <div className="w-full mb-6 mt-6">
           <div className="container mx-auto mb-6 pl-5 flex justify-between">
             <h2 className="font-bold text-2xl">Saved Events</h2>
-            <button className=" bg-(--color-steel-blue) text-white font-semibold px-6 mr-5 py-2 rounded-xl transition-colors duration-300 cursor-pointer">
+            <button
+              onClick={() => setActive2("overview2")}
+              className=" bg-(--color-steel-blue) text-white font-semibold px-6 mr-5 py-2 rounded-xl transition-colors duration-300 cursor-pointer"
+            >
               + Add new venue
             </button>
           </div>
 
-          <div className="container bg-white p-6 rounded-2xl shadow-sm ">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="font-bold text-2xl">Add New Event</h2>
-              <i className="fa-solid fa-x cursor-pointer text-gray-500"></i>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Event Title
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Al-Lu'lu'a Venue"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={placeName}
-                  onChange={(e) => setPlaceName(e.target.value)}
-                />
-              </div>
-
-              <div className="md:col-span-1">
-                <label className="block text-sm font-medium mb-1">
-                  Categories
-                </label>
-                <div className="flex flex-wrap gap-3 p-2 border border-gray-300 rounded-xl bg-gray-50">
-                  {["Wedding", "Birthday", "Party"].map((cat) => (
-                    <label
-                      key={cat}
-                      className="flex items-center space-x-2 cursor-pointer"
-                    >
-                      <input
-                        type="checkbox"
-                        className="rounded border-gray-300 text-cyan-900 focus:ring-cyan-900"
-                        checked={categories.includes(cat)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setCategories([...categories, cat]);
-                          } else {
-                            setCategories(
-                              categories.filter((item) => item !== cat)
-                            );
-                          }
-                        }}
-                      />
-                      <span className="text-sm">{cat}</span>
+          {active2 == "overview2" && (
+            <>
+              <div className="container bg-white p-6 rounded-2xl shadow-sm ">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="font-bold text-2xl">Add New Event</h2>
+                  <i
+                    onClick={() => setActive2("")}
+                    className="fa-solid fa-x cursor-pointer text-gray-500"
+                  ></i>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Event Title
                     </label>
-                  ))}
+                    <input
+                      type="text"
+                      placeholder="e.g. Al-Lu'lu'a Venue"
+                      className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={placeName}
+                      onChange={(e) => setPlaceName(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="md:col-span-1">
+                    <label className="block text-sm font-medium mb-1">
+                      Categories
+                    </label>
+                    <div className="flex flex-wrap gap-3 p-2 border border-gray-300 rounded-xl bg-gray-50">
+                      {["Wedding", "Birthday", "Party"].map((cat) => (
+                        <label
+                          key={cat}
+                          className="flex items-center space-x-2 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            className="rounded border-gray-300 text-cyan-900 focus:ring-cyan-900"
+                            checked={categories.includes(cat)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setCategories([...categories, cat]);
+                              } else {
+                                setCategories(
+                                  categories.filter((item) => item !== cat)
+                                );
+                              }
+                            }}
+                          />
+                          <span className="text-sm">{cat}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium mb-1">
+                      Description
+                    </label>
+                    <textarea
+                      rows="4"
+                      placeholder="Describe your event..."
+                      className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                    ></textarea>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Country
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Egypt"
+                      className="w-full border border-gray-300 rounded-xl px-4 py-2"
+                      value={country}
+                      onChange={(e) => setCountry(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      City
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Cairo"
+                      className="w-full border border-gray-300 rounded-xl px-4 py-2"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Address
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Cairo"
+                      className="w-full border border-gray-300 rounded-xl px-4 py-2"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Booking Price
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 35"
+                      className="w-full border border-gray-300 rounded-xl px-4 py-2"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Capacity
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 200"
+                      className="w-full border border-gray-300 rounded-xl px-4 py-2"
+                      value={capacity}
+                      onChange={(e) => setCapacity(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Phone
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 011111111"
+                      className="w-full border border-gray-300 rounded-xl px-4 py-2"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Opening Time
+                    </label>
+                    <input
+                      type="time"
+                      className="w-full border border-gray-300 rounded-xl px-4 py-2"
+                      value={openingTime}
+                      onChange={(e) => setOpeningTime(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Closing Time
+                    </label>
+                    <input
+                      type="time"
+                      className="w-full border border-gray-300 rounded-xl px-4 py-2"
+                      value={closeTime}
+                      onChange={(e) => setCloseTime(e.target.value)}
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium mb-1">
+                      Upload Gallery
+                    </label>
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={(e) => setImages([...e.target.files])}
+                      className="w-full border border-dashed border-gray-400 rounded-xl px-4 py-6 bg-gray-50"
+                    />
+                    {images.length > 0 && (
+                      <p className="text-xs mt-2 text-gray-500">
+                        {images.length} images selected
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-3 mt-6">
+                  <button className="px-5 py-2 rounded-xl bg-gray-500 text-white">
+                    Preview Event
+                  </button>
+                  <button
+                    onClick={handleSubmit}
+                    className={`px-5 py-2 rounded-xl text-white cursor-pointer ${
+                      isEdit ? "bg-green-600" : "bg-(--color-dark-navy)"
+                    }`}
+                  >
+                    {isEdit ? "Update Event" : "Publish Event"}
+                  </button>
                 </div>
               </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium mb-1">
-                  Description
-                </label>
-                <textarea
-                  rows="4"
-                  placeholder="Describe your event..."
-                  className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                ></textarea>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Country
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Egypt"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-2"
-                  value={country}
-                  onChange={(e) => setCountry(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">City</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Cairo"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-2"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Address
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Cairo"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-2"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Booking Price
-                </label>
-                <input
-                  type="number"
-                  placeholder="e.g. 35"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-2"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Capacity
-                </label>
-                <input
-                  type="number"
-                  placeholder="e.g. 200"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-2"
-                  value={capacity}
-                  onChange={(e) => setCapacity(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Phone</label>
-                <input
-                  type="number"
-                  placeholder="e.g. 011111111"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-2"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Opening Time
-                </label>
-                <input
-                  type="time"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-2"
-                  value={openingTime}
-                  onChange={(e) => setOpeningTime(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Closing Time
-                </label>
-                <input
-                  type="time"
-                  className="w-full border border-gray-300 rounded-xl px-4 py-2"
-                  value={closeTime}
-                  onChange={(e) => setCloseTime(e.target.value)}
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium mb-1">
-                  Upload Gallery
-                </label>
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={(e) => setImages([...e.target.files])}
-                  className="w-full border border-dashed border-gray-400 rounded-xl px-4 py-6 bg-gray-50"
-                />
-                {images.length > 0 && (
-                  <p className="text-xs mt-2 text-gray-500">
-                    {images.length} images selected
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-3 mt-6">
-              <button className="px-5 py-2 rounded-xl bg-gray-500 text-white">
-                Preview Event
-              </button>
-              <button
-                onClick={(e) => handleSubmit(e)}
-                className="px-5 py-2 rounded-xl bg-(--color-dark-navy) text-white"
-              >
-                Publish Event
-              </button>
-            </div>
-          </div>
+            </>
+          )}
 
           <div className=" container">
             <div className="max-w-8xl mx-auto px-2 sm:px-4">
@@ -734,7 +774,24 @@ export default function Provider() {
                       </div>
 
                       <div className="flex justify-between items-center mt-6">
-                        <button className="bg-state-blue text-light-neutral font-semibold px-5 rounded-xl transition-colors duration-300 cursor-pointer">
+                        <button
+                          onClick={() => {
+                            setIsEdit(true);
+                            setPlaceId(place.placeId);
+                            setPlaceName(place.placeName);
+                            setDescription(place.description);
+                            setCountry(place.country);
+                            setCity(place.city);
+                            setAddress(place.address);
+                            setPrice(place.price);
+                            setCapacity(place.capacity);
+                            setPhone(place.phone);
+                            setOpeningTime(place.openTime);
+                            setCloseTime(place.closeTime);
+                            setCategories(place.categories || []);
+                          }}
+                          className="bg-state-blue text-light-neutral font-semibold px-5 rounded-xl cursor-pointer "
+                        >
                           Edit
                         </button>
 

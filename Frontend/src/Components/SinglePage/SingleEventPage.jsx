@@ -4,6 +4,7 @@ import Reviews from "../Reviews/Reviews";
 import ReviewForm from "../ReviewForm/ReviewForm";
 import StarRating from "../StarRating/StarRating";
 import { useState, useEffect, useCallback } from "react";
+import Nav from "../Nav/Nav";
 
 const SingleEventPage = () => {
   const { id } = useParams();
@@ -93,6 +94,8 @@ const SingleEventPage = () => {
     : [];
 
   return (
+   <>
+   <Nav />
     <div className="max-w-8xl px-2 sm:px-4 mx-auto pb-20">
       <div className="mt-6 sm:mt-10">
         <ImageSlider images={images} />
@@ -256,6 +259,7 @@ const SingleEventPage = () => {
         </div>
       </div>
     </div>
+   </>
   );
 };
 
