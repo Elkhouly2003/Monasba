@@ -68,19 +68,19 @@ const EventCard = ({ event }) => {
     };
   }, [event.ownerID, event.imagesID, event.placeId, user?.userId]);
 
-  const handleSave = async () => {
+  const handleToggleSave = async () => {
     if (!user || !user.userId) return;
 
+    const method = isSaved ? "DELETE" : "POST";
+    const url = `http://localhost:8080/api/v1.0/user/${user.userId}/place/${event.placeId}`;
+
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/v1.0/user/${user.userId}/place/${event.placeId}`,
-        {
-          method: "POST",
-        }
-      );
+      const response = await fetch(url, { method });
 
       if (response.ok) {
-        setIsSaved(true);
+        setIsSaved(!isSaved);
+      } else {
+        console.error(`Failed to ${isSaved ? "unsave" : "save"} place`);
       }
     } catch (err) {
       console.error("Network error:", err);
@@ -141,7 +141,7 @@ const EventCard = ({ event }) => {
             </button>
           </Link>
           <button
-            onClick={handleSave}
+            onClick={handleToggleSave}
             className={`${
               isSaved ? "text-state-blue" : "text-gray-500"
             } hover:text-state-blue transition-colors duration-300 cursor-pointer outline-none border-none bg-transparent`}

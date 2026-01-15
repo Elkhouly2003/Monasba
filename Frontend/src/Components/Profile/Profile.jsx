@@ -3,13 +3,13 @@ import img1 from "../../assets/icons/booking.png";
 import img2 from "../../assets/icons/bookmark.png";
 import img3 from "../../assets/icons/star.png";
 import img4 from "../../assets/icons/bell.png";
-import img5 from "../../assets//icons/sumatra-weddings.png";
 import { useState } from "react";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { useUser } from "../../store/useUser";
 import Nav from "../Nav/Nav";
 import StarRating from "../StarRating/StarRating";
+import EventCard from "../EventCard/EventCard";
 
 const getNotifications = async (userId) => {
   const { data } = await axios.get(
@@ -26,6 +26,7 @@ export default function Profile({ userId }) {
   const [editComment, setEditComment] = useState("");
   const [editRating, setEditRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
+  const [savedPlaces, setSavedPlaces] = useState([]);
 
   const fetchReviews = useCallback(async () => {
     if (!user?.userId) return;
@@ -79,9 +80,25 @@ export default function Profile({ userId }) {
     enabled: !!userId,
   });
 
+  const fetchSavedPlaces = useCallback(async () => {
+    if (!user?.userId) return;
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/v1.0/savedPlaces/${user.userId}`
+      );
+      if (response.ok) {
+        const result = await response.json();
+        setSavedPlaces(result.data || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch saved places", err);
+    }
+  }, [user?.userId]);
+
   useEffect(() => {
-    fetchReviews();
-  }, [fetchReviews]);
+    if (active === "Reviews") fetchReviews();
+    if (active === "Saved Events") fetchSavedPlaces();
+  }, [active, fetchReviews, fetchSavedPlaces, savedPlaces]);
 
   const handleDelete = async (rev) => {
     try {
@@ -465,210 +482,17 @@ export default function Profile({ userId }) {
           <div className="container mx-auto mb-6 pl-5">
             <h2 className="font-bold text-2xl">Saved Events</h2>
           </div>
-          <div>
-            <div className="max-w-8xl mx-auto px-2 sm:px-4">
-              <div className="mt-6 mb-8 grid gap-8 grid-cols-1 [@media(min-width:650px)_and_(max-width:764px)]:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                <div className="bg-white text-steel-blue rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 relative group">
-                  <div className="absolute top-3 left-3 z-20 bg-state-blue text-light-neutral px-3 py-1 text-sm font-medium rounded-full opacity-90 backdrop-blur-sm">
-                    Wedding
-                  </div>
-
-                  <div className="overflow-hidden">
-                    <img
-                      className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500"
-                      src={img5}
-                      alt=""
-                    />
-                  </div>
-
-                  <div className="p-5">
-                    <div className="flex justify-between items-center">
-                      <h1 className="font-semibold text-xl line-clamp-1">
-                        Al-Lu’lu’a Venue
-                      </h1>
-                      <div className="flex items-center gap-1">
-                        <i className="fa-solid fa-star text-yellow-400"></i>
-                        <span className="font-medium">4.5</span>
-                      </div>
-                    </div>
-
-                    <p className="text-gray-600 mt-2 text-sm line-clamp-2">
-                      Elegant venue for wedding and celebrations.
-                    </p>
-
-                    <div className="flex justify-between items-center mt-4 text-sm text-gray-500">
-                      <div className="flex items-center gap-2">
-                        <i className="fa-regular fa-calendar"></i>
-                        <span>Jan 9, 2004</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <i className="fa-solid fa-location-dot"></i>
-                        <span>cairo</span>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between items-center mt-6">
-                      <button className="bg-state-blue text-light-neutral font-semibold px-6 py-2 rounded-xl transition-colors duration-300 cursor-pointer">
-                        Book Now
-                      </button>
-
-                      <button className="text-gray-500 hover:text-state-blue transition-colors duration-300">
-                        <i class="fa-solid fa-bookmark text-2xl"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-white text-steel-blue rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 relative group">
-                  <div className="absolute top-3 left-3 z-20 bg-state-blue text-light-neutral px-3 py-1 text-sm font-medium rounded-full opacity-90 backdrop-blur-sm">
-                    Wedding
-                  </div>
-
-                  <div className="overflow-hidden">
-                    <img
-                      className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500"
-                      src={img5}
-                      alt=""
-                    />
-                  </div>
-
-                  <div className="p-5">
-                    <div className="flex justify-between items-center">
-                      <h1 className="font-semibold text-xl line-clamp-1">
-                        Al-Lu’lu’a Venue
-                      </h1>
-                      <div className="flex items-center gap-1">
-                        <i className="fa-solid fa-star text-yellow-400"></i>
-                        <span className="font-medium">4.5</span>
-                      </div>
-                    </div>
-
-                    <p className="text-gray-600 mt-2 text-sm line-clamp-2">
-                      Elegant venue for wedding and celebrations.
-                    </p>
-
-                    <div className="flex justify-between items-center mt-4 text-sm text-gray-500">
-                      <div className="flex items-center gap-2">
-                        <i className="fa-regular fa-calendar"></i>
-                        <span>Jan 9, 2004</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <i className="fa-solid fa-location-dot"></i>
-                        <span>cairo</span>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between items-center mt-6">
-                      <button className="bg-state-blue text-light-neutral font-semibold px-6 py-2 rounded-xl transition-colors duration-300 cursor-pointer">
-                        Book Now
-                      </button>
-
-                      <button className="text-gray-500 hover:text-state-blue transition-colors duration-300">
-                        <i class="fa-solid fa-bookmark text-2xl"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-white text-steel-blue rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 relative group">
-                  <div className="absolute top-3 left-3 z-20 bg-state-blue text-light-neutral px-3 py-1 text-sm font-medium rounded-full opacity-90 backdrop-blur-sm">
-                    Wedding
-                  </div>
-
-                  <div className="overflow-hidden">
-                    <img
-                      className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500"
-                      src={img5}
-                      alt=""
-                    />
-                  </div>
-
-                  <div className="p-5">
-                    <div className="flex justify-between items-center">
-                      <h1 className="font-semibold text-xl line-clamp-1">
-                        Al-Lu’lu’a Venue
-                      </h1>
-                      <div className="flex items-center gap-1">
-                        <i className="fa-solid fa-star text-yellow-400"></i>
-                        <span className="font-medium">4.5</span>
-                      </div>
-                    </div>
-
-                    <p className="text-gray-600 mt-2 text-sm line-clamp-2">
-                      Elegant venue for wedding and celebrations.
-                    </p>
-
-                    <div className="flex justify-between items-center mt-4 text-sm text-gray-500">
-                      <div className="flex items-center gap-2">
-                        <i className="fa-regular fa-calendar"></i>
-                        <span>Jan 9, 2004</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <i className="fa-solid fa-location-dot"></i>
-                        <span>cairo</span>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between items-center mt-6">
-                      <button className="bg-state-blue text-light-neutral font-semibold px-6 py-2 rounded-xl transition-colors duration-300 cursor-pointer">
-                        Book Now
-                      </button>
-
-                      <button className="text-gray-500 hover:text-state-blue transition-colors duration-300">
-                        <i class="fa-solid fa-bookmark text-2xl"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-white text-steel-blue rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 relative group">
-                  <div className="absolute top-3 left-3 z-20 bg-state-blue text-light-neutral px-3 py-1 text-sm font-medium rounded-full opacity-90 backdrop-blur-sm">
-                    Wedding
-                  </div>
-
-                  <div className="overflow-hidden">
-                    <img
-                      className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500"
-                      src={img5}
-                      alt=""
-                    />
-                  </div>
-
-                  <div className="p-5">
-                    <div className="flex justify-between items-center">
-                      <h1 className="font-semibold text-xl line-clamp-1">
-                        Al-Lu’lu’a Venue
-                      </h1>
-                      <div className="flex items-center gap-1">
-                        <i className="fa-solid fa-star text-yellow-400"></i>
-                        <span className="font-medium">4.5</span>
-                      </div>
-                    </div>
-
-                    <p className="text-gray-600 mt-2 text-sm line-clamp-2">
-                      Elegant venue for wedding and celebrations.
-                    </p>
-
-                    <div className="flex justify-between items-center mt-4 text-sm text-gray-500">
-                      <div className="flex items-center gap-2">
-                        <i className="fa-regular fa-calendar"></i>
-                        <span>Jan 9, 2004</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <i className="fa-solid fa-location-dot"></i>
-                        <span>cairo</span>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between items-center mt-6">
-                      <button className="bg-state-blue text-light-neutral font-semibold px-6 py-2 rounded-xl transition-colors duration-300 cursor-pointer">
-                        Book Now
-                      </button>
-
-                      <button className="text-gray-500 hover:text-state-blue transition-colors duration-300">
-                        <i class="fa-solid fa-bookmark text-2xl"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          <div className="container mx-auto px-4">
+            <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {savedPlaces.length > 0 ? (
+                savedPlaces.map((place) => (
+                  <EventCard key={place.placeId} event={place} />
+                ))
+              ) : (
+                <p className="text-center col-span-full text-gray-500">
+                  You haven't saved any places yet.
+                </p>
+              )}
             </div>
           </div>
         </div>
