@@ -2,9 +2,7 @@ import img1 from "../../assets/icons/booking.png";
 import img2 from "../../assets/icons/overView.png";
 import img3 from "../../assets/icons/star.png";
 import img4 from "../../assets/icons/bell.png";
-import img5 from "../../assets//icons/sumatra-weddings.png";
-import usePost from "../../hooks/usePost";
-import { use, useState } from "react";
+import { useState } from "react";
 import { useUser } from "../../store/useUser";
 import Nav from "../Nav/Nav";
 import axios from "axios";
@@ -51,33 +49,24 @@ export default function Provider() {
     e.preventDefault();
 
     if (!user || (!user.userId && !user.id)) {
-      alert("User session not found.");
       return;
     }
 
     const userId = user.userId || user.id;
-    const formData = new FormData();
 
-    formData.append("placeName", placeName);
-    formData.append("description", description);
-    formData.append("country", country);
-    formData.append("city", city);
-    formData.append("address", address);
-    formData.append("price", price);
-    formData.append("capacity", capacity);
-    formData.append("phone", phone);
-    formData.append("openTime", openingTime);
-    formData.append("closeTime", closeTime);
-
-    categories.forEach((cat) => {
-      formData.append("categories", cat);
-    });
-
-    if (images.length > 0) {
-      images.forEach((img) => {
-        formData.append("images", img);
-      });
-    }
+    const placeData = {
+      placeName,
+      description,
+      country,
+      city,
+      address,
+      price,
+      capacity,
+      phone,
+      openTime: openingTime,
+      closeTime,
+      categories,
+    };
 
     const url = isEdit
       ? `http://localhost:8080/api/v1.0/placess/${placeId}`
@@ -88,24 +77,43 @@ export default function Provider() {
     try {
       const response = await fetch(url, {
         method,
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(placeData),
       });
 
-      if (!response.ok) {
-        throw new Error("Request failed");
+      if (!response.ok) throw new Error("Place data update failed");
+
+      const placeResult = await response.json();
+      const currentPlaceId = isEdit ? placeId : placeResult.id;
+
+      if (images.length > 0) {
+        const imageFormData = new FormData();
+        imageFormData.append("placeId", currentPlaceId);
+        images.forEach((img) => {
+          imageFormData.append("files", img);
+        });
+
+        const imgResponse = await fetch(
+          `http://localhost:8080/api/v1.0/imagess`,
+          {
+            method: "POST",
+            body: imageFormData,
+          }
+        );
+
+        if (!imgResponse.ok) throw new Error("Image upload failed");
       }
 
       queryClient.invalidateQueries({
-        queryKey: ["placesByOwner", userId],
+        queryKey: ["placesByOwner", user.userId],
       });
 
       resetForm();
       setActive2("");
-
-      if (isEdit) {
-        setIsEdit(false);
-        setPlaceId(null);
-      }
+      setIsEdit(false);
+      setPlaceId(null);
     } catch (err) {
       console.error(err);
     }
@@ -120,7 +128,7 @@ export default function Provider() {
     return data;
   };
 
-  const { data: placeByOwner, isLoading } = useQuery({
+  const { data: placeByOwner } = useQuery({
     queryKey: ["placesByOwner", user?.userId],
     queryFn: () => getPlacesByOwner(user.userId),
     enabled: !!user?.userId,
