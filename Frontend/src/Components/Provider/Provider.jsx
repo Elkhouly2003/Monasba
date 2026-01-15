@@ -688,7 +688,7 @@ export default function Provider() {
           <div className=" container">
             <div className="max-w-8xl mx-auto px-2 sm:px-4">
               <div className="mt-6 mb-8 grid gap-8 grid-cols-1 [@media(min-width:650px)_and_(max-width:764px)]:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {placeByOwner?.data.map((place) => (
+                {placeByOwner?.data?.map((place) => (
                   <div
                     key={place.placeId}
                     className="bg-white text-steel-blue rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 relative group"

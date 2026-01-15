@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useUser } from "../../store/useUser";
+import axios from "axios";
 
 const ReviewForm = ({ placeId, onReviewSubmitted }) => {
   const [rate, setRate] = useState(0);
@@ -7,8 +8,27 @@ const ReviewForm = ({ placeId, onReviewSubmitted }) => {
   const [comment, setComment] = useState("");
   const { user } = useUser();
   const [errorMessage, setErrorMessage] = useState("");
+  const [ownerId, setOwnerId] = useState(null);
+
+  const fetchPlace = async () => {
+    try {
+      const results = await axios.get(
+        `http://localhost:8080/api/v1.0/placess/${placeId}`
+      );
+      const res = results.data;
+      const json = res.data;
+      setOwnerId(json.ownerID);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const handleSubmit = async () => {
+    if (ownerId === user.userId) {
+      setErrorMessage("your are not allowed to review yourself");
+      return;
+    }
+
     if (rate === 0 || comment.trim() === "") return;
     setErrorMessage("");
 
@@ -36,6 +56,10 @@ const ReviewForm = ({ placeId, onReviewSubmitted }) => {
       setErrorMessage("Something went wrong. Please try again.");
     }
   };
+
+  useEffect(() => {
+    fetchPlace();
+  }, [placeId]);
 
   return (
     <div className="mt-8 p-4 bg-white rounded-2xl shadow-xl border border-gray-100">
