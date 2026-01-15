@@ -36,7 +36,11 @@ public class ReviewController {
         reviewService.deleteReview(placeId, userId);
 
         return ResponseEntity.ok(new ApiResponse("Deletion Success !", "Review Deleted Successfully "));
-
+    }
+    @GetMapping("{reviewId}")
+    public ResponseEntity<ApiResponse> getReviewById(@PathVariable int reviewId){
+        ReviewDTO reviewDTO = reviewService.getReviewById(reviewId);
+        return ResponseEntity.ok(new ApiResponse("Get review successful", reviewDTO));
     }
 
     @GetMapping("user/{userId}")
@@ -51,6 +55,11 @@ public class ReviewController {
         List<ReviewDTO> userReviews = reviewService.getReviewsPlaceId(placeId);
 
         return ResponseEntity.ok(new ApiResponse("Place Reviews", userReviews));
+    }
+    @GetMapping("owner/{ownerId}")
+    public ResponseEntity<ApiResponse> getReviewsByOwnerId(@PathVariable Integer ownerId) {
+        List<ReviewDTO> reviewDTOS = reviewService.getReviewsOwnerId(ownerId);
+        return ResponseEntity.ok(new ApiResponse("Owner Reviews", reviewDTOS));
     }
 
 }

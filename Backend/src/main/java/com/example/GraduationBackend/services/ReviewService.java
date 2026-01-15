@@ -40,6 +40,19 @@ public class ReviewService {
 
         return reviewRequest;
     }
+    public ReviewDTO getReviewById  (Integer reviewId) {
+        Review review = reviewRepository.findById(reviewId.longValue()).orElseThrow(
+                () -> new IllegalArgumentException("Review with id "+reviewId+" not found")
+        );
+        ReviewDTO reviewDTO = new ReviewDTO();
+        reviewDTO.setReviewId(review.getId());
+        reviewDTO.setPlaceId(review.getPlace().getPlaceId());
+        reviewDTO.setUserId(review.getUser().getUserId());
+        reviewDTO.setComment(review.getComment());
+        reviewDTO.setRatings(review.getRatings());
+
+        return reviewDTO;
+    }
 
     public ReviewRequest updateReview(Integer placeId, Integer userId, ReviewRequest reviewRequest) {
         Place place = placeService.getPlaceById(placeId);
@@ -101,6 +114,21 @@ public class ReviewService {
         return  reviewsDto ;
 
 
+    }
+    public List<ReviewDTO> getReviewsOwnerId(Integer ownerId) {
+         List<Review> reviews = reviewRepository.findAllReviewsByOwnerId(ownerId);
+         List<ReviewDTO> reviewsDto = new ArrayList<>() ;
+         for(Review review : reviews) {
+             ReviewDTO dto = new ReviewDTO();
+             dto.setPlaceId(review.getPlace().getPlaceId());
+             dto.setUserId(review.getUser().getUserId());
+             dto.setReviewId(review.getId());
+             dto.setComment( review.getComment() );
+             dto.setRatings(review.getRatings());
+
+             reviewsDto.add(dto);
+         }
+         return  reviewsDto ;
     }
 
 }
