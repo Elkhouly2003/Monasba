@@ -89,6 +89,18 @@ export default function Provider() {
       const currentPlaceId = isEdit ? placeId : placeResult.id;
 
       if (images.length > 0) {
+        if (isEdit) {
+          const currentPlace = placeByOwner?.data?.find(
+            (p) => p.placeId === placeId
+          );
+          if (currentPlace && currentPlace.imagesID) {
+            const deletePromises = currentPlace.imagesID.map((imgId) =>
+              axios.delete(`http://localhost:8080/api/v1.0/imagess/${imgId}`)
+            );
+            await Promise.all(deletePromises);
+          }
+        }
+
         const imageFormData = new FormData();
         imageFormData.append("placeId", currentPlaceId);
         images.forEach((img) => {
@@ -118,7 +130,6 @@ export default function Provider() {
       console.error(err);
     }
   };
-
   const queryClient = useQueryClient();
 
   const getPlacesByOwner = async (userId) => {
