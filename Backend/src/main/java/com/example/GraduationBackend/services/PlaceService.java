@@ -202,7 +202,7 @@ public class PlaceService {
         bookingRepository.deleteByPlacePlaceId(placeId);
         placeCategoryRepository.deleteByPlacePlaceId(placeId);
         userRepository.deleteSavedPlacesByPlaceId(placeId);
-        place.setOwner(null);
+        place.setOwner(new User());
 
         placeRepository.delete(place);
     }

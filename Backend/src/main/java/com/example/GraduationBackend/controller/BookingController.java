@@ -74,7 +74,7 @@ public class BookingController {
 
     @GetMapping("owner/{ownerId}")
     public ResponseEntity<ApiResponse>getAllBookingForPlacesOwner(@PathVariable Integer ownerId) {
-        List<BookingDTO> bookings = bookingService.getAllBookingForPlace(ownerId);
+        List<BookingDTO> bookings = bookingService.getAllBookingForOwner(ownerId);
         return ResponseEntity.ok(new ApiResponse("Success !", bookings));
     }
 
