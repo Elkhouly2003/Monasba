@@ -4,10 +4,7 @@ import com.example.GraduationBackend.dto.PlaceDTO;
 import com.example.GraduationBackend.dto.request.BookingRequest;
 import com.example.GraduationBackend.dto.request.PlaceRequest;
 import com.example.GraduationBackend.model.*;
-import com.example.GraduationBackend.repository.CategoryRepository;
-import com.example.GraduationBackend.repository.NotificationRepository;
-import com.example.GraduationBackend.repository.PlaceRepository;
-import com.example.GraduationBackend.repository.UserRepository;
+import com.example.GraduationBackend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -29,7 +26,9 @@ public class PlaceService {
     private final NotificationRepository notificationRepository;
     private final CategoryRepository categoryRepository;
     private final CategoryService categoryService;
+    private final BookingRepository bookingRepository;
     private final PlaceCategoryService placeCategoryService;
+    private final PlaceCategoryRepository placeCategoryRepository;
     private final ImageService imageService;
     private final ModelMapper modelMapper;
 
@@ -191,10 +190,20 @@ public class PlaceService {
     }
 
     @Transactional
-    public void deletePlaceById(int placeId) {
+    public void deletePlaceById(int placeId ,Integer userId) {
         Place place = placeRepository.findById(placeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Place with id: " + placeId + " not found"));
-       // place.getPlaceCategories().size();
+
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new RuntimeException("User with id : " + userId + "not found")
+        );
+
+        place.getReviews().clear();
+        bookingRepository.deleteByPlacePlaceId(placeId);
+        placeCategoryRepository.deleteByPlacePlaceId(placeId);
+        userRepository.deleteSavedPlacesByPlaceId(placeId);
+        place.setOwner(null);
+
         placeRepository.delete(place);
     }
 

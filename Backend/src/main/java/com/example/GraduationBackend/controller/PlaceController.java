@@ -41,9 +41,9 @@ public class PlaceController {
         PlaceDTO place = placeService.getPlaceDTOById(placeId);
         return ResponseEntity.ok(new ApiResponse("Success", place));
     }
-    @DeleteMapping("/{placeId}")
-    public ResponseEntity<ApiResponse> deletePlace(@PathVariable int placeId) {
-        placeService.deletePlaceById(placeId);
+    @DeleteMapping("place/{placeId}/user/{userId}")
+    public ResponseEntity<ApiResponse> deletePlace(@PathVariable int placeId ,@PathVariable int userId) {
+        placeService.deletePlaceById(placeId ,  userId );
         return ResponseEntity.ok(new ApiResponse("Success", "place deleted successfully"));
     }
 
