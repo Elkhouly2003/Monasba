@@ -53,20 +53,28 @@ export default function Provider() {
     }
 
     const userId = user.userId || user.id;
+    const formData = new FormData();
 
-    const placeData = {
-      placeName,
-      description,
-      country,
-      city,
-      address,
-      price,
-      capacity,
-      phone,
-      openTime: openingTime,
-      closeTime,
-      categories,
-    };
+    formData.append("placeName", placeName);
+    formData.append("description", description);
+    formData.append("country", country);
+    formData.append("city", city);
+    formData.append("address", address);
+    formData.append("price", price);
+    formData.append("capacity", capacity);
+    formData.append("phone", phone);
+    formData.append("openTime", openingTime);
+    formData.append("closeTime", closeTime);
+
+    categories.forEach((cat) => {
+      formData.append("categories", cat);
+    });
+
+    if (!isEdit) {
+      images.forEach((img) => {
+        formData.append("images", img);
+      });
+    }
 
     const url = isEdit
       ? `http://localhost:8080/api/v1.0/placess/${placeId}`
@@ -77,32 +85,29 @@ export default function Provider() {
     try {
       const response = await fetch(url, {
         method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(placeData),
+        body: formData,
       });
 
       if (!response.ok) throw new Error("Place data update failed");
 
       const placeResult = await response.json();
-      const currentPlaceId = isEdit ? placeId : placeResult.id;
+      console.log(placeResult);
 
-      if (images.length > 0) {
-        if (isEdit) {
-          const currentPlace = placeByOwner?.data?.find(
-            (p) => p.placeId === placeId
+      if (isEdit && images.length > 0) {
+        const currentPlace = placeByOwner?.data?.find(
+          (p) => p.placeId === placeId
+        );
+
+        if (currentPlace && currentPlace.imagesID) {
+          const deletePromises = currentPlace.imagesID.map((imgId) =>
+            axios.delete(`http://localhost:8080/api/v1.0/imagess/${imgId}`)
           );
-          if (currentPlace && currentPlace.imagesID) {
-            const deletePromises = currentPlace.imagesID.map((imgId) =>
-              axios.delete(`http://localhost:8080/api/v1.0/imagess/${imgId}`)
-            );
-            await Promise.all(deletePromises);
-          }
+          await Promise.all(deletePromises);
         }
 
         const imageFormData = new FormData();
-        imageFormData.append("placeId", currentPlaceId);
+        imageFormData.append("placeId", placeId);
+
         images.forEach((img) => {
           imageFormData.append("files", img);
         });
