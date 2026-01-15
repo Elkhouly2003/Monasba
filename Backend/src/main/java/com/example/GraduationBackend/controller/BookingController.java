@@ -24,7 +24,7 @@ public class BookingController {
     }
 
     @DeleteMapping("/{bookingId}")
-    public ResponseEntity<ApiResponse> cancelBooking(@PathVariable Long bookingId) {
+    public ResponseEntity<ApiResponse> deleteBooking(@PathVariable Long bookingId) {
         bookingService.deleteBooking(bookingId);
         return ResponseEntity.ok(new ApiResponse("Success !", "Booking cancelled successfully"));
     }
@@ -54,11 +54,28 @@ public class BookingController {
         return ResponseEntity.ok(new ApiResponse("Success !", bookings));
     }
 
-    @PatchMapping("/{bookingId}")
-    public ResponseEntity<ApiResponse> cancelBookings(@PathVariable Long bookingId) {
+    @PatchMapping("cancel/{bookingId}")
+    public ResponseEntity<ApiResponse> cancelBooking(@PathVariable Long bookingId) {
         bookingService.cancelBooking(bookingId);
         return ResponseEntity.ok(new ApiResponse("Success !", "Booking cancelled successfully"));
     }
 
+    @PatchMapping("accept/{bookingId}")
+    public ResponseEntity<ApiResponse> acceptBooking(@PathVariable Long bookingId) {
+        bookingService.acceptBooking(bookingId);
+        return ResponseEntity.ok(new ApiResponse("Success !", "Booking accepted successfully"));
+    }
+
+    @GetMapping("place/{placeId}")
+    public ResponseEntity<ApiResponse>getAllBookingForSuchPlace(@PathVariable Integer placeId) {
+        List<BookingDTO> bookings = bookingService.getAllBookingForPlace(placeId);
+        return ResponseEntity.ok(new ApiResponse("Success !", bookings));
+    }
+
+    @GetMapping("owner/{ownerId}")
+    public ResponseEntity<ApiResponse>getAllBookingForPlacesOwner(@PathVariable Integer ownerId) {
+        List<BookingDTO> bookings = bookingService.getAllBookingForPlace(ownerId);
+        return ResponseEntity.ok(new ApiResponse("Success !", bookings));
+    }
 
 }

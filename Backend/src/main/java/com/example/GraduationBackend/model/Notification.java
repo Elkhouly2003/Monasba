@@ -21,15 +21,19 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id ;
 
-    @Column(name = "from_id")
-    private Integer from ;
+    @Column(name = "user_id")
+    private Integer userId ;
 
     @ManyToOne
-    @JoinColumn(name = "to_id")
-    private User user;
+    @JoinColumn(name = "owner_id")
+    private User placeOwner;
 
     @Column(name = "notification_message")
     private String message;
+
+    @ManyToOne
+    @JoinColumn(name = "place_id")
+    private Place place ;
 
     @Column(name = "notification_action")
     private String action ;
