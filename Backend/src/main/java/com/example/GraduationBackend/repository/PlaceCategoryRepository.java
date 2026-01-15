@@ -11,7 +11,7 @@ import java.util.List;
 
 @Repository
 public interface PlaceCategoryRepository extends JpaRepository<PlaceCategory, Long> {
-
+  void deleteByPlacePlaceId(Integer placeId);
     @Query("SELECT pc.category FROM PlaceCategory pc WHERE pc.place.placeId = :placeId")
     List<Category> findCategoriesByPlaceId(@Param("placeId") Long placeId);
 
