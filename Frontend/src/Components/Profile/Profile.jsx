@@ -679,41 +679,55 @@ export default function Profile({ userId }) {
         </div>
       )}
 
-     {active === "Notifications" && (
+      {active === "Notifications" && (
         <div className="w-full mb-6">
           <div className="container mx-auto mb-6 pl-5 flex items-center justify-between">
             <h2 className="font-bold text-2xl">Notifications</h2>
           </div>
-          {notifByOwner?.data?.map((notification, index) => {
-            const placeData = placeQueries[index]?.data;
-            return (
-              <div
-                key={notification.notificationId}
-                className="container bg-white rounded-2xl shadow-sm p-6 space-y-4 mb-3 border border-gray-300 "
-              >
-                <div className=" mx-4">
-                  <div className="flex items-center justify-between">
-                    <div>
+
+          {(!notifByOwner?.data || notifByOwner.data.length === 0) && (
+            <div className="container bg-white rounded-2xl shadow-sm p-6 border border-gray-300 text-center text-gray-500">
+              <i className="fa-regular fa-bell-slash text-3xl mb-2 block"></i>
+              <p className="text-lg font-medium">No notifications yet</p>
+              <p className="text-sm">
+                You don’t have any notifications right now
+              </p>
+            </div>
+          )}
+
+          {notifByOwner?.data?.length > 0 &&
+            notifByOwner.data.map((notification, index) => {
+              const placeData = placeQueries[index]?.data;
+
+              return (
+                <div
+                  key={notification.notificationId}
+                  className="container bg-white rounded-2xl shadow-sm p-6 space-y-4 mb-3 border border-gray-300"
+                >
+                  <div className="mx-4">
+                    <div className="flex items-center justify-between">
                       <h3 className="font-semibold text-xl">
                         {notification.notificationMessage}
                       </h3>
-                    </div>
-                    <div>
+
                       <i
                         onClick={() => deleteNotif(notification.notificationId)}
                         className="fa-solid fa-x cursor-pointer text-gray-500"
                       ></i>
                     </div>
-                  </div>
-                  <div className=" container pt-2">
-                    <span className="text-(--color-steel-blue)">
-                      placeName:  <span className="font-bold">{placeData?.data?.placeName}</span> 
-                    </span>
+
+                    <div className="pt-2">
+                      <span className="text-(--color-steel-blue)">
+                        placeName:{" "}
+                        <span className="font-bold">
+                          {placeData?.data?.placeName || "Unknown place"}
+                        </span>
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
         </div>
       )}
     </>

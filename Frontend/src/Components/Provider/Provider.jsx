@@ -8,6 +8,7 @@ import Nav from "../Nav/Nav";
 import axios from "axios";
 import { useQuery, useQueryClient, useQueries } from "@tanstack/react-query";
 import * as Yup from "yup";
+import { toast } from "react-toastify";
 
 export default function Provider() {
   const [active, setActive] = useState("overview");
@@ -112,7 +113,7 @@ export default function Provider() {
       validationError.inner.forEach((err) => {
         newErrors[err.path] = err.message;
       });
-
+      toast.error("booking validation failed");
       setErrors(newErrors);
       return;
     }
@@ -196,6 +197,7 @@ export default function Provider() {
       setActive2("");
       setIsEdit(false);
       setPlaceId(null);
+      toast.success("Upload event successfully!");
     } catch (err) {
       console.error(err);
     }
@@ -570,125 +572,6 @@ export default function Provider() {
         </div>
       </div>
 
-      <div className="w-full mb-5">
-        <div className="p-5">
-          <h3
-            className="
-                              text-2xl 
-                              font-bold 
-                              text-gray-900 
-                              mb-2 sm:mb-3
-                            "
-          >
-            Overview
-          </h3>
-        </div>
-        <div className="p-1">
-          <div className=" flex justify-center gap-10 px-2.5">
-            <div
-              className="relative  bg-(--color-state-blue) rounded-xl shadow-lg p-4 sm:p-6 text-center border border-gray-200 w-52 sm:w-64 md:w-72 lg:w-80 transition-transform hover:scale-105 
-                            duration-300
-                            group
-                            z-10
-                            
-                          "
-            >
-              <span className="text-3xl text-white">12</span>
-              <h3
-                className="
-                              text-sm
-                              font-semibold 
-                              text-(--color-light-neutral) 
-                              mb-2 sm:mb-3
-                            "
-              >
-                Events Posted
-              </h3>
-            </div>
-            <div
-              className="relative  bg-(--color-state-blue) rounded-xl shadow-lg p-4 sm:p-6 text-center border border-gray-200 w-52 sm:w-64 md:w-72 lg:w-80 transition-transform hover:scale-105 
-                            duration-300
-                            group
-                            z-10
-                            
-                          "
-            >
-              <span className="text-3xl text-white">8</span>
-              <h3
-                className="
-                              text-sm
-                              font-semibold 
-                              text-(--color-light-neutral) 
-                              mb-2 sm:mb-3
-                            "
-              >
-                Upcoming Bookings
-              </h3>
-            </div>
-            <div
-              className="relative  bg-(--color-state-blue) rounded-xl shadow-lg p-4 sm:p-6 text-center border border-gray-200 w-52 sm:w-64 md:w-72 lg:w-80 transition-transform hover:scale-105 
-                            duration-300
-                            group
-                            z-10
-                            
-                          "
-            >
-              <span className="text-3xl text-white">$2,450</span>
-              <h3
-                className="
-                              text-sm
-                              font-semibold 
-                              text-(--color-light-neutral) 
-                              mb-2 sm:mb-3
-                            "
-              >
-                Total Revenue
-              </h3>
-            </div>
-            <div
-              className="relative  bg-(--color-state-blue) rounded-xl shadow-lg p-4 sm:p-6 text-center border border-gray-200 w-52 sm:w-64 md:w-72 lg:w-80 transition-transform hover:scale-105 
-                            duration-300
-                            group
-                            z-10
-                            
-                          "
-            >
-              <span className="text-3xl text-white">2</span>
-              <h3
-                className="
-                              text-sm
-                              font-semibold 
-                              text-(--color-light-neutral) 
-                              mb-2 sm:mb-3
-                            "
-              >
-                Pending Approvals
-              </h3>
-            </div>
-            <div
-              className="relative  bg-(--color-state-blue) rounded-xl shadow-lg p-4 sm:p-6 text-center border border-gray-200 w-52 sm:w-64 md:w-72 lg:w-80 transition-transform hover:scale-105 
-                            duration-300
-                            group
-                            z-10
-                            
-                          "
-            >
-              <span className="text-3xl text-white">24</span>
-              <h3
-                className="
-                              text-sm
-                              font-semibold 
-                              text-(--color-light-neutral) 
-                              mb-2 sm:mb-3
-                            "
-              >
-                Reviews Received
-              </h3>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {active == "overview" && (
         <div className="w-full mb-6 mt-6">
           <div className="container mx-auto mb-6 pl-5 flex justify-between">
@@ -937,9 +820,6 @@ export default function Provider() {
                 </div>
 
                 <div className="flex justify-end gap-3 mt-6">
-                  <button className="px-5 py-2 rounded-xl bg-gray-500 text-white">
-                    Preview Event
-                  </button>
                   <button
                     onClick={handleSubmit}
                     className={`px-5 py-2 rounded-xl text-white cursor-pointer ${
@@ -1411,39 +1291,48 @@ export default function Provider() {
           <div className="container mx-auto mb-6 pl-5 flex items-center justify-between">
             <h2 className="font-bold text-2xl">Notifications</h2>
           </div>
-          {notifByOwner?.data?.map((notification, index) => {
-            const placeData = placeQueries[index]?.data;
-            return (
-              <div
-                key={notification.notificationId}
-                className="container bg-white rounded-2xl shadow-sm p-6 space-y-4 mb-3 border border-gray-300 "
-              >
-                <div className=" mx-4">
-                  <div className="flex items-center justify-between">
-                    <div>
+
+          {(!notifByOwner?.data || notifByOwner.data.length === 0) && (
+            <div className="container bg-white rounded-2xl shadow-sm p-6 mb-3 border border-gray-300 text-center text-gray-500">
+              <i className="fa-regular fa-bell-slash text-3xl mb-2 block"></i>
+              <p className="text-lg font-medium">No notifications</p>
+              <p className="text-sm">You don’t have any notifications yet.</p>
+            </div>
+          )}
+
+          {notifByOwner?.data?.length > 0 &&
+            notifByOwner.data.map((notification, index) => {
+              const placeData = placeQueries[index]?.data;
+
+              return (
+                <div
+                  key={notification.notificationId}
+                  className="container bg-white rounded-2xl shadow-sm p-6 space-y-4 mb-3 border border-gray-300"
+                >
+                  <div className="mx-4">
+                    <div className="flex items-center justify-between">
                       <h3 className="font-semibold text-xl">
                         {notification.notificationMessage}
                       </h3>
-                    </div>
-                    <div>
+
                       <i
                         onClick={() => deleteNotif(notification.notificationId)}
                         className="fa-solid fa-x cursor-pointer text-gray-500"
                       ></i>
                     </div>
-                  </div>
-                  <div className=" container pt-2">
-                    <span className="text-(--color-steel-blue)">
-                      placeName:{" "}
-                      <span className="font-bold">
-                        {placeData?.data?.placeName}
+
+                    <div className="pt-2">
+                      <span className="text-(--color-steel-blue)">
+                        placeName:{" "}
+                        <span className="font-bold">
+                          {placeData?.data?.placeName || "Unknown place"}
+                        </span>
                       </span>
-                    </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
         </div>
       )}
     </>

@@ -8,6 +8,7 @@ import Nav from "../Nav/Nav";
 import { useUser } from "../../store/useUser";
 import axios from "axios";
 import * as Yup from "yup";
+import { toast } from "react-toastify";
 
 const SingleEventPage = () => {
   const { id } = useParams();
@@ -126,6 +127,7 @@ const SingleEventPage = () => {
         newErrors[err.path] = err.message;
       });
       setErrors(newErrors);
+      toast.error("booking validation failed");
       return;
     }
     const formattedStartDate = `${startDate}T${startTime}:00`;
@@ -144,7 +146,7 @@ const SingleEventPage = () => {
 
     try {
       await axios.post("http://localhost:8080/api/v1.0/bookingss", book);
-      alert("Booking confirmed successfully");
+      toast.success("Booking created successfully!");
       resetBookingForm();
     } catch (err) {
       console.error(err);
