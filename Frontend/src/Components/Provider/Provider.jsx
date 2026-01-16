@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useUser } from "../../store/useUser";
 import Nav from "../Nav/Nav";
 import axios from "axios";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useQueries } from "@tanstack/react-query";
 
 export default function Provider() {
   const [active, setActive] = useState("overview");
@@ -204,6 +204,49 @@ export default function Provider() {
       console.log(er);
     }
   }
+
+  const getNotificartionProvider = async (userId) => {
+    const { data } = await axios.get(
+      `http://localhost:8080/api/v1.0/notificationss/owner/${userId}`
+    );
+    return data;
+  };
+
+  const { data: notifByOwner } = useQuery({
+    queryKey: ["notifByOwner", user?.userId],
+    queryFn: () => getNotificartionProvider(user.userId),
+    enabled: !!user?.userId,
+  });
+
+  async function deleteNotif(notificationId) {
+    try {
+      await axios.delete(
+        `http://localhost:8080/api/v1.0/notificationss/${notificationId}`
+      );
+
+      queryClient.invalidateQueries({
+        queryKey: ["notifByOwner", user.userId],
+      });
+    } catch (er) {
+      console.log(er);
+    }
+  }
+
+  const getPlaceById = async (placeId) => {
+    const { data } = await axios.get(
+      `http://localhost:8080/api/v1.0/placess/${placeId}`
+    );
+    return data;
+  };
+
+  const placeQueries = useQueries({
+    queries:
+      notifByOwner?.data?.map((notif) => ({
+        queryKey: ["place", notif.placeId],
+        queryFn: () => getPlaceById(notif.placeId),
+        enabled: !!notif.placeId,
+      })) || [],
+  });
 
   return (
     <>
@@ -1249,91 +1292,37 @@ export default function Provider() {
         <div className="w-full mb-6">
           <div className="container mx-auto mb-6 pl-5 flex items-center justify-between">
             <h2 className="font-bold text-2xl">Notifications</h2>
-            <button className="text-white bg-neutral-800 rounded-xl text-sm py-1 px-3 mr-5">
-              Mark all as read
-            </button>
           </div>
-          <div className="container bg-white rounded-2xl shadow-sm p-6 space-y-4 mb-3 border border-gray-300 ">
-            <div className=" mx-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-xl">
-                    You have a new booking for Wedding at Cairo Garden Hall on
-                    Oct 12
-                  </h3>
+          {notifByOwner?.data?.map((notification, index) => {
+            const placeData = placeQueries[index]?.data;
+            return (
+              <div
+                key={notification.notificationId}
+                className="container bg-white rounded-2xl shadow-sm p-6 space-y-4 mb-3 border border-gray-300 "
+              >
+                <div className=" mx-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-semibold text-xl">
+                        {notification.notificationMessage}
+                      </h3>
+                    </div>
+                    <div>
+                      <i
+                        onClick={() => deleteNotif(notification.notificationId)}
+                        className="fa-solid fa-x cursor-pointer text-gray-500"
+                      ></i>
+                    </div>
+                  </div>
+                  <div className=" container pt-2">
+                    <span className="text-(--color-steel-blue)">
+                      placeName:  <span className="font-bold">{placeData?.data?.placeName}</span> 
+                    </span>
+                  </div>
                 </div>
               </div>
-              <div className=" container pt-2">
-                <span className="text-(--color-steel-blue)">
-                  6:00 PM – 10:00 PM
-                </span>
-              </div>
-              <div className="flex items-center justify-between pt-0.5">
-                <div>
-                  <p className="text-(--color-state-blue) text-xs">Oct 20</p>
-                </div>
-                <div>
-                  <button className="text-white bg-neutral-800 rounded-xl text-sm py-1 px-3">
-                    View Booking
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="container bg-white rounded-2xl shadow-sm p-6 space-y-4 mb-3 border border-gray-300 ">
-            <div className=" mx-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-xl">
-                    You have a new booking for Wedding at Cairo Garden Hall on
-                    Oct 12
-                  </h3>
-                </div>
-              </div>
-              <div className=" container pt-2">
-                <span className="text-(--color-steel-blue)">
-                  6:00 PM – 10:00 PM
-                </span>
-              </div>
-              <div className="flex items-center justify-between pt-0.5">
-                <div>
-                  <p className="text-(--color-state-blue) text-xs">Oct 20</p>
-                </div>
-                <div>
-                  <button className="text-white bg-neutral-800 rounded-xl text-sm py-1 px-3">
-                    View Booking
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>{" "}
-          <div className="container bg-white rounded-2xl shadow-sm p-6 space-y-4 mb-3 border border-gray-300 ">
-            <div className=" mx-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-xl">
-                    You have a new booking for Wedding at Cairo Garden Hall on
-                    Oct 12
-                  </h3>
-                </div>
-              </div>
-              <div className=" container pt-2">
-                <span className="text-(--color-steel-blue)">
-                  6:00 PM – 10:00 PM
-                </span>
-              </div>
-              <div className="flex items-center justify-between pt-0.5">
-                <div>
-                  <p className="text-(--color-state-blue) text-xs">Oct 20</p>
-                </div>
-                <div>
-                  <button className="text-white bg-neutral-800 rounded-xl text-sm py-1 px-3">
-                    View Booking
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+            );
+          })}
         </div>
       )}
     </>
