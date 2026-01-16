@@ -88,7 +88,7 @@ export default function Nav() {
               <li>
                 {user ? (
                   <NavLink
-                    to="/profile"
+                    to={user.role === "provider" ? "/provider" : "/user"}
                     className="text-(--color-state-blue) min-w-12 min-h-12 flex justify-center items-center rounded-4xl bg-(--color-light-neutral) cursor-pointer"
                   >
                     <i className="fa-solid fa-user text-2xl"></i>
