@@ -18,7 +18,6 @@ export const AppContextProvider = (props) => {
       const response = await axios.get(backendUrl + "/profile");
       if (response.status === 200) {
         setUserData(response.data);
-        setUser(response.data);
       } else {
         toast.error("Unable to retrieve user profile");
       }
