@@ -2,12 +2,10 @@ import { createContext, useEffect, useState } from "react";
 import { AppConstants } from "../util/constans";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { useUser } from "../../store/useUser";
 
 export const AppContext = createContext();
 
 export const AppContextProvider = (props) => {
-  const { setUser } = useUser();
   axios.defaults.withCredentials = true;
   const backendUrl = AppConstants.BACKEND_URL;
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -18,7 +16,6 @@ export const AppContextProvider = (props) => {
       const response = await axios.get(backendUrl + "/profile");
       if (response.status === 200) {
         setUserData(response.data);
-        setUser(response.data);
       } else {
         toast.error("Unable to retrieve user profile");
       }

@@ -4,42 +4,44 @@ import axios from "axios";
 import { AppContext } from "./context/AppContext";
 import { toast } from "react-toastify";
 import { assets } from "./assets/assets";
+import { useUser } from "../store/useUser";
 
 const Login = () => {
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("user");
   const [loading, setLoading] = useState(false);
   const { backendUrl, setIsLoggedIn, getUserData } = useContext(AppContext);
   const navigate = useNavigate();
+  const { setUser } = useUser();
 
-  // Handle form submission
   const onSubmitHandler = async (e) => {
     e.preventDefault();
     setLoading(true);
     axios.defaults.withCredentials = true;
     try {
       if (isCreatingAccount) {
-        // Sign Up
         const response = await axios.post(`${backendUrl}/register`, {
           name,
           email,
           password,
+          role,
         });
         if (response.status === 201) {
+          setUser(response.data);
           toast.success("Account created successfully!");
           setIsCreatingAccount(false);
           navigate("/");
         }
       } else {
-        // Login
-        // Login
         const response = await axios.post(`${backendUrl}/login`, {
           email,
           password,
         });
         if (response.status === 200) {
+          setUser(response.data);
           toast.success("Logged in successfully!");
           getUserData();
           setIsLoggedIn(true);
@@ -76,23 +78,43 @@ const Login = () => {
 
           <form onSubmit={onSubmitHandler}>
             {isCreatingAccount && (
-              <div className="mb-4">
-                <label
-                  htmlFor="fullName"
-                  className="block text-sm font-medium text-light-neutral mb-1"
-                >
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  className="bg-steel-blue py-3 w-full px-3 text-light-neutral border border-state-blue rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  id="fullName"
-                  placeholder="Enter fullname"
-                  required
-                  onChange={(e) => setName(e.target.value)}
-                  value={name}
-                />
-              </div>
+              <>
+                <div className="mb-4">
+                  <label
+                    htmlFor="fullName"
+                    className="block text-sm font-medium text-light-neutral mb-1"
+                  >
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    className="bg-steel-blue py-3 w-full px-3 text-light-neutral border border-state-blue rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    id="fullName"
+                    placeholder="Enter fullname"
+                    required
+                    onChange={(e) => setName(e.target.value)}
+                    value={name}
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label
+                    htmlFor="role"
+                    className="block text-sm font-medium text-light-neutral mb-1"
+                  >
+                    I am a:
+                  </label>
+                  <select
+                    id="role"
+                    className="bg-steel-blue py-3 w-full px-3 text-light-neutral border border-state-blue rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                  >
+                    <option value="user">Client</option>
+                    <option value="provider">Provider</option>
+                  </select>
+                </div>
+              </>
             )}
 
             <div className="mb-4">
@@ -130,6 +152,7 @@ const Login = () => {
                 value={password}
               />
             </div>
+
             <div className="flex justify-between mb-4">
               <Link
                 to="/reset-password"
