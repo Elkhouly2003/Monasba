@@ -5,7 +5,7 @@ import img3 from "../../assets/icons/star.png";
 import img4 from "../../assets/icons/bell.png";
 import { useState } from "react";
 import axios from "axios";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useQueries } from "@tanstack/react-query";
 import { useUser } from "../../store/useUser";
 import Nav from "../Nav/Nav";
 import StarRating from "../StarRating/StarRating";
@@ -177,7 +177,48 @@ export default function Profile({ userId }) {
       console.log(er);
     }
   }
+  const getNotificartionProvider = async (userId) => {
+    const { data } = await axios.get(
+      `http://localhost:8080/api/v1.0/notificationss/user/${userId}`
+    );
+    return data;
+  };
 
+  const { data: notifByOwner } = useQuery({
+    queryKey: ["notifByOwner", user?.userId],
+    queryFn: () => getNotificartionProvider(user.userId),
+    enabled: !!user?.userId,
+  });
+
+  async function deleteNotif(notificationId) {
+    try {
+      await axios.delete(
+        `http://localhost:8080/api/v1.0/notificationss/${notificationId}`
+      );
+
+      queryClient.invalidateQueries({
+        queryKey: ["notifByOwner", user.userId],
+      });
+    } catch (er) {
+      console.log(er);
+    }
+  }
+
+  const getPlaceById = async (placeId) => {
+    const { data } = await axios.get(
+      `http://localhost:8080/api/v1.0/placess/${placeId}`
+    );
+    return data;
+  };
+
+  const placeQueries = useQueries({
+    queries:
+      notifByOwner?.data?.map((notif) => ({
+        queryKey: ["place", notif.placeId],
+        queryFn: () => getPlaceById(notif.placeId),
+        enabled: !!notif.placeId,
+      })) || [],
+  });
   return (
     <>
       <Nav />
@@ -638,42 +679,41 @@ export default function Profile({ userId }) {
         </div>
       )}
 
-      {active === "Notifications" && (
+     {active === "Notifications" && (
         <div className="w-full mb-6">
           <div className="container mx-auto mb-6 pl-5 flex items-center justify-between">
             <h2 className="font-bold text-2xl">Notifications</h2>
-            <button className="text-white bg-neutral-800 rounded-xl text-sm py-1 px-3 mr-5">
-              Mark all as read
-            </button>
           </div>
-
-          {isLoading && <p className="text-center">Loading...</p>}
-          {error && (
-            <p className="text-center text-red-500">
-              Error loading notifications
-            </p>
-          )}
-
-          {data?.length === 0 && !isLoading && (
-            <p className="text-center text-gray-500">No notifications</p>
-          )}
-
-          <div className="container bg-white rounded-xl shadow-sm p-6 space-y-4 border border-gray-300">
-            {data?.map((notif) => (
+          {notifByOwner?.data?.map((notification, index) => {
+            const placeData = placeQueries[index]?.data;
+            return (
               <div
-                key={notif.id}
-                className="flex justify-between items-center border-b border-gray-200 pb-2"
+                key={notification.notificationId}
+                className="container bg-white rounded-2xl shadow-sm p-6 space-y-4 mb-3 border border-gray-300 "
               >
-                <div>
-                  <p className="font-semibold">{notif.message}</p>
-                  <span className="text-gray-500 text-sm">
-                    {new Date(notif.createdAt).toLocaleString()}
-                  </span>
+                <div className=" mx-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-semibold text-xl">
+                        {notification.notificationMessage}
+                      </h3>
+                    </div>
+                    <div>
+                      <i
+                        onClick={() => deleteNotif(notification.notificationId)}
+                        className="fa-solid fa-x cursor-pointer text-gray-500"
+                      ></i>
+                    </div>
+                  </div>
+                  <div className=" container pt-2">
+                    <span className="text-(--color-steel-blue)">
+                      placeName:  <span className="font-bold">{placeData?.data?.placeName}</span> 
+                    </span>
+                  </div>
                 </div>
-                <button className="text-sm text-blue-600">View</button>
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
       )}
     </>
