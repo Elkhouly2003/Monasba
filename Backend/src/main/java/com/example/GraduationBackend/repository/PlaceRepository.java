@@ -21,4 +21,13 @@ public interface PlaceRepository extends JpaRepository<Place, Integer> {
 """)
     List<Place> searchPlaces(String keyword);
 
+    @Query("""
+        SELECT DISTINCT p
+        FROM Place p
+        JOIN p.placeCategories pc
+        JOIN pc.category c
+        WHERE c.name = :categoryName
+    """)
+    List<Place> findPlacesByCategoryName(@Param("categoryName") String categoryName);
+
 }

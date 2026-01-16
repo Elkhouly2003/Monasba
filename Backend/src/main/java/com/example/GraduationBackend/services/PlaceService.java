@@ -189,6 +189,7 @@ public class PlaceService {
         userRepository.save(user);
     }
 
+    // there is problem in this method make owner for all places null
     @Transactional
     public void deletePlaceById(int placeId ,Integer userId) {
         Place place = placeRepository.findById(placeId)
@@ -243,6 +244,16 @@ public class PlaceService {
         }
 
         return places;
+    }
+
+    public List<PlaceDTO>getPlaceByCategoryName(String categoryName) {
+        List<Place> places = placeRepository.findPlacesByCategoryName(categoryName);
+        List<PlaceDTO> placeDTOs = new ArrayList<>();
+        for (Place place : places) {
+            PlaceDTO placeDTO = getPlaceDTOById(place.getPlaceId());
+            placeDTOs.add(placeDTO);
+        }
+        return placeDTOs;
     }
 
 }
