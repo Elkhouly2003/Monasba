@@ -9,6 +9,7 @@ import axios from "axios";
 import { useQuery, useQueryClient, useQueries } from "@tanstack/react-query";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 export default function Provider() {
   const [active, setActive] = useState("overview");
@@ -217,6 +218,54 @@ export default function Provider() {
     enabled: !!user?.userId,
   });
 
+  const swalWithBootstrapButtons = Swal.mixin({
+    customClass: {
+      confirmButton:
+        "px-5 py-2 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 cursor-pointer",
+      cancelButton:
+        "px-5 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 ml-3 cursor-pointer",
+    },
+    buttonsStyling: false,
+  });
+
+  const confirmDelete = (userId, placeId) => {
+    swalWithBootstrapButtons
+      .fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "No, cancel!",
+        reverseButtons: true,
+      })
+      .then(async (result) => {
+        if (result.isConfirmed) {
+          try {
+            await deleteItem(userId, placeId);
+
+            swalWithBootstrapButtons.fire({
+              title: "Deleted!",
+              text: "The place has been deleted successfully.",
+              icon: "success",
+            });
+          } catch (error) {
+            swalWithBootstrapButtons.fire({
+              title: "Error",
+              text: "Something went wrong!",
+              icon: "error",
+            });
+          }
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          swalWithBootstrapButtons.fire({
+            title: "Cancelled",
+            text: "Your place is safe ",
+            icon: "info",
+          });
+        }
+      });
+  };
+
   async function deleteItem(userId, placeId) {
     try {
       await axios.delete(
@@ -318,93 +367,6 @@ export default function Provider() {
   return (
     <>
       <Nav />
-      <div className="w-full bg-(--color-dark-navy)">
-        <div className=" container pt-10 pb-10">
-          <form className="max-w-sm mx-auto space-y-4">
-            <div>
-              <label
-                htmlFor="visitors"
-                className="block mb-2.5 text-sm text-(--color-light-neutral) font-medium text-heading"
-              >
-                Business Name
-              </label>
-              <input
-                type="text"
-                id="visitors"
-                className="bg-(--color-steel-blue) rounded-xl border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-2.5 py-2 shadow-xs placeholder:text-body"
-                placeholder=""
-                required
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="email"
-                className="block mb-2.5 text-sm text-(--color-light-neutral) font-medium text-heading"
-              >
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                className="bg-(--color-steel-blue) rounded-xl border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-2.5 py-2 shadow-xs placeholder:text-body"
-                placeholder=""
-                required
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="tel"
-                className="block mb-2.5 text-sm text-(--color-light-neutral) font-medium text-heading"
-              >
-                Support Number
-              </label>
-              <input
-                type="tel"
-                id="tel"
-                className="bg-(--color-steel-blue) rounded-xl border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-2.5 py-2 shadow-xs placeholder:text-body"
-                placeholder=""
-                required
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="password1"
-                className="block mb-2.5 text-sm text-(--color-light-neutral) font-medium text-heading"
-              >
-                Current Password
-              </label>
-              <input
-                type="password"
-                id="password1"
-                className="bg-(--color-steel-blue) rounded-xl border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-2.5 py-2 shadow-xs placeholder:text-body"
-                placeholder=""
-                required
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="password"
-                className="block mb-2.5 text-sm text-(--color-light-neutral) font-medium text-heading"
-              >
-                New Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                className="bg-(--color-steel-blue) rounded-xl border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-2.5 py-2 shadow-xs placeholder:text-body"
-                placeholder=""
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              className=" cursor-pointer text-white bg-cyan-900 rounded-2xl box-border border border-transparent hover:bg-brand-strong focus:ring-4 focus:ring-brand-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none"
-            >
-              Save
-            </button>
-          </form>
-        </div>
-      </div>
 
       <div className="w-full">
         <div
@@ -905,7 +867,9 @@ export default function Provider() {
                         </button>
 
                         <button
-                          onClick={() => deleteItem(user.userId, place.placeId)}
+                          onClick={() =>
+                            confirmDelete(user.userId, place.placeId)
+                          }
                           className="text-white bg-red-600 rounded-3xl px-5 cursor-pointer "
                         >
                           Delete
@@ -1007,14 +971,14 @@ export default function Provider() {
 
                         <button
                           onClick={() => deleteBook(booking.bookingId)}
-                          className="text-white bg-red-600 rounded-xl text-sm py-1 px-3"
+                          className="text-white bg-red-600 rounded-xl text-sm py-1 px-3 cursor-pointer"
                         >
                           Reject
                         </button>
 
                         <button
                           onClick={() => acceptBook(booking.bookingId)}
-                          className="text-white bg-green-700 rounded-xl text-sm py-1 px-3"
+                          className="text-white bg-green-700 rounded-xl text-sm py-1 px-3 cursor-pointer"
                         >
                           Approve
                         </button>
