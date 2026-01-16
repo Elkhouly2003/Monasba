@@ -164,6 +164,47 @@ export default function Provider() {
     }
   }
 
+  const getBookingByOwnerId = async (userId) => {
+    const { data } = await axios.get(
+      `http://localhost:8080/api/v1.0/bookingss/owner/${userId}`
+    );
+    return data;
+  };
+
+  const { data: bookByOwner } = useQuery({
+    queryKey: ["bookByOwner", user?.userId],
+    queryFn: () => getBookingByOwnerId(user.userId),
+    enabled: !!user?.userId,
+  });
+
+  async function deleteBook(bookingId) {
+    try {
+      await axios.patch(
+        `http://localhost:8080/api/v1.0/bookingss/cancel/${bookingId}`
+      );
+
+      queryClient.invalidateQueries({
+        queryKey: ["bookByOwner", user.userId],
+      });
+    } catch (er) {
+      console.log(er);
+    }
+  }
+
+  async function acceptBook(bookingId) {
+    try {
+      await axios.patch(
+        `http://localhost:8080/api/v1.0/bookingss/accept/${bookingId}`
+      );
+
+      queryClient.invalidateQueries({
+        queryKey: ["bookByOwner", user.userId],
+      });
+    } catch (er) {
+      console.log(er);
+    }
+  }
+
   return (
     <>
       <Nav />
@@ -843,181 +884,111 @@ export default function Provider() {
           <div className="container mx-auto mb-6 pl-5">
             <h2 className="font-bold text-2xl">My Bookings</h2>
           </div>
+
           <div className="flex justify-center m-3">
-            <ul className="flex flex-wrap gap-2 text-sm font-medium text-center text-body">
-              <li>
-                <button
-                  onClick={() => setActiveTab("All")}
-                  className={`px-4 py-2.5 rounded-2xl cursor-pointer transition
-          ${
-            activeTab === "All"
-              ? "bg-(--color-dark-navy) text-white hover:bg-neutral-secondary-soft"
-              : "bg-(--color-cool-gray) text-white hover:bg-neutral-secondary-soft"
-          }
-        `}
-                >
-                  All
-                </button>
-              </li>
-
-              <li>
-                <button
-                  onClick={() => setActiveTab("Pending")}
-                  className={`px-4 py-2.5 rounded-2xl cursor-pointer transition
-          ${
-            activeTab === "Pending"
-              ? "bg-(--color-dark-navy) text-white hover:bg-neutral-secondary-soft"
-              : "bg-(--color-cool-gray) text-white hover:bg-neutral-secondary-soft"
-          }
-        `}
-                >
-                  Pending
-                </button>
-              </li>
-
-              <li>
-                <button
-                  onClick={() => setActiveTab("Completed")}
-                  className={`px-4 py-2.5 rounded-2xl cursor-pointer transition
-          ${
-            activeTab === "Completed"
-              ? "bg-(--color-dark-navy) text-white hover:bg-neutral-secondary-soft"
-              : "bg-(--color-cool-gray) text-white hover:bg-neutral-secondary-soft"
-          }
-        `}
-                >
-                  Completed
-                </button>
-              </li>
-
-              <li>
-                <button
-                  onClick={() => setActiveTab("Confirmed")}
-                  className={`px-4 py-2.5 rounded-2xl cursor-pointer transition
-          ${
-            activeTab === "Confirmed"
-              ? "bg-(--color-dark-navy) text-white hover:bg-neutral-secondary-soft"
-              : "bg-(--color-cool-gray) text-white hover:bg-neutral-secondary-soft"
-          }
-        `}
-                >
-                  Confirmed
-                </button>
-              </li>
-
-              <li>
-                <button
-                  onClick={() => setActiveTab("Cancelled")}
-                  className={`px-4 py-2.5 rounded-2xl cursor-pointer transition
-          ${
-            activeTab === "Cancelled"
-              ? "bg-(--color-dark-navy) text-white hover:bg-neutral-secondary-soft"
-              : "bg-(--color-cool-gray) text-white hover:bg-neutral-secondary-soft"
-          }
-        `}
-                >
-                  Cancelled
-                </button>
-              </li>
+            <ul className="flex flex-wrap gap-2 text-sm font-medium text-center">
+              {["All", "Pending", "Confirmed", "Cancelled"].map((tab) => (
+                <li key={tab}>
+                  <button
+                    onClick={() => setActiveTab(tab)}
+                    className={`px-4 py-2.5 rounded-2xl transition
+                ${
+                  activeTab === tab
+                    ? "bg-(--color-dark-navy) text-white cursor-pointer"
+                    : "bg-(--color-cool-gray) text-white cursor-pointer"
+                }
+              `}
+                  >
+                    {tab}
+                  </button>
+                </li>
+              ))}
             </ul>
           </div>
 
-          <div className="container mx-auto bg-white rounded-2xl shadow-sm p-6 space-y-4 mb-3 border border-gray-300">
-            <div>
-              <h3 className="font-semibold text-xl mb-3">Ali Gado</h3>
+          {bookByOwner?.data
+            ?.filter((booking) => {
+              if (activeTab === "All") return true;
+              if (activeTab === "Pending") return booking.status === "pending";
+              if (activeTab === "Confirmed")
+                return booking.status === "accepted";
+              if (activeTab === "Cancelled")
+                return booking.status === "cancelled";
+              return false;
+            })
+            .map((booking) => (
+              <div
+                key={booking.bookingId}
+                className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-4"
+              >
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div className="space-y-1">
+                    <h3 className="font-semibold text-lg text-gray-900">
+                      {booking.title}
+                    </h3>
 
-              <span className="text-(--color-state-blue) text-xs block">
-                Event: Elegant Wedding Night
-              </span>
+                    <p className="text-sm text-gray-600">
+                      {booking.description}
+                    </p>
 
-              <div className="flex items-center">
-                <span className="text-(--color-state-blue) text-xs">
-                  Date: Oct 20, 2025 • 7:00 PM
-                </span>
+                    <div className="text-sm text-gray-500 space-y-1">
+                      <p>📅 Start: {booking.startDate}</p>
+                      <p>📅 End: {booking.endDate}</p>
+                    </div>
 
-                <div className="flex gap-2 ml-auto">
-                  <button className="text-white bg-yellow-400 rounded-xl text-sm py-1 px-3">
-                    Pending
-                  </button>
-                  <button className="text-white bg-green-700 rounded-xl text-sm py-1 px-3">
-                    Approve
-                  </button>
-                  <button className="text-white bg-red-600 rounded-xl text-sm py-1 px-3">
-                    Reject
-                  </button>
+                    <span
+                      className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium
+                  ${
+                    booking.status === "accepted"
+                      ? "bg-green-100 text-green-700"
+                      : booking.status === "cancelled"
+                      ? "bg-red-100 text-red-700"
+                      : "bg-amber-100 text-amber-700"
+                  }
+                `}
+                    >
+                      {booking.status}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 justify-start md:justify-end">
+                    {booking.status === "cancelled" && (
+                      <button className="bg-red-300 text-white text-sm px-4 py-1.5 rounded-lg">
+                        Cancelled
+                      </button>
+                    )}
+
+                    {booking.status === "pending" && (
+                      <>
+                        <button className="bg-amber-500 text-white text-sm px-4 py-1.5 rounded-lg">
+                          Pending
+                        </button>
+
+                        <button
+                          onClick={() => deleteBook(booking.bookingId)}
+                          className="text-white bg-red-600 rounded-xl text-sm py-1 px-3"
+                        >
+                          Reject
+                        </button>
+
+                        <button
+                          onClick={() => acceptBook(booking.bookingId)}
+                          className="text-white bg-green-700 rounded-xl text-sm py-1 px-3"
+                        >
+                          Approve
+                        </button>
+                      </>
+                    )}
+
+                    {booking.status === "accepted" && (
+                      <button className="bg-green-600 text-white text-sm px-4 py-1.5 rounded-lg">
+                        Confirmed
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
-              <div className=" container">
-                <span className="text-(--color-state-blue) text-xs">
-                  Tickets: 3 • Total: $105
-                </span>
-              </div>
-            </div>
-          </div>
-          <div className="container mx-auto bg-white rounded-2xl shadow-sm p-6 space-y-4 mb-3 border border-gray-300">
-            <div>
-              <h3 className="font-semibold text-xl mb-3">Ali Gado</h3>
-
-              <span className="text-(--color-state-blue) text-xs block">
-                Event: Elegant Wedding Night
-              </span>
-
-              <div className="flex items-center">
-                <span className="text-(--color-state-blue) text-xs">
-                  Date: Oct 20, 2025 • 7:00 PM
-                </span>
-
-                <div className="flex gap-2 ml-auto">
-                  <button className="text-white bg-yellow-400 rounded-xl text-sm py-1 px-3">
-                    Pending
-                  </button>
-                  <button className="text-white bg-green-700 rounded-xl text-sm py-1 px-3">
-                    Approve
-                  </button>
-                  <button className="text-white bg-red-600 rounded-xl text-sm py-1 px-3">
-                    Reject
-                  </button>
-                </div>
-              </div>
-              <div className=" container">
-                <span className="text-(--color-state-blue) text-xs">
-                  Tickets: 3 • Total: $105
-                </span>
-              </div>
-            </div>
-          </div>
-          <div className="container mx-auto bg-white rounded-2xl shadow-sm p-6 space-y-4 mb-3 border border-gray-300">
-            <div>
-              <h3 className="font-semibold text-xl mb-3">Ali Gado</h3>
-
-              <span className="text-(--color-state-blue) text-xs block">
-                Event: Elegant Wedding Night
-              </span>
-
-              <div className="flex items-center">
-                <span className="text-(--color-state-blue) text-xs">
-                  Date: Oct 20, 2025 • 7:00 PM
-                </span>
-
-                <div className="flex gap-2 ml-auto">
-                  <button className="text-white bg-yellow-400 rounded-xl text-sm py-1 px-3">
-                    Pending
-                  </button>
-                  <button className="text-white bg-green-700 rounded-xl text-sm py-1 px-3">
-                    Approve
-                  </button>
-                  <button className="text-white bg-red-600 rounded-xl text-sm py-1 px-3">
-                    Reject
-                  </button>
-                </div>
-              </div>
-              <div className=" container">
-                <span className="text-(--color-state-blue) text-xs">
-                  Tickets: 3 • Total: $105
-                </span>
-              </div>
-            </div>
-          </div>
+            ))}
         </div>
       )}
 
