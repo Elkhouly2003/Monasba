@@ -42,10 +42,10 @@ public class Place {
     @Column(name = "place_phone")
     private String phone;
 
-    @Column(name = "place_description")
+    @Column(name = "place_description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "place_short_description")
+    @Column(name = "place_short_description", columnDefinition = "TEXT")
     private String shortDescription;
 
     @Column(name = "place_capacity")
