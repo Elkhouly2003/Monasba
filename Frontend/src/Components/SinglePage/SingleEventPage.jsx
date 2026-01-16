@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback } from "react";
 import Nav from "../Nav/Nav";
 import { useUser } from "../../store/useUser";
 import axios from "axios";
+import * as Yup from "yup";
 
 const SingleEventPage = () => {
   const { id } = useParams();
@@ -26,8 +27,32 @@ const SingleEventPage = () => {
   const [capacity, setCapacity] = useState("");
   const [price, setPrice] = useState("");
   const [isSaved, setIsSaved] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const { user } = useUser();
+
+  const bookingSchema = Yup.object().shape({
+    title: Yup.string().required("Title is required"),
+    description: Yup.string()
+      .min(10, "Description must be at least 10 characters")
+      .required("Description is required"),
+
+    startDate: Yup.string().required("Start date is required"),
+    endDate: Yup.string().required("End date is required"),
+
+    startTime: Yup.string().required("Start time is required"),
+    endTime: Yup.string().required("End time is required"),
+
+    capacity: Yup.number()
+      .typeError("Capacity must be a number")
+      .positive("Capacity must be greater than 0")
+      .required("Capacity is required"),
+
+    price: Yup.number()
+      .typeError("Price must be a number")
+      .positive("Price must be greater than 0")
+      .required("Price is required"),
+  });
 
   const resetBookingForm = () => {
     setTitle("");
@@ -79,6 +104,30 @@ const SingleEventPage = () => {
   };
 
   const handleConfirmBooking = async () => {
+    try {
+      await bookingSchema.validate(
+        {
+          title,
+          description,
+          startDate,
+          endDate,
+          startTime,
+          endTime,
+          capacity,
+          price,
+        },
+        { abortEarly: false }
+      );
+
+      setErrors({});
+    } catch (validationError) {
+      const newErrors = {};
+      validationError.inner.forEach((err) => {
+        newErrors[err.path] = err.message;
+      });
+      setErrors(newErrors);
+      return;
+    }
     const formattedStartDate = `${startDate}T${startTime}:00`;
     const formattedEndDate = `${endDate}T${endTime}:00`;
 
@@ -281,6 +330,9 @@ const SingleEventPage = () => {
                   onChange={(e) => setTitle(e.target.value)}
                   className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
+                {errors.title && (
+                  <p className="text-red-500 text-xs mt-1">{errors.title}</p>
+                )}
               </div>
 
               <div className="md:col-span-2">
@@ -294,6 +346,11 @@ const SingleEventPage = () => {
                   onChange={(e) => setDescription(e.target.value)}
                   className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 ></textarea>
+                {errors.description && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.description}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -306,6 +363,11 @@ const SingleEventPage = () => {
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                 />
+                {errors.startDate && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.startDate}
+                  </p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">
@@ -317,6 +379,9 @@ const SingleEventPage = () => {
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
                 />
+                {errors.endDate && (
+                  <p className="text-red-500 text-xs mt-1">{errors.endDate}</p>
+                )}
               </div>
 
               <div>
@@ -329,6 +394,11 @@ const SingleEventPage = () => {
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
                 />
+                {errors.startTime && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.startTime}
+                  </p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">
@@ -340,6 +410,9 @@ const SingleEventPage = () => {
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
                 />
+                {errors.endTime && (
+                  <p className="text-red-500 text-xs mt-1">{errors.endTime}</p>
+                )}
               </div>
 
               <div>
@@ -353,6 +426,9 @@ const SingleEventPage = () => {
                   onChange={(e) => setCapacity(e.target.value)}
                   className="w-full border border-gray-300 rounded-xl px-4 py-2"
                 />
+                {errors.capacity && (
+                  <p className="text-red-500 text-xs mt-1">{errors.capacity}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">
@@ -365,6 +441,9 @@ const SingleEventPage = () => {
                   onChange={(e) => setPrice(e.target.value)}
                   className="w-full border border-gray-300 rounded-xl px-4 py-2"
                 />
+                {errors.price && (
+                  <p className="text-red-500 text-xs mt-1">{errors.price}</p>
+                )}
               </div>
             </div>
 

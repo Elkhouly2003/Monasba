@@ -7,6 +7,7 @@ import { useUser } from "../../store/useUser";
 import Nav from "../Nav/Nav";
 import axios from "axios";
 import { useQuery, useQueryClient, useQueries } from "@tanstack/react-query";
+import * as Yup from "yup";
 
 export default function Provider() {
   const [active, setActive] = useState("overview");
@@ -42,6 +43,42 @@ export default function Provider() {
     setIsEdit(false);
     setPlaceId(null);
   };
+  const [errors, setErrors] = useState({});
+
+  const placeSchema = Yup.object().shape({
+    placeName: Yup.string()
+      .required("Place name is required")
+      .min(3, "Place name must be at least 3 characters"),
+
+    description: Yup.string()
+      .required("Description is required")
+      .min(10, "Description must be at least 10 characters"),
+
+    country: Yup.string().required("Country is required"),
+
+    city: Yup.string().required("City is required"),
+
+    address: Yup.string().required("Address is required"),
+
+    price: Yup.number()
+      .typeError("Price must be a number")
+      .positive("Price must be positive")
+      .required("Price is required"),
+
+    capacity: Yup.number()
+      .typeError("Capacity must be a number")
+      .positive("Capacity must be positive")
+      .integer("Capacity must be an integer")
+      .required("Capacity is required"),
+
+    phone: Yup.string().required("Phone is required"),
+
+    openTime: Yup.string().required("Opening time is required"),
+
+    closeTime: Yup.string().required("Closing time is required"),
+
+    categories: Yup.array().min(1, "At least one category is required"),
+  });
 
   const { user } = useUser();
 
@@ -49,6 +86,34 @@ export default function Provider() {
     e.preventDefault();
 
     if (!user || (!user.userId && !user.id)) {
+      return;
+    }
+    try {
+      await placeSchema.validate(
+        {
+          placeName,
+          description,
+          country,
+          city,
+          address,
+          price,
+          capacity,
+          phone,
+          openTime: openingTime,
+          closeTime,
+          categories,
+        },
+        { abortEarly: false }
+      );
+      setErrors({});
+    } catch (validationError) {
+      const newErrors = {};
+
+      validationError.inner.forEach((err) => {
+        newErrors[err.path] = err.message;
+      });
+
+      setErrors(newErrors);
       return;
     }
 
@@ -658,6 +723,11 @@ export default function Provider() {
                       value={placeName}
                       onChange={(e) => setPlaceName(e.target.value)}
                     />
+                    {errors.placeName && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.placeName}
+                      </p>
+                    )}
                   </div>
 
                   <div className="md:col-span-1">
@@ -687,6 +757,11 @@ export default function Provider() {
                           <span className="text-sm">{cat}</span>
                         </label>
                       ))}
+                      {errors.categories && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.categories}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -701,6 +776,11 @@ export default function Provider() {
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                     ></textarea>
+                    {errors.description && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.description}
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -714,6 +794,11 @@ export default function Provider() {
                       value={country}
                       onChange={(e) => setCountry(e.target.value)}
                     />
+                    {errors.country && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.country}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">
@@ -726,6 +811,9 @@ export default function Provider() {
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
                     />
+                    {errors.city && (
+                      <p className="text-red-500 text-xs mt-1">{errors.city}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">
@@ -738,6 +826,11 @@ export default function Provider() {
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
                     />
+                    {errors.address && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.address}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">
@@ -750,6 +843,11 @@ export default function Provider() {
                       value={price}
                       onChange={(e) => setPrice(e.target.value)}
                     />
+                    {errors.price && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.price}
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -763,6 +861,11 @@ export default function Provider() {
                       value={capacity}
                       onChange={(e) => setCapacity(e.target.value)}
                     />
+                    {errors.capacity && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.capacity}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">
@@ -775,6 +878,11 @@ export default function Provider() {
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                     />
+                    {errors.phone && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.phone}
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -787,6 +895,11 @@ export default function Provider() {
                       value={openingTime}
                       onChange={(e) => setOpeningTime(e.target.value)}
                     />
+                    {errors.openTime && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.openTime}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">
@@ -798,6 +911,11 @@ export default function Provider() {
                       value={closeTime}
                       onChange={(e) => setCloseTime(e.target.value)}
                     />
+                    {errors.closeTime && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.closeTime}
+                      </p>
+                    )}
                   </div>
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium mb-1">
@@ -1316,7 +1434,10 @@ export default function Provider() {
                   </div>
                   <div className=" container pt-2">
                     <span className="text-(--color-steel-blue)">
-                      placeName:  <span className="font-bold">{placeData?.data?.placeName}</span> 
+                      placeName:{" "}
+                      <span className="font-bold">
+                        {placeData?.data?.placeName}
+                      </span>
                     </span>
                   </div>
                 </div>
