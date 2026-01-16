@@ -7,6 +7,7 @@ const EventCard = ({ event }) => {
   const [userData, setUserData] = useState(null);
   const [imageSrc, setImageSrc] = useState(null);
   const [isSaved, setIsSaved] = useState(false);
+  const [averageRating, setAverageRating] = useState(0);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -20,6 +21,26 @@ const EventCard = ({ event }) => {
         }
       } catch (err) {
         console.error(err);
+      }
+    };
+
+    const fetchReviews = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/api/v1.0/reviews/place/${event.placeId}`
+        );
+        if (response.ok) {
+          const result = await response.json();
+
+          const ratings = result.data.map((rev) => rev.ratings);
+          const averageRating =
+            ratings.length > 0
+              ? ratings.reduce((acc, curr) => acc + curr, 0) / ratings.length
+              : 0;
+          setAverageRating(averageRating);
+        }
+      } catch (error) {
+        console.log(error);
       }
     };
 
@@ -62,6 +83,7 @@ const EventCard = ({ event }) => {
     fetchUser();
     fetchImage();
     checkIfSaved();
+    fetchReviews();
 
     return () => {
       if (imageSrc) URL.revokeObjectURL(imageSrc);
@@ -114,7 +136,7 @@ const EventCard = ({ event }) => {
           </h1>
           <div className="flex items-center gap-1">
             <i className="fa-solid fa-star text-yellow-400"></i>
-            <span className="font-medium">4</span>
+            <span className="font-medium">{averageRating}</span>
           </div>
         </div>
 
