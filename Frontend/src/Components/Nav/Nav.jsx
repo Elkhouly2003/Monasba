@@ -81,14 +81,16 @@ export default function Nav() {
                   });
                 }}
               >
-                <NavLink className="block py-2 px-3 rounded-sm md:border-0 hover:text-(--color-gold) md:p-0 text-(--color-light-neutral)">
+                <NavLink
+                to="/home"
+                 className="block py-2 px-3 rounded-sm md:border-0 hover:text-(--color-gold) md:p-0 text-(--color-light-neutral)">
                   About
                 </NavLink>
               </li>
               <li>
                 {user ? (
                   <NavLink
-                    to="/profile"
+                    to={user.role === "provider" ? "/provider" : "/profile"}
                     className="text-(--color-state-blue) min-w-12 min-h-12 flex justify-center items-center rounded-4xl bg-(--color-light-neutral) cursor-pointer"
                   >
                     <i className="fa-solid fa-user text-2xl"></i>

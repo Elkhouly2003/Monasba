@@ -5,7 +5,7 @@ import img3 from "../../assets/icons/star.png";
 import img4 from "../../assets/icons/bell.png";
 import { useState } from "react";
 import axios from "axios";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useQueries } from "@tanstack/react-query";
 import { useUser } from "../../store/useUser";
 import Nav from "../Nav/Nav";
 import StarRating from "../StarRating/StarRating";
@@ -177,97 +177,56 @@ export default function Profile({ userId }) {
       console.log(er);
     }
   }
+  const getNotificartionProvider = async (userId) => {
+    const { data } = await axios.get(
+      `http://localhost:8080/api/v1.0/notificationss/user/${userId}`
+    );
+    return data;
+  };
 
+  const { data: notifByOwner } = useQuery({
+    queryKey: ["notifByOwner", user?.userId],
+    queryFn: () => getNotificartionProvider(user.userId),
+    enabled: !!user?.userId,
+  });
+
+  async function deleteNotif(notificationId) {
+    try {
+      await axios.delete(
+        `http://localhost:8080/api/v1.0/notificationss/${notificationId}`
+      );
+
+      queryClient.invalidateQueries({
+        queryKey: ["notifByOwner", user.userId],
+      });
+    } catch (er) {
+      console.log(er);
+    }
+  }
+
+  const getPlaceById = async (placeId) => {
+    const { data } = await axios.get(
+      `http://localhost:8080/api/v1.0/placess/${placeId}`
+    );
+    return data;
+  };
+
+  const placeQueries = useQueries({
+    queries:
+      notifByOwner?.data?.map((notif) => ({
+        queryKey: ["place", notif.placeId],
+        queryFn: () => getPlaceById(notif.placeId),
+        enabled: !!notif.placeId,
+      })) || [],
+  });
+  const statusOrder = {
+    pending: 1,
+    accepted: 2,
+    cancelled: 3,
+  };
   return (
     <>
       <Nav />
-      <div className="w-full bg-(--color-dark-navy)">
-        <div className=" container pt-10 pb-10">
-          <form className="max-w-sm mx-auto space-y-4">
-            <div>
-              <label
-                htmlFor="visitors"
-                className="block mb-2.5 text-sm text-(--color-light-neutral) font-medium text-heading"
-              >
-                Full Name
-              </label>
-              <input
-                type="text"
-                id="visitors"
-                className="bg-(--color-steel-blue) rounded-xl border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-2.5 py-2 shadow-xs placeholder:text-body"
-                placeholder={user?.name || ""}
-                required
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="email"
-                className="block mb-2.5 text-sm text-(--color-light-neutral) font-medium text-heading"
-              >
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                className="bg-(--color-steel-blue) rounded-xl border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-2.5 py-2 shadow-xs placeholder:text-body"
-                placeholder={user?.email || ""}
-                required
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="tel"
-                className="block mb-2.5 text-sm text-(--color-light-neutral) font-medium text-heading"
-              >
-                Phone Number
-              </label>
-              <input
-                type="tel"
-                id="tel"
-                className="bg-(--color-steel-blue) rounded-xl border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-2.5 py-2 shadow-xs placeholder:text-body"
-                placeholder=""
-                required
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="password1"
-                className="block mb-2.5 text-sm text-(--color-light-neutral) font-medium text-heading"
-              >
-                Current Password
-              </label>
-              <input
-                type="password"
-                id="password1"
-                className="bg-(--color-steel-blue) rounded-xl border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-2.5 py-2 shadow-xs placeholder:text-body"
-                placeholder=""
-                required
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="password"
-                className="block mb-2.5 text-sm text-(--color-light-neutral) font-medium text-heading"
-              >
-                New Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                className="bg-(--color-steel-blue) rounded-xl border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-2.5 py-2 shadow-xs placeholder:text-body"
-                placeholder=""
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              className=" cursor-pointer text-white bg-cyan-900 rounded-2xl box-border border border-transparent hover:bg-brand-strong focus:ring-4 focus:ring-brand-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none"
-            >
-              Save
-            </button>
-          </form>
-        </div>
-      </div>
 
       <div className="w-full">
         <div
@@ -440,70 +399,75 @@ export default function Profile({ userId }) {
             <h2 className="font-bold text-2xl">My Bookings</h2>
           </div>
 
-          {bookByuser?.data?.map((booking) => (
-            <div
-              key={booking.bookingId}
-              className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-4"
-            >
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div className="space-y-1">
-                  <h3 className="font-semibold text-lg text-gray-900">
-                    {booking.title}
-                  </h3>
+          {bookByuser?.data
+            ?.slice()
+            ?.sort((a, b) => statusOrder[a.status] - statusOrder[b.status])
+            ?.map((booking) => (
+              <div
+                key={booking.bookingId}
+                className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-4"
+              >
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div className="space-y-1">
+                    <h3 className="font-semibold text-lg text-gray-900">
+                      {booking.title}
+                    </h3>
 
-                  <p className="text-sm text-gray-600">{booking.description}</p>
+                    <p className="text-sm text-gray-600">
+                      {booking.description}
+                    </p>
 
-                  <div className="text-sm text-gray-500 space-y-1">
-                    <p>📅 Start: {booking.startDate}</p>
-                    <p>📅 End: {booking.endDate}</p>
-                  </div>
+                    <div className="text-sm text-gray-500 space-y-1">
+                      <p>📅 Start: {booking.startDate}</p>
+                      <p>📅 End: {booking.endDate}</p>
+                    </div>
 
-                  <span
-                    className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium
+                    <span
+                      className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium
             ${
               booking.status === "CONFIRMED"
                 ? "bg-green-100 text-green-700"
                 : booking.status === "CANCELLED"
-                ? "bg-red-100 text-red-700"
-                : "bg-amber-100 text-amber-700"
+                  ? "bg-red-100 text-red-700"
+                  : "bg-amber-100 text-amber-700"
             }
           `}
-                  >
-                    {booking.status}
-                  </span>
-                </div>
+                    >
+                      {booking.status}
+                    </span>
+                  </div>
 
-                <div className="flex flex-wrap gap-2 justify-start md:justify-end">
-                  {booking.status == "cancelled" && (
-                    <button className="bg-red-300 text-white text-sm px-4 py-1.5 rounded-lg">
-                      Cancelled
-                    </button>
-                  )}
-
-                  {booking.status == "pending" && (
-                    <>
-                      <button className="bg-amber-500 text-white text-sm px-4 py-1.5 rounded-lg">
-                        Pending
+                  <div className="flex flex-wrap gap-2 justify-start md:justify-end">
+                    {booking.status == "cancelled" && (
+                      <button className="bg-red-300 text-white text-sm px-4 py-1.5 rounded-lg">
+                        Cancelled
                       </button>
+                    )}
 
-                      <button
-                        onClick={() => deleteBook(booking.bookingId)}
-                        className="bg-red-600 text-white cursor-pointer text-sm px-4 py-1.5 rounded-lg hover:bg-red-500 transition"
-                      >
-                        Cancel
+                    {booking.status == "pending" && (
+                      <>
+                        <button className="bg-amber-500 text-white text-sm px-4 py-1.5 rounded-lg">
+                          Pending
+                        </button>
+
+                        <button
+                          onClick={() => deleteBook(booking.bookingId)}
+                          className="bg-red-600 text-white cursor-pointer text-sm px-4 py-1.5 rounded-lg hover:bg-red-500 transition"
+                        >
+                          Cancel
+                        </button>
+                      </>
+                    )}
+
+                    {booking.status == "accepted" && (
+                      <button className="bg-green-600 text-white text-sm px-4 py-1.5 rounded-lg">
+                        Confirmed
                       </button>
-                    </>
-                  )}
-
-                  {booking.status == "accepted" && (
-                    <button className="bg-green-600 text-white text-sm px-4 py-1.5 rounded-lg">
-                      Confirmed
-                    </button>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       )}
 
@@ -642,38 +606,48 @@ export default function Profile({ userId }) {
         <div className="w-full mb-6">
           <div className="container mx-auto mb-6 pl-5 flex items-center justify-between">
             <h2 className="font-bold text-2xl">Notifications</h2>
-            <button className="text-white bg-neutral-800 rounded-xl text-sm py-1 px-3 mr-5">
-              Mark all as read
-            </button>
           </div>
 
-          {isLoading && <p className="text-center">Loading...</p>}
-          {error && (
-            <p className="text-center text-red-500">
-              Error loading notifications
-            </p>
+          {(!notifByOwner?.data || notifByOwner.data.length === 0) && (
+            <div className="container bg-white rounded-2xl shadow-sm p-6 border border-gray-300 text-center text-gray-500">
+              <i className="fa-regular fa-bell-slash text-3xl mb-2 block"></i>
+              <p className="text-lg font-medium">No notifications yet</p>
+              <p className="text-sm">
+                You don’t have any notifications right now
+              </p>
+            </div>
           )}
 
-          {data?.length === 0 && !isLoading && (
-            <p className="text-center text-gray-500">No notifications</p>
-          )}
+          {notifByOwner?.data?.length > 0 &&
+            notifByOwner.data.map((notification, index) => {
+              const placeData = placeQueries[index]?.data;
 
-          <div className="container bg-white rounded-xl shadow-sm p-6 space-y-4 border border-gray-300">
-            {data?.map((notif) => (
-              <div
-                key={notif.id}
-                className="flex justify-between items-center border-b border-gray-200 pb-2"
-              >
-                <div>
-                  <p className="font-semibold">{notif.message}</p>
-                  <span className="text-gray-500 text-sm">
-                    {new Date(notif.createdAt).toLocaleString()}
-                  </span>
+              return (
+                <div
+                  key={notification.notificationId}
+                  className="container bg-white rounded-2xl shadow-sm p-6 space-y-4 mb-3 border border-gray-300"
+                >
+                  <div className="mx-4">
+                    <div className="pt-2 flex items-center justify-between mb-3">
+                      <span className="text-(--color-steel-blue)">
+                        <span className="font-bold text-2xl">
+                          {placeData?.data?.placeName || "Unknown place"}
+                        </span>
+                      </span>
+                      <i
+                        onClick={() => deleteNotif(notification.notificationId)}
+                        className="fa-solid fa-x cursor-pointer text-gray-500"
+                      ></i>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-xl">
+                        {notification.notificationMessage}
+                      </h3>
+                    </div>
+                  </div>
                 </div>
-                <button className="text-sm text-blue-600">View</button>
-              </div>
-            ))}
-          </div>
+              );
+            })}
         </div>
       )}
     </>
