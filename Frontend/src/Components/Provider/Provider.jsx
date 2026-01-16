@@ -316,6 +316,7 @@ export default function Provider() {
       queryClient.invalidateQueries({
         queryKey: ["bookByOwner", user.userId],
       });
+      toast.success("Booking accepted successfully!");
     } catch (er) {
       console.log(er);
     }

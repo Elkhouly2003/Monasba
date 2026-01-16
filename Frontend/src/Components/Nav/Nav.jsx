@@ -7,7 +7,6 @@ import { AppContext } from "../../AuthenticationPage/context/AppContext";
 export default function Nav() {
   const { user } = useUser();
   const { logout } = useContext(AppContext);
-  console.log("debug");
 
   return (
     <>
@@ -82,7 +81,9 @@ export default function Nav() {
                   });
                 }}
               >
-                <NavLink className="block py-2 px-3 rounded-sm md:border-0 hover:text-(--color-gold) md:p-0 text-(--color-light-neutral)">
+                <NavLink
+                to="/home"
+                 className="block py-2 px-3 rounded-sm md:border-0 hover:text-(--color-gold) md:p-0 text-(--color-light-neutral)">
                   About
                 </NavLink>
               </li>

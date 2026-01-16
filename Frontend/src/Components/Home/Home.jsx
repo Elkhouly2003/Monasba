@@ -17,6 +17,7 @@ import img15 from "../../assets/icons/sumatra-weddings.png";
 import Categorie from "../Categorie/Categorie";
 import SearchBar from "../SearchBar/SearchBar";
 import Nav from "../Nav/Nav";
+import { Link } from "react-router-dom";
 
 function Home() {
   const images = [img1, img2, img3, img4, img5, img6, img7, img8];
@@ -477,20 +478,20 @@ function Home() {
         </div>
 
         <div className="container flex justify-center mb-7">
-          <button
-            type="button"
-            className="
-        bg-(--color-state-blue) 
-        border border-gray-300 
-        focus:outline-none 
-        hover:opacity-90 
-        focus:ring-4 focus:ring-gray-100 
-        font-medium rounded-full 
-        text-sm px-5 py-2.5 text-white
-      "
-          >
-            Start Browsing Venues Now
-          </button>
+          <Link to="/search">
+            <button
+              className="
+      bg-(--color-state-blue) 
+      border border-gray-300 
+      hover:opacity-90 
+      font-medium rounded-full 
+      text-sm px-5 py-2.5 text-white
+      cursor-pointer
+    "
+            >
+              Start Browsing Venues Now
+            </button>
+          </Link>
         </div>
       </div>
     </>
