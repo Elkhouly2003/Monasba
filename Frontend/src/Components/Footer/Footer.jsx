@@ -1,4 +1,4 @@
-import React from "react";
+import { NavLink } from "react-router-dom";
 
 export default function Footer() {
   return (
@@ -14,10 +14,40 @@ export default function Footer() {
 
           <div>
             <h3 className="text-gold text-xl mb-2">Quick Links</h3>
-            <p className="text-light-neutral text-sm py-0.5">Home</p>
-            <p className="text-light-neutral text-sm py-0.5">Categories</p>
-            <p className="text-light-neutral text-sm py-0.5">Trending</p>
-            <p className="text-light-neutral text-sm py-0.5">About</p>
+            <p className="text-light-neutral text-sm py-0.5">
+              <NavLink
+                to="/home"
+                 onClick={() => {
+                  document.getElementById("home")?.scrollIntoView({
+                    behavior: "smooth",
+                  });
+                }}
+                className="block py-2 px-3 rounded-sm md:bg-transparent md:p-0 hover:text-(--color-gold) text-(--color-light-neutral)"
+              >
+                Home
+              </NavLink>
+            </p>
+            <p className="text-light-neutral text-sm py-0.5">
+              <NavLink
+                to="/home"
+                onClick={() => {
+                  document.getElementById("categories")?.scrollIntoView({
+                    behavior: "smooth",
+                  });
+                }}
+                className="block py-2 px-3 rounded-sm md:border-0 hover:text-(--color-gold) md:p-0 text-(--color-light-neutral)"
+              >
+                Categories
+              </NavLink>
+            </p>
+            <p className="text-light-neutral text-sm py-0.5">
+              <NavLink
+                to="/search"
+                className="block py-2 px-3 rounded-sm md:p-0 text-(--color-light-neutral) hover:text-(--color-gold)"
+              >
+                Events
+              </NavLink>
+            </p>
           </div>
 
           <div>
@@ -28,11 +58,11 @@ export default function Footer() {
             </div>
             <div className="flex items-center justify-center lg:justify-start py-0.5">
               <i className="fa-solid fa-envelope text-state-blue pr-2"></i>
-              <p className="text-light-neutral text-sm">support@anything.com</p>
+              <p className="text-light-neutral text-sm">support@gmail.com</p>
             </div>
             <div className="flex items-center justify-center lg:justify-start py-0.5">
               <i className="fa-solid fa-phone text-state-blue pr-2"></i>
-              <p className="text-light-neutral text-sm">phone number</p>
+              <p className="text-light-neutral text-sm">1299</p>
             </div>
           </div>
 
