@@ -219,6 +219,11 @@ export default function Profile({ userId }) {
         enabled: !!notif.placeId,
       })) || [],
   });
+  const statusOrder = {
+    pending: 1,
+    accepted: 2,
+    cancelled: 3,
+  };
   return (
     <>
       <Nav />
@@ -394,70 +399,75 @@ export default function Profile({ userId }) {
             <h2 className="font-bold text-2xl">My Bookings</h2>
           </div>
 
-          {bookByuser?.data?.map((booking) => (
-            <div
-              key={booking.bookingId}
-              className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-4"
-            >
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div className="space-y-1">
-                  <h3 className="font-semibold text-lg text-gray-900">
-                    {booking.title}
-                  </h3>
+          {bookByuser?.data
+            ?.slice()
+            ?.sort((a, b) => statusOrder[a.status] - statusOrder[b.status])
+            ?.map((booking) => (
+              <div
+                key={booking.bookingId}
+                className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-4"
+              >
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div className="space-y-1">
+                    <h3 className="font-semibold text-lg text-gray-900">
+                      {booking.title}
+                    </h3>
 
-                  <p className="text-sm text-gray-600">{booking.description}</p>
+                    <p className="text-sm text-gray-600">
+                      {booking.description}
+                    </p>
 
-                  <div className="text-sm text-gray-500 space-y-1">
-                    <p>📅 Start: {booking.startDate}</p>
-                    <p>📅 End: {booking.endDate}</p>
-                  </div>
+                    <div className="text-sm text-gray-500 space-y-1">
+                      <p>📅 Start: {booking.startDate}</p>
+                      <p>📅 End: {booking.endDate}</p>
+                    </div>
 
-                  <span
-                    className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium
+                    <span
+                      className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium
             ${
               booking.status === "CONFIRMED"
                 ? "bg-green-100 text-green-700"
                 : booking.status === "CANCELLED"
-                ? "bg-red-100 text-red-700"
-                : "bg-amber-100 text-amber-700"
+                  ? "bg-red-100 text-red-700"
+                  : "bg-amber-100 text-amber-700"
             }
           `}
-                  >
-                    {booking.status}
-                  </span>
-                </div>
+                    >
+                      {booking.status}
+                    </span>
+                  </div>
 
-                <div className="flex flex-wrap gap-2 justify-start md:justify-end">
-                  {booking.status == "cancelled" && (
-                    <button className="bg-red-300 text-white text-sm px-4 py-1.5 rounded-lg">
-                      Cancelled
-                    </button>
-                  )}
-
-                  {booking.status == "pending" && (
-                    <>
-                      <button className="bg-amber-500 text-white text-sm px-4 py-1.5 rounded-lg">
-                        Pending
+                  <div className="flex flex-wrap gap-2 justify-start md:justify-end">
+                    {booking.status == "cancelled" && (
+                      <button className="bg-red-300 text-white text-sm px-4 py-1.5 rounded-lg">
+                        Cancelled
                       </button>
+                    )}
 
-                      <button
-                        onClick={() => deleteBook(booking.bookingId)}
-                        className="bg-red-600 text-white cursor-pointer text-sm px-4 py-1.5 rounded-lg hover:bg-red-500 transition"
-                      >
-                        Cancel
+                    {booking.status == "pending" && (
+                      <>
+                        <button className="bg-amber-500 text-white text-sm px-4 py-1.5 rounded-lg">
+                          Pending
+                        </button>
+
+                        <button
+                          onClick={() => deleteBook(booking.bookingId)}
+                          className="bg-red-600 text-white cursor-pointer text-sm px-4 py-1.5 rounded-lg hover:bg-red-500 transition"
+                        >
+                          Cancel
+                        </button>
+                      </>
+                    )}
+
+                    {booking.status == "accepted" && (
+                      <button className="bg-green-600 text-white text-sm px-4 py-1.5 rounded-lg">
+                        Confirmed
                       </button>
-                    </>
-                  )}
-
-                  {booking.status == "accepted" && (
-                    <button className="bg-green-600 text-white text-sm px-4 py-1.5 rounded-lg">
-                      Confirmed
-                    </button>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       )}
 
@@ -618,24 +628,21 @@ export default function Profile({ userId }) {
                   className="container bg-white rounded-2xl shadow-sm p-6 space-y-4 mb-3 border border-gray-300"
                 >
                   <div className="mx-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-xl">
-                        {notification.notificationMessage}
-                      </h3>
-
+                    <div className="pt-2 flex items-center justify-between mb-3">
+                      <span className="text-(--color-steel-blue)">
+                        <span className="font-bold text-2xl">
+                          {placeData?.data?.placeName || "Unknown place"}
+                        </span>
+                      </span>
                       <i
                         onClick={() => deleteNotif(notification.notificationId)}
                         className="fa-solid fa-x cursor-pointer text-gray-500"
                       ></i>
                     </div>
-
-                    <div className="pt-2">
-                      <span className="text-(--color-steel-blue)">
-                        placeName:{" "}
-                        <span className="font-bold">
-                          {placeData?.data?.placeName || "Unknown place"}
-                        </span>
-                      </span>
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-xl">
+                        {notification.notificationMessage}
+                      </h3>
                     </div>
                   </div>
                 </div>

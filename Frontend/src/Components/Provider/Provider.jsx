@@ -364,6 +364,11 @@ export default function Provider() {
         enabled: !!notif.placeId,
       })) || [],
   });
+  const statusOrder = {
+    pending: 1,
+    accepted: 2,
+    cancelled: 3,
+  };
 
   return (
     <>
@@ -911,8 +916,9 @@ export default function Provider() {
               ))}
             </ul>
           </div>
-
           {bookByOwner?.data
+            ?.slice() 
+            ?.sort((a, b) => statusOrder[a.status] - statusOrder[b.status])
             ?.filter((booking) => {
               if (activeTab === "All") return true;
               if (activeTab === "Pending") return booking.status === "pending";
@@ -922,7 +928,7 @@ export default function Provider() {
                 return booking.status === "cancelled";
               return false;
             })
-            .map((booking) => (
+            ?.map((booking) => (
               <div
                 key={booking.bookingId}
                 className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-4"
@@ -948,8 +954,8 @@ export default function Provider() {
                     booking.status === "accepted"
                       ? "bg-green-100 text-green-700"
                       : booking.status === "cancelled"
-                      ? "bg-red-100 text-red-700"
-                      : "bg-amber-100 text-amber-700"
+                        ? "bg-red-100 text-red-700"
+                        : "bg-amber-100 text-amber-700"
                   }
                 `}
                     >
@@ -1275,24 +1281,21 @@ export default function Provider() {
                   className="container bg-white rounded-2xl shadow-sm p-6 space-y-4 mb-3 border border-gray-300"
                 >
                   <div className="mx-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-xl">
-                        {notification.notificationMessage}
-                      </h3>
-
+                    <div className="pt-2 flex items-center justify-between mb-3">
+                      <span className="text-(--color-steel-blue)">
+                        <span className="font-bold text-2xl">
+                          {placeData?.data?.placeName || "Unknown place"}
+                        </span>
+                      </span>
                       <i
                         onClick={() => deleteNotif(notification.notificationId)}
                         className="fa-solid fa-x cursor-pointer text-gray-500"
                       ></i>
                     </div>
-
-                    <div className="pt-2">
-                      <span className="text-(--color-steel-blue)">
-                        placeName:{" "}
-                        <span className="font-bold">
-                          {placeData?.data?.placeName || "Unknown place"}
-                        </span>
-                      </span>
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-xl">
+                        {notification.notificationMessage}
+                      </h3>
                     </div>
                   </div>
                 </div>
