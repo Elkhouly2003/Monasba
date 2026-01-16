@@ -2,10 +2,12 @@ import { createContext, useEffect, useState } from "react";
 import { AppConstants } from "../util/constans";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useUser } from "../../store/useUser";
 
 export const AppContext = createContext();
 
 export const AppContextProvider = (props) => {
+  const { setUser } = useUser();
   axios.defaults.withCredentials = true;
   const backendUrl = AppConstants.BACKEND_URL;
   const [isLoggedIn, setIsLoggedIn] = useState(false);
