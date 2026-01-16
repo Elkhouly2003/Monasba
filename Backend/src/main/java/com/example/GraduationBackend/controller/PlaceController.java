@@ -74,6 +74,24 @@ public class PlaceController {
     public ResponseEntity<ApiResponse> searchForPlaces(@RequestParam String query) {
         return ResponseEntity.ok(new ApiResponse("Search Success", placeService.searchPlaces(query)));
     }
+    @GetMapping("status/{certifiedStatus}")
+    public ResponseEntity<ApiResponse> getAllPlacesByCertifiedStatus(@PathVariable String certifiedStatus) {
+        List<PlaceDTO> places = placeService.getAllPlacesByCertifiedStatus(certifiedStatus);
+        return ResponseEntity.ok(new ApiResponse("Success", places));
+    }
+    @PatchMapping("accept/{placeId}")
+    public ResponseEntity<ApiResponse> acceptPlaceByAdmin(@PathVariable Integer placeId) {
+        placeService.acceptPlaceByAdmin(placeId);
+        return ResponseEntity.ok(new ApiResponse("Success", "place accepted successfully"));
+    }
+    @PatchMapping("reject/{placeId}")
+    public ResponseEntity<ApiResponse> rejectPlaceByAdmin(@PathVariable Integer placeId) {
+        placeService.rejectPlaceByAdmin(placeId);
+        return ResponseEntity.ok(new ApiResponse("Success", "place rejected successfully"));
+    }
+
+
+
 
 }
 

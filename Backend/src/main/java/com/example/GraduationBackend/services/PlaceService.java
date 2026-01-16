@@ -55,7 +55,7 @@ public class PlaceService {
 
         place.setImages(new ArrayList<>());
         place.setPlaceCategories(new ArrayList<>());
-        place.setCertified(false);
+        place.setCertified("false");
         place.setOwner(owner);
 
         Place savedPlace = placeRepository.save(place);
@@ -196,20 +196,19 @@ public class PlaceService {
         Place place = placeRepository.findById(placeId)
                 .orElseThrow(() -> new RuntimeException("Place not found with id: " + placeId));
 
-        // 1. احذف من savedPlaces عند كل المستخدمين
+
         List<User> users = userRepository.findAll();
         for (User user : users) {
             user.getSavedPlaces().remove(place);
         }
 
-        // 2. افصل المكان من المالك
+
         if (place.getOwner() != null) {
             place.getOwner().getMyPlaces().remove(place);
             place.setOwner(null);
         }
 
-        // 3. الآن احذف المكان
-        // Reviews, Bookings, Images, PlaceCategories ستُحذف تلقائياً
+
         placeRepository.delete(place);
     }
 
@@ -259,6 +258,50 @@ public class PlaceService {
             placeDTOs.add(placeDTO);
         }
         return placeDTOs;
+    }
+
+   public List<PlaceDTO> getAllPlacesByCertifiedStatus(String certifiedStatus) {
+       List<Place> places = placeRepository.findPlacesByCertified(certifiedStatus);
+       List<PlaceDTO> placeDTOs = new ArrayList<>();
+       for (Place place : places) {
+           PlaceDTO placeDTO = getPlaceDTOById(place.getPlaceId());
+           placeDTOs.add(placeDTO);
+       }
+       return placeDTOs;
+   }
+   @Transactional
+   public void acceptPlaceByAdmin(Integer placeId) {
+        Place place = placeRepository.findById(placeId).orElseThrow(
+                () -> new ResourceNotFoundException("Place with id : " + placeId + " not found")
+        ) ;
+        place.setCertified("true");
+        placeRepository.save(place);
+
+        User owner = place.getOwner();
+
+       Notification notification = new Notification();
+       notification.setPlaceOwner(owner);
+       notification.setPlace(place);
+       notification.setMessage("The Place With Name "+place.getPlaceName()+" Has Been Accepted  ");
+       notificationRepository.save(notification);
+
+   }
+
+    @Transactional
+    public void rejectPlaceByAdmin(Integer placeId) {
+        Place place = placeRepository.findById(placeId).orElseThrow(
+                () -> new ResourceNotFoundException("Place with id : " + placeId + " not found ")
+        ) ;
+        deletePlaceById(placeId);
+
+        User owner = place.getOwner();
+
+        Notification notification = new Notification();
+        notification.setPlaceOwner(owner);
+        notification.setPlace(null);
+        notification.setMessage("The Place With Name "+place.getPlaceName()+" Has Been Rejected For Some Reasons!! ");
+        notificationRepository.save(notification);
+
     }
 
 }
