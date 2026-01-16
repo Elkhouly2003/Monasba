@@ -7,6 +7,7 @@ import { AppContext } from "../../AuthenticationPage/context/AppContext";
 export default function Nav() {
   const { user } = useUser();
   const { logout } = useContext(AppContext);
+  console.log("debug");
 
   return (
     <>
@@ -88,7 +89,7 @@ export default function Nav() {
               <li>
                 {user ? (
                   <NavLink
-                    to={user.role === "provider" ? "/provider" : "/user"}
+                    to={user.role === "provider" ? "/provider" : "/profile"}
                     className="text-(--color-state-blue) min-w-12 min-h-12 flex justify-center items-center rounded-4xl bg-(--color-light-neutral) cursor-pointer"
                   >
                     <i className="fa-solid fa-user text-2xl"></i>
