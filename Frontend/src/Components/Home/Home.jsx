@@ -119,7 +119,7 @@ function Home() {
           <span className="sr-only">Loading...</span>
         </div>
       ) : (
-        <div className="w-full py-10">
+        <div id="home" className="w-full py-10">
           <div className="container mx-auto mb-6 pl-5">
             <h2 className="font-bold text-2xl">Recommended for You</h2>
           </div>
@@ -205,10 +205,6 @@ function Home() {
           </div>
         </div>
       )}
-
-      <div className="flex justify-center items-center">
-        <SearchBar />
-      </div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <h1

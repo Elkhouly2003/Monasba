@@ -14,6 +14,11 @@ export default function Nav() {
         <div className="max-w-8xl flex flex-wrap items-center justify-between mx-auto py-4 px-2 sm:px-4">
           <NavLink
             to="/home"
+            onClick={() => {
+              document.getElementById("home")?.scrollIntoView({
+                behavior: "smooth",
+              });
+            }}
             className="flex items-center space-x-3 rtl:space-x-reverse"
           >
             <img src={img1} className="h-8" alt="Logo" />
@@ -82,8 +87,9 @@ export default function Nav() {
                 }}
               >
                 <NavLink
-                to="/home"
-                 className="block py-2 px-3 rounded-sm md:border-0 hover:text-(--color-gold) md:p-0 text-(--color-light-neutral)">
+                  to="/home"
+                  className="block py-2 px-3 rounded-sm md:border-0 hover:text-(--color-gold) md:p-0 text-(--color-light-neutral)"
+                >
                   About
                 </NavLink>
               </li>
