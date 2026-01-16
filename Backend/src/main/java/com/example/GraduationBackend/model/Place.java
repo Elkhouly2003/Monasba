@@ -73,8 +73,11 @@ public class Place {
     private List<PlaceCategory> placeCategories = new ArrayList<>();
 
     @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
-
     private List<Image> images;
+
+    @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Notification> notifications = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
@@ -84,7 +87,5 @@ public class Place {
     @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Booking> bookings = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "savedPlaces")
-    private List<User> savedByUsers = new ArrayList<>();
 
 }

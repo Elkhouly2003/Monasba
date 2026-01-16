@@ -31,9 +31,9 @@ public class Notification {
     @Column(name = "notification_message")
     private String message;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "place_id")
-    private Place place ;
+    private  Place place ;
 
     @Column(name = "notification_action")
     private String action ;

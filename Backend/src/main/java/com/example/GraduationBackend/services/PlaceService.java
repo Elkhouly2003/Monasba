@@ -74,7 +74,6 @@ public class PlaceService {
             }
         }
 
-
         if (placeRequest.getImages() != null && !placeRequest.getImages().isEmpty()) {
             imageService.uploadPlaceImages(placeRequest.getImages(), savedPlace.getPlaceId());
         }
@@ -82,7 +81,7 @@ public class PlaceService {
         Notification notification = new Notification();
         notification.setPlaceOwner(owner);
         notification.setPlace(place);
-        notification.setMessage("a New Place Uploaded  Successfully In Monasba Website ");
+        notification.setMessage("a New Place Uploaded  Successfully Waited For Acceptation From Admin ");
         notificationRepository.save(notification);
 
     }
@@ -124,6 +123,7 @@ public class PlaceService {
         placeDTO.setOpenTime(place.getOpenTime());
         placeDTO.setCloseTime(place.getCloseTime());
         placeDTO.setPrice(place.getPrice());
+        placeDTO.setCertified(placeDTO.getCertified());
         placeDTO.setDiscount(place.getDiscount());
 
         List<Integer>imageIds = new ArrayList<>();
@@ -190,21 +190,26 @@ public class PlaceService {
     }
 
     // there is problem in this method make owner for all places null
+
     @Transactional
-    public void deletePlaceById(int placeId ,Integer userId) {
+    public void deletePlaceById(Integer placeId) {
         Place place = placeRepository.findById(placeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Place with id: " + placeId + " not found"));
+                .orElseThrow(() -> new RuntimeException("Place not found with id: " + placeId));
 
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new RuntimeException("User with id : " + userId + "not found")
-        );
+        // 1. احذف من savedPlaces عند كل المستخدمين
+        List<User> users = userRepository.findAll();
+        for (User user : users) {
+            user.getSavedPlaces().remove(place);
+        }
 
-        place.getReviews().clear();
-        bookingRepository.deleteByPlacePlaceId(placeId);
-        placeCategoryRepository.deleteByPlacePlaceId(placeId);
-        userRepository.deleteSavedPlacesByPlaceId(placeId);
-        place.setOwner(null);
+        // 2. افصل المكان من المالك
+        if (place.getOwner() != null) {
+            place.getOwner().getMyPlaces().remove(place);
+            place.setOwner(null);
+        }
 
+        // 3. الآن احذف المكان
+        // Reviews, Bookings, Images, PlaceCategories ستُحذف تلقائياً
         placeRepository.delete(place);
     }
 

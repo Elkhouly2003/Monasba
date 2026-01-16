@@ -42,9 +42,9 @@ public class PlaceController {
         return ResponseEntity.ok(new ApiResponse("Success", place));
     }
 
-    @DeleteMapping("place/{placeId}/user/{userId}")
-    public ResponseEntity<ApiResponse> deletePlace(@PathVariable int placeId ,@PathVariable int userId) {
-        placeService.deletePlaceById(placeId ,  userId );
+    @DeleteMapping("place/{placeId}")
+    public ResponseEntity<ApiResponse> deletePlace(@PathVariable int placeId ) {
+        placeService.deletePlaceById(placeId  );
         return ResponseEntity.ok(new ApiResponse("Success", "place deleted successfully"));
     }
 
