@@ -218,6 +218,20 @@ export default function Provider() {
     enabled: !!user?.userId,
   });
 
+  const reviewQueries = useQueries({
+    queries:
+      placeByOwner?.data?.map((place) => ({
+        queryKey: ["reviews", place.placeId],
+        queryFn: async () => {
+          const { data } = await axios.get(
+            `http://localhost:8080/api/v1.0/reviews/place/${place.placeId}`
+          );
+          return data;
+        },
+        enabled: !!place.placeId,
+      })) || [],
+  });
+
   const swalWithBootstrapButtons = Swal.mixin({
     customClass: {
       confirmButton:
@@ -615,7 +629,15 @@ export default function Provider() {
                       Categories
                     </label>
                     <div className="flex flex-wrap gap-3 p-2 border border-gray-300 rounded-xl bg-gray-50">
-                      {["Wedding", "Birthday", "Party"].map((cat) => (
+                      {[
+                        "Weddings",
+                        "Birthday",
+                        "Graduation party",
+                        "Dinner",
+                        "Engagement",
+                        "Workshops",
+                        "Day Use",
+                      ].map((cat) => (
                         <label
                           key={cat}
                           className="flex items-center space-x-2 cursor-pointer"
@@ -833,86 +855,99 @@ export default function Provider() {
           <div className=" container">
             <div className="max-w-8xl mx-auto px-2 sm:px-4">
               <div className="mt-6 mb-8 grid gap-8 grid-cols-1 [@media(min-width:650px)_and_(max-width:764px)]:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {placeByOwner?.data?.map((place) => (
-                  <div
-                    key={place.placeId}
-                    className="bg-white text-steel-blue rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 relative group"
-                  >
-                    <div className="absolute top-3 left-3 z-20 bg-state-blue text-light-neutral px-3 py-1 text-sm font-medium rounded-full opacity-90 backdrop-blur-sm">
-                      {place.categories[0]}
-                    </div>
+                {placeByOwner?.data?.map((place, index) => {
+                  const reviewsData = reviewQueries[index]?.data?.data || [];
+                  const averageRating =
+                    reviewsData.length > 0
+                      ? (
+                          reviewsData.reduce(
+                            (acc, curr) => acc + curr.ratings,
+                            0
+                          ) / reviewsData.length
+                        ).toFixed(1)
+                      : "0.0";
 
-                    <div className="overflow-hidden">
-                      <img
-                        className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500"
-                        src={`http://localhost:8080/api/v1.0/imagess/${place.imagesID[0]}`}
-                        alt=""
-                      />
-                    </div>
-
-                    <div className="p-5">
-                      <div className="flex justify-between items-center">
-                        <h1 className="font-semibold text-xl line-clamp-1">
-                          {place.placeName}
-                        </h1>
-                        <div className="flex items-center gap-1">
-                          <i className="fa-solid fa-star text-yellow-400"></i>
-                          <span className="font-medium">4.5</span>
-                        </div>
+                  return (
+                    <div
+                      key={place.placeId}
+                      className="bg-white text-steel-blue rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 relative group"
+                    >
+                      <div className="absolute top-3 left-3 z-20 bg-state-blue text-light-neutral px-3 py-1 text-sm font-medium rounded-full opacity-90 backdrop-blur-sm">
+                        {place.categories[0]}
                       </div>
 
-                      <p className="text-gray-600 mt-2 text-sm line-clamp-2">
-                        {place.description}
-                      </p>
-
-                      <div className="flex justify-between items-center mt-4 text-sm text-gray-500">
-                        <div className="flex items-center gap-2">
-                          <i className="fa-regular fa-calendar"></i>
-                          <span>{place.openTime}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <i className="fa-solid fa-location-dot"></i>
-                          <span>
-                            {place.address} {place.city}
-                          </span>
-                        </div>
+                      <div className="overflow-hidden">
+                        <img
+                          className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500"
+                          src={`http://localhost:8080/api/v1.0/imagess/${place.imagesID[0]}`}
+                          alt=""
+                        />
                       </div>
 
-                      <div className="flex justify-between items-center mt-6">
-                        <button
-                          onClick={() => {
-                            setIsEdit(true);
-                            setPlaceId(place.placeId);
-                            setPlaceName(place.placeName);
-                            setDescription(place.description);
-                            setCountry(place.country);
-                            setCity(place.city);
-                            setAddress(place.address);
-                            setPrice(place.price);
-                            setCapacity(place.capacity);
-                            setPhone(place.phone);
-                            setOpeningTime(place.openTime);
-                            setCloseTime(place.closeTime);
-                            setCategories(place.categories || []);
-                            setActive2("overview2");
-                          }}
-                          className="bg-state-blue text-light-neutral font-semibold px-5 rounded-xl cursor-pointer"
-                        >
-                          Edit
-                        </button>
+                      <div className="p-5">
+                        <div className="flex justify-between items-center">
+                          <h1 className="font-semibold text-xl line-clamp-1">
+                            {place.placeName}
+                          </h1>
+                          <div className="flex items-center gap-1">
+                            <i className="fa-solid fa-star text-yellow-400"></i>
+                            <span className="font-medium">{averageRating}</span>
+                          </div>
+                        </div>
 
-                        <button
-                          onClick={() =>
-                            confirmDelete(user.userId, place.placeId)
-                          }
-                          className="text-white bg-red-600 rounded-3xl px-5 cursor-pointer "
-                        >
-                          Delete
-                        </button>
+                        <p className="text-gray-600 mt-2 text-sm line-clamp-2">
+                          {place.description}
+                        </p>
+
+                        <div className="flex justify-between items-center mt-4 text-sm text-gray-500">
+                          <div className="flex items-center gap-2">
+                            <i className="fa-regular fa-calendar"></i>
+                            <span>{place.openTime}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <i className="fa-solid fa-location-dot"></i>
+                            <span>
+                              {place.address} {place.city}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between items-center mt-6">
+                          <button
+                            onClick={() => {
+                              setIsEdit(true);
+                              setPlaceId(place.placeId);
+                              setPlaceName(place.placeName);
+                              setDescription(place.description);
+                              setCountry(place.country);
+                              setCity(place.city);
+                              setAddress(place.address);
+                              setPrice(place.price);
+                              setCapacity(place.capacity);
+                              setPhone(place.phone);
+                              setOpeningTime(place.openTime);
+                              setCloseTime(place.closeTime);
+                              setCategories(place.categories || []);
+                              setActive2("overview2");
+                            }}
+                            className="bg-state-blue text-light-neutral font-semibold px-5 rounded-xl cursor-pointer"
+                          >
+                            Edit
+                          </button>
+
+                          <button
+                            onClick={() =>
+                              confirmDelete(user.userId, place.placeId)
+                            }
+                            className="text-white bg-red-600 rounded-3xl px-5 cursor-pointer "
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
