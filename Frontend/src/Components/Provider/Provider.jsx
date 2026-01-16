@@ -218,6 +218,20 @@ export default function Provider() {
     enabled: !!user?.userId,
   });
 
+  const reviewQueries = useQueries({
+    queries:
+      placeByOwner?.data?.map((place) => ({
+        queryKey: ["reviews", place.placeId],
+        queryFn: async () => {
+          const { data } = await axios.get(
+            `http://localhost:8080/api/v1.0/reviews/place/${place.placeId}`
+          );
+          return data;
+        },
+        enabled: !!place.placeId,
+      })) || [],
+  });
+
   const swalWithBootstrapButtons = Swal.mixin({
     customClass: {
       confirmButton:
@@ -369,6 +383,35 @@ export default function Provider() {
     accepted: 2,
     cancelled: 3,
   };
+
+  const getReviewProvider = async (userId) => {
+    const { data } = await axios.get(
+      `http://localhost:8080/api/v1.0/reviews/owner/${userId}`
+    );
+    return data;
+  };
+
+  const { data: reviewByOwner } = useQuery({
+    queryKey: ["reviewByOwner", user?.userId],
+    queryFn: () => getReviewProvider(user.userId),
+    enabled: !!user?.userId,
+  });
+
+  const getUserById = async (userId) => {
+    const { data } = await axios.get(
+      `http://localhost:8080/api/v1.0/users/${userId}`
+    );
+    return data;
+  };
+
+  const userQueries = useQueries({
+    queries:
+      reviewByOwner?.data?.map((review) => ({
+        queryKey: ["user", review.userId],
+        queryFn: () => getUserById(review.userId),
+        enabled: !!review.userId,
+      })) || [],
+  });
 
   return (
     <>
@@ -586,7 +629,15 @@ export default function Provider() {
                       Categories
                     </label>
                     <div className="flex flex-wrap gap-3 p-2 border border-gray-300 rounded-xl bg-gray-50">
-                      {["Wedding", "Birthday", "Party"].map((cat) => (
+                      {[
+                        "Weddings",
+                        "Birthday",
+                        "Graduation party",
+                        "Dinner",
+                        "Engagement",
+                        "Workshops",
+                        "Day Use",
+                      ].map((cat) => (
                         <label
                           key={cat}
                           className="flex items-center space-x-2 cursor-pointer"
@@ -804,86 +855,99 @@ export default function Provider() {
           <div className=" container">
             <div className="max-w-8xl mx-auto px-2 sm:px-4">
               <div className="mt-6 mb-8 grid gap-8 grid-cols-1 [@media(min-width:650px)_and_(max-width:764px)]:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {placeByOwner?.data?.map((place) => (
-                  <div
-                    key={place.placeId}
-                    className="bg-white text-steel-blue rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 relative group"
-                  >
-                    <div className="absolute top-3 left-3 z-20 bg-state-blue text-light-neutral px-3 py-1 text-sm font-medium rounded-full opacity-90 backdrop-blur-sm">
-                      {place.categories[0]}
-                    </div>
+                {placeByOwner?.data?.map((place, index) => {
+                  const reviewsData = reviewQueries[index]?.data?.data || [];
+                  const averageRating =
+                    reviewsData.length > 0
+                      ? (
+                          reviewsData.reduce(
+                            (acc, curr) => acc + curr.ratings,
+                            0
+                          ) / reviewsData.length
+                        ).toFixed(1)
+                      : "0.0";
 
-                    <div className="overflow-hidden">
-                      <img
-                        className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500"
-                        src={`http://localhost:8080/api/v1.0/imagess/${place.imagesID[0]}`}
-                        alt=""
-                      />
-                    </div>
-
-                    <div className="p-5">
-                      <div className="flex justify-between items-center">
-                        <h1 className="font-semibold text-xl line-clamp-1">
-                          {place.placeName}
-                        </h1>
-                        <div className="flex items-center gap-1">
-                          <i className="fa-solid fa-star text-yellow-400"></i>
-                          <span className="font-medium">4.5</span>
-                        </div>
+                  return (
+                    <div
+                      key={place.placeId}
+                      className="bg-white text-steel-blue rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 relative group"
+                    >
+                      <div className="absolute top-3 left-3 z-20 bg-state-blue text-light-neutral px-3 py-1 text-sm font-medium rounded-full opacity-90 backdrop-blur-sm">
+                        {place.categories[0]}
                       </div>
 
-                      <p className="text-gray-600 mt-2 text-sm line-clamp-2">
-                        {place.description}
-                      </p>
-
-                      <div className="flex justify-between items-center mt-4 text-sm text-gray-500">
-                        <div className="flex items-center gap-2">
-                          <i className="fa-regular fa-calendar"></i>
-                          <span>{place.openTime}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <i className="fa-solid fa-location-dot"></i>
-                          <span>
-                            {place.address} {place.city}
-                          </span>
-                        </div>
+                      <div className="overflow-hidden">
+                        <img
+                          className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500"
+                          src={`http://localhost:8080/api/v1.0/imagess/${place.imagesID[0]}`}
+                          alt=""
+                        />
                       </div>
 
-                      <div className="flex justify-between items-center mt-6">
-                        <button
-                          onClick={() => {
-                            setIsEdit(true);
-                            setPlaceId(place.placeId);
-                            setPlaceName(place.placeName);
-                            setDescription(place.description);
-                            setCountry(place.country);
-                            setCity(place.city);
-                            setAddress(place.address);
-                            setPrice(place.price);
-                            setCapacity(place.capacity);
-                            setPhone(place.phone);
-                            setOpeningTime(place.openTime);
-                            setCloseTime(place.closeTime);
-                            setCategories(place.categories || []);
-                            setActive2("overview2");
-                          }}
-                          className="bg-state-blue text-light-neutral font-semibold px-5 rounded-xl cursor-pointer"
-                        >
-                          Edit
-                        </button>
+                      <div className="p-5">
+                        <div className="flex justify-between items-center">
+                          <h1 className="font-semibold text-xl line-clamp-1">
+                            {place.placeName}
+                          </h1>
+                          <div className="flex items-center gap-1">
+                            <i className="fa-solid fa-star text-yellow-400"></i>
+                            <span className="font-medium">{averageRating}</span>
+                          </div>
+                        </div>
 
-                        <button
-                          onClick={() =>
-                            confirmDelete(user.userId, place.placeId)
-                          }
-                          className="text-white bg-red-600 rounded-3xl px-5 cursor-pointer "
-                        >
-                          Delete
-                        </button>
+                        <p className="text-gray-600 mt-2 text-sm line-clamp-2">
+                          {place.description}
+                        </p>
+
+                        <div className="flex justify-between items-center mt-4 text-sm text-gray-500">
+                          <div className="flex items-center gap-2">
+                            <i className="fa-regular fa-calendar"></i>
+                            <span>{place.openTime}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <i className="fa-solid fa-location-dot"></i>
+                            <span>
+                              {place.address} {place.city}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between items-center mt-6">
+                          <button
+                            onClick={() => {
+                              setIsEdit(true);
+                              setPlaceId(place.placeId);
+                              setPlaceName(place.placeName);
+                              setDescription(place.description);
+                              setCountry(place.country);
+                              setCity(place.city);
+                              setAddress(place.address);
+                              setPrice(place.price);
+                              setCapacity(place.capacity);
+                              setPhone(place.phone);
+                              setOpeningTime(place.openTime);
+                              setCloseTime(place.closeTime);
+                              setCategories(place.categories || []);
+                              setActive2("overview2");
+                            }}
+                            className="bg-state-blue text-light-neutral font-semibold px-5 rounded-xl cursor-pointer"
+                          >
+                            Edit
+                          </button>
+
+                          <button
+                            onClick={() =>
+                              confirmDelete(user.userId, place.placeId)
+                            }
+                            className="text-white bg-red-600 rounded-3xl px-5 cursor-pointer "
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -917,7 +981,7 @@ export default function Provider() {
             </ul>
           </div>
           {bookByOwner?.data
-            ?.slice() 
+            ?.slice()
             ?.sort((a, b) => statusOrder[a.status] - statusOrder[b.status])
             ?.filter((booking) => {
               if (activeTab === "All") return true;
@@ -1010,249 +1074,53 @@ export default function Provider() {
             <h2 className="font-bold text-2xl">My Reviews</h2>
           </div>
           <div>
-            <div className="container bg-white rounded-2xl shadow-sm p-6 space-y-4 mb-3 border border-gray-300 ">
-              <div className=" mx-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-xl">Al-Lu’lu’a Venue</h3>
+            {reviewByOwner?.data?.length > 0 &&
+              reviewByOwner.data.map((review, index) => {
+                const placeData = placeQueries[index]?.data;
+                const userData = userQueries[index]?.data;
+
+                return (
+                  <div className="container bg-white rounded-2xl shadow-sm p-6 space-y-4 mb-3 border border-gray-300 ">
+                    <div className=" mx-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="font-semibold text-xl">
+                            {placeData?.data?.placeName || "Unknown place"}
+                          </h3>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <svg
+                              key={star}
+                              className={`w-5 h-5 ${
+                                star <= review.ratings
+                                  ? "text-yellow-300"
+                                  : "text-fg-disabled"
+                              }`}
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
+                            </svg>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between pt-2">
+                        <div>
+                          <p className="text-(--color-state-blue) text-lg">
+                            <span className=" text-(--color-steel-blue) font-bold">
+                              {userData?.data?.name || "Unknown User"} :
+                            </span>
+                            {review.comment}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div class="flex items-center space-x-1">
-                    <svg
-                      className="w-5 h-5 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-5 h-5 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-5 h-5 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-5 h-5 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-5 h-5 text-fg-disabled"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                  </div>
-                </div>
-                <div className=" container">
-                  <span className="text-(--color-state-blue) text-xs">
-                    Cairo, Egypt
-                  </span>
-                </div>
-                <div className="flex items-center justify-between pt-2">
-                  <div>
-                    <p className="text-(--color-state-blue) text-lg">
-                      <span className=" text-(--color-steel-blue) font-bold">
-                        Ali Gado :
-                      </span>{" "}
-                      “Venue was good and the view was very beautiful”
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>{" "}
-            <div className="container bg-white rounded-2xl shadow-sm p-6 space-y-4 mb-3 border border-gray-300 ">
-              <div className=" mx-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-xl">Al-Lu’lu’a Venue</h3>
-                  </div>
-                  <div class="flex items-center space-x-1">
-                    <svg
-                      className="w-5 h-5 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-5 h-5 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-5 h-5 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-5 h-5 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-5 h-5 text-fg-disabled"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                  </div>
-                </div>
-                <div className=" container">
-                  <span className="text-(--color-state-blue) text-xs">
-                    Cairo, Egypt
-                  </span>
-                </div>
-                <div className="flex items-center justify-between pt-2">
-                  <div>
-                    <p className="text-(--color-state-blue) text-lg">
-                      <span className=" text-(--color-steel-blue) font-bold">
-                        Ali Gado :
-                      </span>{" "}
-                      “Venue was good and the view was very beautiful”
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>{" "}
-            <div className="container bg-white rounded-2xl shadow-sm p-6 space-y-4 mb-3 border border-gray-300 ">
-              <div className=" mx-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-xl">Al-Lu’lu’a Venue</h3>
-                  </div>
-                  <div class="flex items-center space-x-1">
-                    <svg
-                      className="w-5 h-5 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-5 h-5 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-5 h-5 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-5 h-5 text-yellow-300"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                    <svg
-                      className="w-5 h-5 text-fg-disabled"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
-                    </svg>
-                  </div>
-                </div>
-                <div className=" container">
-                  <span className="text-(--color-state-blue) text-xs">
-                    Cairo, Egypt
-                  </span>
-                </div>
-                <div className="flex items-center justify-between pt-2">
-                  <div>
-                    <p className="text-(--color-state-blue) text-lg">
-                      <span className=" text-(--color-steel-blue) font-bold">
-                        Ali Gado :
-                      </span>{" "}
-                      “Venue was good and the view was very beautiful”
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+                );
+              })}
           </div>
         </div>
       )}
