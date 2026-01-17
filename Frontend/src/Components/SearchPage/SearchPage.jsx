@@ -1,23 +1,45 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import axios from "axios";
 import Results from "../Results/Results";
 import SearchBar from "../SearchBar/SearchBar";
-import useGet from "../../hooks/useGet";
 import Nav from "../Nav/Nav";
 
 const SearchPage = () => {
+  const [searchParams] = useSearchParams();
+  const categoryParam = searchParams.get("category");
+
   const [allPlaces, setAllPlaces] = useState([]);
   const [filteredPlaces, setFilteredPlaces] = useState([]);
-
-  const { data, loading, error } = useGet(
-    "http://localhost:8080/api/v1.0/placess"
-  );
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (data?.data) {
-      setAllPlaces(data.data);
-      setFilteredPlaces(data.data);
-    }
-  }, [data]);
+    const fetchPlaces = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        let url = "http://localhost:8080/api/v1.0/placess";
+
+        if (categoryParam && categoryParam.toLowerCase() !== "explore all") {
+          url = `http://localhost:8080/api/v1.0/placess/category/${categoryParam}`;
+        }
+
+        const response = await axios.get(url);
+
+        const result = response.data.data || response.data;
+
+        setAllPlaces(result);
+        setFilteredPlaces(result);
+      } catch (err) {
+        setError(err.message || "Failed to fetch data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPlaces();
+  }, [categoryParam]);
 
   const handleFilter = ({ city, location, term }) => {
     const filtered = allPlaces.filter((place) => {
@@ -43,10 +65,10 @@ const SearchPage = () => {
         </div>
 
         {loading && (
-          <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-[rgba(0,0,0,0.5)]">
+          <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-[rgba(0,0,0,0.5)] z-50">
             <svg
               aria-hidden="true"
-              className="w-10 h-10 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+              className="w-10 h-10 text-gray-200 animate-spin fill-blue-600"
               viewBox="0 0 100 101"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -63,11 +85,18 @@ const SearchPage = () => {
             <span className="sr-only">Loading...</span>
           </div>
         )}
+
         {error && (
-          <p className="text-center text-red-500">Error loading events</p>
+          <p className="text-center text-red-500">
+            Error loading events: {error}
+          </p>
         )}
 
-        {!loading && !error && <Results events={filteredPlaces} />}
+        {!loading && !error && (
+          <div className="pb-10">
+            <Results events={filteredPlaces} />
+          </div>
+        )}
       </div>
     </>
   );

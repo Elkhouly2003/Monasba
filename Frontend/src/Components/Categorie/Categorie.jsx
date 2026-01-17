@@ -13,10 +13,20 @@ import img12 from "../../assets/icons/Medal2.png";
 import img13 from "../../assets/icons/balloon1.png";
 import img14 from "../../assets/icons/balloon2.png";
 import img15 from "../../assets/icons/balloon3.png";
+import { useNavigate } from "react-router-dom";
 
 export default function Categorie({ title, image, text }) {
+  const navigate = useNavigate();
+
+  const handleCategoryClick = () => {
+    navigate(`/search?category=${title.toLowerCase()}`);
+  };
+
   return (
-    <div className="flex justify-center items-center p-4 sm:p-6 md:p-8">
+    <div
+      onClick={handleCategoryClick}
+      className="flex justify-center items-center p-4 sm:p-6 md:p-8"
+    >
       <div
         className="
           relative
