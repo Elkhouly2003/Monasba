@@ -10,6 +10,8 @@ import { useUser } from "../../store/useUser";
 import Nav from "../Nav/Nav";
 import StarRating from "../StarRating/StarRating";
 import EventCard from "../EventCard/EventCard";
+import { NavLink } from "react-router-dom";
+
 
 const getNotifications = async (userId) => {
   const { data } = await axios.get(
@@ -227,7 +229,7 @@ export default function Profile({ userId }) {
   return (
     <>
       <Nav />
-
+    
       <div className="w-full">
         <div
           className=" container p-6 

@@ -140,7 +140,10 @@ function Home() {
                       }`}
                     >
                       <img
-                        src={`http://localhost:8080/api/v1.0/imagess/${imageId}`}
+                        src={
+                          `http://localhost:8080/api/v1.0/imagess/${imageId}` ||
+                          img15
+                        }
                         className="w-full h-full object-cover rounded-3xl"
                         alt={place.placeName}
                       />
