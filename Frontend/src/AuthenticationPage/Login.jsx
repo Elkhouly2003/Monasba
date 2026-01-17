@@ -1,5 +1,5 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useContext, useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { AppContext } from "./context/AppContext";
 import { toast } from "react-toastify";
@@ -9,25 +9,15 @@ import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 
 const Login = () => {
-  const location = useLocation();
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("user");
+  const [role, setRole] = useState(location.state?.role || "user");
   const [loading, setLoading] = useState(false);
-  const { backendUrl, setIsLoggedIn, getUserData } = useContext(AppContext);
-  const navigate = useNavigate();
-  const { setUser } = useUser();
 
-  useEffect(() => {
-    if (location.state?.isCreatingAccount) {
-      setIsCreatingAccount(true);
-    }
-    if (location.state?.role) {
-      setRole(location.state.role);
-    }
-  }, [location.state]);
+  const { backendUrl, setIsLoggedIn, getUserData } = useContext(AppContext);
+  const { setUser } = useUser();
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
@@ -122,7 +112,7 @@ const Login = () => {
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
                   >
-                    <option value="user">Client</option>
+                    <option value="user">Organizer</option>
                     <option value="provider">Provider</option>
                   </select>
                 </div>

@@ -6,9 +6,9 @@ const SearchBar = ({ onSearch }) => {
   const countryOptions = ["Egypt", "Saudi Arabia", "UAE"];
 
   const cityOptions = {
-    Egypt: ["Cairo", "Alexandria", "Giza", "Luxor", "Aswan"],
-    "Saudi Arabia": ["Riyadh", "Jeddah", "Dammam", "Mecca"],
-    UAE: ["Dubai", "Abu Dhabi", "Sharjah", "Ajman"],
+    Egypt: ["Cairo", "Alexandria", "Giza", "Sharm El-Sheikh", "Luxor"],
+    "Saudi Arabia": ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"],
+    UAE: ["Dubai", "Abu Dhabi", "Sharjah", "Ajman", "Ras Al Khaimah"],
   };
 
   const [showCountries, setShowCountries] = useState(false);

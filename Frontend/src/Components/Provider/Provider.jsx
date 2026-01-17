@@ -30,6 +30,9 @@ export default function Provider() {
   const [images, setImages] = useState([]);
   const [isEdit, setIsEdit] = useState(false);
   const [placeId, setPlaceId] = useState(null);
+
+  const [isAiChecking, setIsAiChecking] = useState(false);
+
   const resetForm = () => {
     setPlaceName("");
     setDescription("");
@@ -52,34 +55,24 @@ export default function Provider() {
     placeName: Yup.string()
       .required("Place name is required")
       .min(3, "Place name must be at least 3 characters"),
-
     description: Yup.string()
       .required("Description is required")
       .min(10, "Description must be at least 10 characters"),
-
     country: Yup.string().required("Country is required"),
-
     city: Yup.string().required("City is required"),
-
     address: Yup.string().required("Address is required"),
-
     price: Yup.number()
       .typeError("Price must be a number")
       .positive("Price must be positive")
       .required("Price is required"),
-
     capacity: Yup.number()
       .typeError("Capacity must be a number")
       .positive("Capacity must be positive")
       .integer("Capacity must be an integer")
       .required("Capacity is required"),
-
     phone: Yup.string().required("Phone is required"),
-
     openTime: Yup.string().required("Opening time is required"),
-
     closeTime: Yup.string().required("Closing time is required"),
-
     categories: Yup.array().min(1, "At least one category is required"),
   });
 
@@ -91,6 +84,7 @@ export default function Provider() {
     if (!user || (!user.userId && !user.id)) {
       return;
     }
+
     try {
       await placeSchema.validate(
         {
@@ -111,13 +105,39 @@ export default function Provider() {
       setErrors({});
     } catch (validationError) {
       const newErrors = {};
-
       validationError.inner.forEach((err) => {
         newErrors[err.path] = err.message;
       });
       toast.error("booking validation failed");
       setErrors(newErrors);
       return;
+    }
+
+    if (!isEdit && images.length > 0) {
+      setIsAiChecking(true);
+      const aiFormData = new FormData();
+      aiFormData.append("description", description);
+      aiFormData.append("image", images[0]);
+
+      try {
+        const aiCheckResponse = await axios.post(
+          "http://localhost:7000/api/v1/event",
+          aiFormData,
+        );
+
+        if (aiCheckResponse.data.aiResult === "NOT MATCH") {
+          toast.error("desciption not match the image");
+          setIsAiChecking(false);
+          return;
+        }
+      } catch (err) {
+        console.error("AI check error:", err);
+        toast.error("AI service error. Try again later.");
+        setIsAiChecking(false);
+        return;
+      } finally {
+        setIsAiChecking(false);
+      }
     }
 
     const userId = user.userId || user.id;
@@ -159,7 +179,6 @@ export default function Provider() {
       if (!response.ok) throw new Error("Place data update failed");
 
       const placeResult = await response.json();
-      console.log(placeResult);
 
       if (isEdit && images.length > 0) {
         const currentPlace = placeByOwner?.data?.find(
@@ -842,11 +861,20 @@ export default function Provider() {
                 <div className="flex justify-end gap-3 mt-6">
                   <button
                     onClick={handleSubmit}
+                    disabled={isAiChecking}
                     className={`px-5 py-2 rounded-xl text-white cursor-pointer ${
-                      isEdit ? "bg-green-600" : "bg-(--color-dark-navy)"
+                      isAiChecking
+                        ? "bg-gray-400"
+                        : isEdit
+                          ? "bg-green-600"
+                          : "bg-(--color-dark-navy)"
                     }`}
                   >
-                    {isEdit ? "Update Event" : "Publish Event"}
+                    {isAiChecking
+                      ? "Checking AI..."
+                      : isEdit
+                        ? "Update Event"
+                        : "Publish Event"}
                   </button>
                 </div>
               </div>

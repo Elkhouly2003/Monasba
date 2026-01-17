@@ -3,7 +3,7 @@ import img1 from "../../assets/icons/LOGO.png";
 import { useUser } from "../../store/useUser";
 import { useContext } from "react";
 import { AppContext } from "../../AuthenticationPage/context/AppContext";
-
+import { useNavigate } from "react-router-dom";
 export default function Nav() {
   const { user } = useUser();
   const { logout } = useContext(AppContext);

@@ -58,7 +58,8 @@ export default function Footer() {
             </div>
             <div className="flex items-center justify-center lg:justify-start py-0.5">
               <i className="fa-solid fa-phone text-state-blue pr-2"></i>
-              <p className="text-light-neutral text-sm">01121434541</p>
+
+              <p className="text-light-neutral text-sm">01194837583</p>
             </div>
           </div>
 
