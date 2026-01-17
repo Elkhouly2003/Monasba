@@ -17,7 +17,7 @@ export default function Footer() {
             <p className="text-light-neutral text-sm py-0.5">
               <NavLink
                 to="/home"
-                 onClick={() => {
+                onClick={() => {
                   document.getElementById("home")?.scrollIntoView({
                     behavior: "smooth",
                   });
@@ -53,16 +53,12 @@ export default function Footer() {
           <div>
             <h3 className="text-gold text-xl mb-2">Contact</h3>
             <div className="flex items-center justify-center lg:justify-start py-0.5">
-              <i className="fa-solid fa-location-dot text-state-blue pr-2"></i>
-              <p className="text-light-neutral text-sm">Cairo, Egypt</p>
-            </div>
-            <div className="flex items-center justify-center lg:justify-start py-0.5">
               <i className="fa-solid fa-envelope text-state-blue pr-2"></i>
-              <p className="text-light-neutral text-sm">support@gmail.com</p>
+              <p className="text-light-neutral text-sm">monasbaa@gmail.com</p>
             </div>
             <div className="flex items-center justify-center lg:justify-start py-0.5">
               <i className="fa-solid fa-phone text-state-blue pr-2"></i>
-              <p className="text-light-neutral text-sm">1299</p>
+              <p className="text-light-neutral text-sm">01194837583</p>
             </div>
           </div>
 

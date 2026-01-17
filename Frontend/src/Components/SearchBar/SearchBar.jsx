@@ -3,65 +3,45 @@ import Arrow_Down from "../../assets/icons/Arrow_Down.png";
 import Search_icon from "../../assets/icons/Search_icon.png";
 
 const SearchBar = ({ onSearch }) => {
-  const cityOptions = [
-    "Cairo",
-    "Alexandria",
-    "Giza",
-    "Sharm El-Sheikh",
-    "Luxor",
-  ];
-  const locationOptions = {
-    Cairo: [
-      "Nasr City",
-      "Heliopolis",
-      "Maadi",
-      "Zamalek",
-      "New Cairo",
-      "Downtown",
-    ],
-    Alexandria: ["Stanley", "Smouha", "Gleem", "Miami", "Sidi Gaber"],
-    Giza: [
-      "Dokki",
-      "Mohandessin",
-      "6th of October City",
-      "Haram",
-      "Sheikh Zayed",
-    ],
-    "Sharm El-Sheikh": ["Naama Bay", "Hadaba", "Sharks Bay", "Ras Um Sid"],
-    Luxor: ["East Bank", "West Bank", "Karnak", "El Tod"],
+  const countryOptions = ["Egypt", "Saudi Arabia", "UAE"];
+
+  const cityOptions = {
+    Egypt: ["Cairo", "Alexandria", "Giza", "Sharm El-Sheikh", "Luxor"],
+    "Saudi Arabia": ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"],
+    UAE: ["Dubai", "Abu Dhabi", "Sharjah", "Ajman", "Ras Al Khaimah"],
   };
 
+  const [showCountries, setShowCountries] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState("Country");
   const [showCities, setShowCities] = useState(false);
   const [selectedCity, setSelectedCity] = useState("City");
-  const [showLocations, setShowLocations] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState("Location");
   const [showError, setShowError] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const sendDataToParent = (city, loc, term) => {
+  const sendDataToParent = (country, city, term) => {
     onSearch({
+      country: country === "Country" ? "" : country,
       city: city === "City" ? "" : city,
-      location: loc === "Location" ? "" : loc,
       term: term,
     });
   };
 
-  const handleSelectCity = (city) => {
-    setSelectedCity(city);
-    setSelectedLocation("Location");
-    setShowCities(false);
-    sendDataToParent(city, "Location", searchTerm);
+  const handleSelectCountry = (country) => {
+    setSelectedCountry(country);
+    setSelectedCity("City");
+    setShowCountries(false);
+    sendDataToParent(country, "City", searchTerm);
   };
 
-  const handleSelectLocation = (location) => {
-    setSelectedLocation(location);
-    setShowLocations(false);
-    sendDataToParent(selectedCity, location, searchTerm);
+  const handleSelectCity = (city) => {
+    setSelectedCity(city);
+    setShowCities(false);
+    sendDataToParent(selectedCountry, city, searchTerm);
   };
 
   const handleInputChange = (e) => {
     setSearchTerm(e.target.value);
-    sendDataToParent(selectedCity, selectedLocation, e.target.value);
+    sendDataToParent(selectedCountry, selectedCity, e.target.value);
   };
 
   return (
@@ -69,15 +49,53 @@ const SearchBar = ({ onSearch }) => {
       <div className="flex gap-6 sm:flex-row flex-col ">
         <div
           onClick={() => {
-            setShowCities(!showCities);
-            setShowLocations(false);
+            setShowCountries(!showCountries);
+            setShowCities(false);
           }}
           className="bg-state-blue text-light-neutral flex items-center justify-between px-4 py-2 rounded-xl gap-2 xl:flex-none flex-1 min-w-[180px] cursor-pointer relative"
         >
-          {showCities && (
+          {showCountries && (
             <div className="absolute bg-white w-full left-0 top-full text-state-blue z-50 rounded-xl overflow-hidden shadow-md">
               <ul className="flex flex-col gap-2 py-2">
-                {cityOptions.map((city) => (
+                {countryOptions.map((country) => (
+                  <li
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSelectCountry(country);
+                    }}
+                    key={country}
+                    className="px-4 py-2 hover:bg-gray-100"
+                  >
+                    {country}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <span>{selectedCountry}</span>
+          <img src={Arrow_Down} alt="arrow" className="w-4" />
+        </div>
+
+        <div
+          onClick={() => {
+            if (selectedCountry !== "Country") {
+              setShowCities(!showCities);
+              setShowError(false);
+            } else {
+              setShowError(true);
+            }
+          }}
+          className="bg-state-blue text-light-neutral flex items-center justify-between px-4 py-2 rounded-xl gap-2 xl:flex-none flex-1 min-w-[180px] cursor-pointer relative"
+        >
+          {showError && (
+            <p className="text-red-600 text-xs absolute -top-5">
+              Select country first
+            </p>
+          )}
+          {showCities && cityOptions[selectedCountry] && (
+            <div className="absolute bg-white w-full left-0 top-full text-state-blue z-50 rounded-xl overflow-hidden shadow-md">
+              <ul className="flex flex-col gap-2 py-2">
+                {cityOptions[selectedCountry].map((city) => (
                   <li
                     onClick={(e) => {
                       e.stopPropagation();
@@ -93,44 +111,6 @@ const SearchBar = ({ onSearch }) => {
             </div>
           )}
           <span>{selectedCity}</span>
-          <img src={Arrow_Down} alt="arrow" className="w-4" />
-        </div>
-
-        <div
-          onClick={() => {
-            if (selectedCity !== "City") {
-              setShowLocations(!showLocations);
-              setShowError(false);
-            } else {
-              setShowError(true);
-            }
-          }}
-          className="bg-state-blue text-light-neutral flex items-center justify-between px-4 py-2 rounded-xl gap-2 xl:flex-none flex-1 min-w-[180px] cursor-pointer relative"
-        >
-          {showError && (
-            <p className="text-red-600 text-xs absolute -top-5">
-              Select city first
-            </p>
-          )}
-          {showLocations && locationOptions[selectedCity] && (
-            <div className="absolute bg-white w-full left-0 top-full text-state-blue z-50 rounded-xl overflow-hidden shadow-md">
-              <ul className="flex flex-col gap-2 py-2">
-                {locationOptions[selectedCity].map((loc) => (
-                  <li
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSelectLocation(loc);
-                    }}
-                    key={loc}
-                    className="px-4 py-2 hover:bg-gray-100"
-                  >
-                    {loc}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          <span>{selectedLocation}</span>
           <img src={Arrow_Down} alt="arrow" className="w-4" />
         </div>
       </div>
