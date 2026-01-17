@@ -9,7 +9,7 @@ const SearchPage = () => {
   const [filteredPlaces, setFilteredPlaces] = useState([]);
 
   const { data, loading, error } = useGet(
-    "http://localhost:8080/api/v1.0/placess"
+    "http://localhost:8080/api/v1.0/placess/status/true"
   );
 
   useEffect(() => {
