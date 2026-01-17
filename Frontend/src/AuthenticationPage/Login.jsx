@@ -1,5 +1,5 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useContext, useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { AppContext } from "./context/AppContext";
 import { toast } from "react-toastify";
@@ -7,15 +7,29 @@ import { assets } from "./assets/assets";
 import { useUser } from "../store/useUser";
 
 const Login = () => {
-  const [isCreatingAccount, setIsCreatingAccount] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const [isCreatingAccount, setIsCreatingAccount] = useState(
+    location.state?.isCreatingAccount || false,
+  );
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("user");
+  const [role, setRole] = useState(location.state?.role || "user");
   const [loading, setLoading] = useState(false);
+
   const { backendUrl, setIsLoggedIn, getUserData } = useContext(AppContext);
-  const navigate = useNavigate();
   const { setUser } = useUser();
+
+  useEffect(() => {
+    if (location.state?.role) {
+      setRole(location.state.role);
+    }
+    if (location.state?.isCreatingAccount !== undefined) {
+      setIsCreatingAccount(location.state.isCreatingAccount);
+    }
+  }, [location.state]);
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
