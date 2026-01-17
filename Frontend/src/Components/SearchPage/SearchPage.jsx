@@ -11,22 +11,17 @@ const SearchPage = () => {
 
   const [allPlaces, setAllPlaces] = useState([]);
   const [filteredPlaces, setFilteredPlaces] = useState([]);
-<<<<<<< HEAD
 
-  const { data, loading, error } = useGet(
-    "http://localhost:8080/api/v1.0/placess/status/true"
-  );
-=======
+ 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
->>>>>>> d75a7e2947ed94fe03188988d49ad1c3ea2f9add
 
   useEffect(() => {
     const fetchPlaces = async () => {
       setLoading(true);
       setError(null);
       try {
-        let url = "http://localhost:8080/api/v1.0/placess";
+        let url = "http://localhost:8080/api/v1.0/placess/status/true";
 
         if (categoryParam && categoryParam.toLowerCase() !== "explore all") {
           url = `http://localhost:8080/api/v1.0/placess/category/${categoryParam}`;
