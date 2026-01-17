@@ -33,6 +33,15 @@ const SingleEventPage = () => {
 
   const { user } = useUser();
 
+  const formatTime = (time) => {
+    if (!time) return "N/A";
+    const [hours, minutes] = time.split(":");
+    const h = parseInt(hours, 10);
+    const ampm = h >= 12 ? "PM" : "AM";
+    const formattedHours = h % 12 || 12;
+    return `${formattedHours}:${minutes} ${ampm}`;
+  };
+
   const bookingSchema = Yup.object().shape({
     title: Yup.string().required("Title is required"),
     description: Yup.string()
@@ -257,6 +266,10 @@ const SingleEventPage = () => {
     { label: "Rating", value: <StarRating rate={averageRating} /> },
     { label: "Location", value: `${event.city}, ${event.country}` },
     { label: "Price", value: `$${event.price}` },
+    {
+      label: "Working Hours",
+      value: `${formatTime(event.openTime)} - ${formatTime(event.closeTime)}`,
+    },
   ];
 
   return (
