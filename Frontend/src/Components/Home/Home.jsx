@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import img1 from "../../assets/icons/Wedding_Icon.png";
 import img2 from "../../assets/icons/Birthday_Cake_Icon.png";
 import img3 from "../../assets/icons/Graduation_Cap_Icon.png";
@@ -12,13 +12,13 @@ import img10 from "../../assets/icons/User_Icon.png";
 import img11 from "../../assets/icons/Discover_Icon.png";
 import img12 from "../../assets/icons/Secure_Booking_Icon.png";
 import img13 from "../../assets/icons/Relax_Icon.png";
-import img14 from "../../assets/icons/Star_Filled_Icon.png";
 import img15 from "../../assets/icons/sumatra-weddings.png";
 import Categorie from "../Categorie/Categorie";
 import Nav from "../Nav/Nav";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 
 const STATIC_CATEGORIES = [
   { id: 1, name: "Wedding", description: "Make your big day unforgettable." },
@@ -31,8 +31,51 @@ const STATIC_CATEGORIES = [
   { id: 8, name: "Explore All", description: "Find exactly what you need." },
 ];
 
+const SlideItem = ({ place, index, currentSlide }) => {
+  const imageId = place.imagesID?.[0];
+
+  return (
+    <div
+      className={`absolute inset-0 transition-opacity duration-700 ${
+        index === currentSlide ? "opacity-100" : "opacity-0 pointer-events-none"
+      }`}
+    >
+      <Link
+        to={`/place/${place.placeId}`}
+        className="group relative block w-full h-full cursor-pointer"
+      >
+        <img
+          src={
+            imageId
+              ? `http://localhost:8080/api/v1.0/imagess/${imageId}`
+              : img15
+          }
+          className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105 group-hover:opacity-60"
+          alt={place.placeName}
+        />
+
+        <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-12 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <h3 className="text-white text-3xl md:text-5xl font-extrabold mb-3 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+            {place.placeName}
+          </h3>
+          <p className="text-gray-200 text-sm md:text-lg mb-6 line-clamp-2 max-w-2xl transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-75">
+            {place.description || "No description available."}
+          </p>
+          <div className="flex items-center gap-2 bg-yellow-500 w-fit px-4 py-1.5 rounded-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-150">
+            <i className="fa-solid fa-star text-black text-xs"></i>
+            <span className="text-black font-bold text-sm">
+              {place.avgRating > 0 ? place.avgRating : "No Ratings"}
+            </span>
+          </div>
+        </div>
+      </Link>
+    </div>
+  );
+};
+
 function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const navigate = useNavigate();
 
   function getImageForCategory(name) {
     const n = name.toLowerCase();
@@ -47,17 +90,43 @@ function Home() {
     return img8;
   }
 
-  const getBookingByUser = async () => {
-    const { data } = await axios.get(`http://localhost:8080/api/v1.0/placess`);
-    return data;
+  const getPlacesWithRatings = async () => {
+    const { data: placesResponse } = await axios.get(
+      `http://localhost:8080/api/v1.0/placess`,
+    );
+    const placesList = placesResponse.data || [];
+
+    const ratedPlaces = await Promise.all(
+      placesList.map(async (place) => {
+        try {
+          const res = await fetch(
+            `http://localhost:8080/api/v1.0/reviews/place/${place.placeId}`,
+          );
+          if (res.ok) {
+            const result = await res.json();
+            const ratings = result.data.map((rev) => rev.ratings);
+            const avg =
+              ratings.length > 0
+                ? ratings.reduce((acc, curr) => acc + curr, 0) / ratings.length
+                : 0;
+            return { ...place, avgRating: parseFloat(avg.toFixed(1)) };
+          }
+        } catch (error) {
+          console.error("Error fetching rating for place:", place.placeId);
+        }
+        return { ...place, avgRating: 0 };
+      }),
+    );
+
+    return ratedPlaces.sort((a, b) => b.avgRating - a.avgRating);
   };
 
-  const { data: places, isLoading: loading } = useQuery({
-    queryKey: ["places"],
-    queryFn: () => getBookingByUser(),
+  const { data: sortedPlaces, isLoading: loading } = useQuery({
+    queryKey: ["top-rated-places"],
+    queryFn: getPlacesWithRatings,
   });
 
-  const slides = places?.data?.slice(0, 3) || [];
+  const slides = sortedPlaces?.slice(0, 3) || [];
   const totalSlides = slides.length;
 
   const nextSlide = () => {
@@ -66,6 +135,12 @@ function Home() {
 
   const prevSlide = () => {
     setCurrentSlide((prev) => (prev === 0 ? totalSlides - 1 : prev - 1));
+  };
+
+  const handleJoinAction = (selectedRole) => {
+    navigate("/login", {
+      state: { role: selectedRole, isCreatingAccount: true },
+    });
   };
 
   return (
@@ -101,30 +176,15 @@ function Home() {
 
           <div className="container mx-auto px-4 md:px-20">
             <div className="relative w-full">
-              <div className="relative h-72 md:h-[500px] overflow-hidden rounded-3xl">
-                {slides.map((place, index) => {
-                  const imageId = place.imagesID?.[0];
-                  return (
-                    <div
-                      key={place.placeId}
-                      className={`absolute inset-0 transition-opacity duration-700 ${
-                        index === currentSlide
-                          ? "opacity-100"
-                          : "opacity-0 pointer-events-none"
-                      }`}
-                    >
-                      <img
-                        src={
-                          imageId
-                            ? `http://localhost:8080/api/v1.0/imagess/${imageId}`
-                            : img15
-                        }
-                        className="w-full h-full object-cover rounded-3xl"
-                        alt={place.placeName}
-                      />
-                    </div>
-                  );
-                })}
+              <div className="relative h-72 md:h-[500px] overflow-hidden rounded-3xl shadow-xl">
+                {slides.map((place, index) => (
+                  <SlideItem
+                    key={place.placeId}
+                    place={place}
+                    index={index}
+                    currentSlide={currentSlide}
+                  />
+                ))}
               </div>
 
               {totalSlides > 0 && (
@@ -143,7 +203,7 @@ function Home() {
 
                   <button
                     onClick={prevSlide}
-                    className="absolute top-0 left-0 z-30 flex items-center justify-center h-full cursor-pointer px-4"
+                    className="absolute top-0 left-0 z-40 flex items-center justify-center h-full cursor-pointer px-4"
                   >
                     <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md hover:scale-110 transition">
                       <svg
@@ -163,7 +223,7 @@ function Home() {
                   </button>
                   <button
                     onClick={nextSlide}
-                    className="absolute top-0 right-0 z-30 flex items-center justify-center h-full cursor-pointer px-4"
+                    className="absolute top-0 right-0 z-40 flex items-center justify-center h-full cursor-pointer px-4"
                   >
                     <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md hover:scale-110 transition">
                       <svg
@@ -222,16 +282,9 @@ function Home() {
 
             <div className="flex items-center gap-4">
               <button className="text-white bg-(--color-state-blue) border border-[#2C3E50] hover:bg-[#1B2E4F] shadow-md font-medium rounded-2xl text-sm px-5 py-3 text-center">
-                <span className="font-bold">100+</span>
+                <span className="font-bold">25+</span>
                 <br />
                 Events
-              </button>
-              <button className="text-white bg-(--color-state-blue) border border-[#2C3E50] hover:bg-[#1B2E4F] shadow-md font-medium rounded-2xl text-sm px-5 py-3 text-center">
-                <div className="flex justify-center items-center gap-1">
-                  <span className="font-bold">4.8</span>
-                  <img src={img14} alt="star" className="w-4 h-4" />
-                </div>
-                Avg Rating
               </button>
               <button className="text-white bg-(--color-state-blue) border border-[#2C3E50] hover:bg-[#1B2E4F] shadow-md font-medium rounded-2xl text-sm px-5 py-3 text-center">
                 <span className="font-bold">24/7</span>
@@ -260,7 +313,126 @@ function Home() {
           </div>
         </div>
       </div>
-      {/* ... Remaining components like Post Your Event section ... */}
+
+      <div className="w-full max-w-6xl mx-auto px-4 lg:px-6 flex flex-col md:flex-row justify-center items-stretch gap-10 md:gap-12 py-10">
+        <div className="bg-white flex-1 p-6 shadow-md rounded-2xl">
+          <div className="flex items-center pb-3 pt-3">
+            <img src={img9} className="h-8" alt="Confetti_Icon" />
+            <h3 className="font-bold text-2xl px-2">Post Your Event</h3>
+          </div>
+          <p className="text-(--color-state-blue) text-sm pb-5 leading-relaxed">
+            Reach thousands of customers searching for the perfect location.
+            Expand your business with Monasba.
+          </p>
+          <div className="pb-5 space-y-2">
+            {[
+              "Showcase your venue with photos & details",
+              "Get more bookings with verified reviews",
+              "Manage availability & reservations easily",
+              "Promote special offers or packages",
+            ].map((text, index) => (
+              <div key={index} className="flex items-center">
+                <i className="fa-solid fa-check pr-2"></i>
+                <span className="text-sm text-(--color-state-blue)">
+                  {text}
+                </span>
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={() => handleJoinAction("provider")}
+            className="bg-(--color-state-blue) w-full border border-gray-300 hover:opacity-90 font-medium rounded-full text-sm px-5 py-2.5 text-white"
+          >
+            Join As Provider
+          </button>
+        </div>
+
+        <div className="bg-white flex-1 p-6 shadow-md rounded-2xl">
+          <div className="flex items-center pb-3 pt-3">
+            <img src={img10} className="h-8" alt="Confetti_Icon" />
+            <h3 className="font-bold text-2xl px-2">Find Your Perfect Venue</h3>
+          </div>
+          <p className="text-(--color-state-blue) text-sm pb-5 leading-relaxed">
+            Discover thousands of curated event spaces for weddings, parties, or
+            corporate use. Booking made simple.
+          </p>
+          <div className="pb-5 space-y-2">
+            {[
+              "Browse hundreds of verified events",
+              "Filter by location, budget, and type",
+              "Read trusted reviews before booking",
+              "Save favorites & book instantly",
+            ].map((text, index) => (
+              <div key={index} className="flex items-center">
+                <i className="fa-solid fa-check pr-2"></i>
+                <span className="text-sm text-(--color-state-blue)">
+                  {text}
+                </span>
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={() => handleJoinAction("user")}
+            className="bg-(--color-state-blue) w-full border border-gray-300 hover:opacity-90 font-medium rounded-full text-sm px-5 py-2.5 text-white"
+          >
+            Join As Organizer
+          </button>
+        </div>
+      </div>
+
+      <div className="w-full">
+        <div className="container text-center mt-3 mb-3 mx-auto">
+          <h2 className="text-3xl font-extrabold">
+            How Monasba Makes Booking Easy
+          </h2>
+          <p className="p-2 text-(--color-state-blue)">
+            Simple, transparent, and stress-free event management in three
+            steps.
+          </p>
+        </div>
+
+        <div className="w-full flex justify-center py-14">
+          <div className="w-full max-w-[1200px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 px-6 relative">
+            <div className="absolute top-10 left-0 right-0 -z-10 mx-auto h-[3px] bg-gray-400 w-full hidden lg:block"></div>
+            <div className="flex flex-col items-center text-center max-w-[260px] mx-auto">
+              <img src={img11} alt="Discover" />
+              <h3 className="text-base font-bold pt-2">
+                1. Discover & Compare
+              </h3>
+              <p className="text-(--color-state-blue) text-sm pt-2.5">
+                Browse verified venues, filter by category, date, and budget.
+                View photos, details, and reviews instantly.
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center max-w-[260px] mx-auto">
+              <img src={img12} alt="Secure" />
+              <h3 className="text-base font-bold pt-2">
+                2. Secure Your Booking
+              </h3>
+              <p className="text-(--color-state-blue) text-sm pt-2.5">
+                Contact venues directly or book instantly with our secure,
+                transparent reservation system.
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center max-w-[260px] mx-auto">
+              <img src={img13} alt="Relax" />
+              <h3 className="text-base font-bold pt-2">3. Relax & Celebrate</h3>
+              <p className="text-(--color-state-blue) text-sm pt-2.5">
+                With all the details sorted, you can focus on enjoying your
+                event. We handle the management!
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="container flex justify-center mb-7 mx-auto">
+          <Link to="/search">
+            <button className="bg-(--color-state-blue) border border-gray-300 hover:opacity-90 font-medium rounded-full text-sm px-5 py-2.5 text-white cursor-pointer">
+              Start Browsing Venues Now
+            </button>
+          </Link>
+        </div>
+      </div>
     </>
   );
 }

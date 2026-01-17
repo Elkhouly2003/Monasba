@@ -12,7 +12,6 @@ const SearchPage = () => {
   const [allPlaces, setAllPlaces] = useState([]);
   const [filteredPlaces, setFilteredPlaces] = useState([]);
 
- 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -42,17 +41,16 @@ const SearchPage = () => {
 
     fetchPlaces();
   }, [categoryParam]);
-
-  const handleFilter = ({ city, location, term }) => {
+  const handleFilter = ({ country, city, term }) => {
     const filtered = allPlaces.filter((place) => {
+      const matchesCountry =
+        !country || place.country?.toLowerCase() === country.toLowerCase();
       const matchesCity =
         !city || place.city?.toLowerCase() === city.toLowerCase();
-      const matchesLocation =
-        !location || place.location?.toLowerCase() === location.toLowerCase();
       const matchesTerm =
         !term || place.placeName?.toLowerCase().includes(term.toLowerCase());
 
-      return matchesCity && matchesLocation && matchesTerm;
+      return matchesCountry && matchesCity && matchesTerm;
     });
 
     setFilteredPlaces(filtered);

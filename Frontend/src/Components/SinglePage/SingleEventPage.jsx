@@ -33,23 +33,28 @@ const SingleEventPage = () => {
 
   const { user } = useUser();
 
+  const formatTime = (time) => {
+    if (!time) return "N/A";
+    const [hours, minutes] = time.split(":");
+    const h = parseInt(hours, 10);
+    const ampm = h >= 12 ? "PM" : "AM";
+    const formattedHours = h % 12 || 12;
+    return `${formattedHours}:${minutes} ${ampm}`;
+  };
+
   const bookingSchema = Yup.object().shape({
     title: Yup.string().required("Title is required"),
     description: Yup.string()
       .min(10, "Description must be at least 10 characters")
       .required("Description is required"),
-
     startDate: Yup.string().required("Start date is required"),
     endDate: Yup.string().required("End date is required"),
-
     startTime: Yup.string().required("Start time is required"),
     endTime: Yup.string().required("End time is required"),
-
     capacity: Yup.number()
       .typeError("Capacity must be a number")
       .positive("Capacity must be greater than 0")
       .required("Capacity is required"),
-
     price: Yup.number()
       .typeError("Price must be a number")
       .positive("Price must be greater than 0")
@@ -71,13 +76,13 @@ const SingleEventPage = () => {
     if (!user?.userId || !id) return;
     try {
       const response = await fetch(
-        `http://localhost:8080/api/v1.0/savedPlaces/${user.userId}`
+        `http://localhost:8080/api/v1.0/savedPlaces/${user.userId}`,
       );
       if (response.ok) {
         const result = await response.json();
         const savedPlacesList = result.data || [];
         const exists = savedPlacesList.some(
-          (p) => String(p.placeId) === String(id)
+          (p) => String(p.placeId) === String(id),
         );
         setIsSaved(exists);
       }
@@ -88,17 +93,12 @@ const SingleEventPage = () => {
 
   const handleToggleSave = async () => {
     if (!user || !user.userId) return;
-
     const method = isSaved ? "DELETE" : "POST";
     const url = `http://localhost:8080/api/v1.0/user/${user.userId}/place/${id}`;
-
     try {
       const response = await fetch(url, { method });
-
       if (response.ok) {
         setIsSaved(!isSaved);
-      } else {
-        console.error(`Failed to ${isSaved ? "unsave" : "save"} place`);
       }
     } catch (err) {
       console.error("Network error:", err);
@@ -118,9 +118,8 @@ const SingleEventPage = () => {
           capacity,
           price,
         },
-        { abortEarly: false }
+        { abortEarly: false },
       );
-
       setErrors({});
     } catch (validationError) {
       const newErrors = {};
@@ -133,7 +132,6 @@ const SingleEventPage = () => {
     }
     const formattedStartDate = `${startDate}T${startTime}:00`;
     const formattedEndDate = `${endDate}T${endTime}:00`;
-
     const book = {
       userId: user.userId,
       placeId: id,
@@ -144,7 +142,6 @@ const SingleEventPage = () => {
       capacity: Number(capacity),
       price: Number(price),
     };
-
     try {
       await axios.post("http://localhost:8080/api/v1.0/bookingss", book);
       toast.success("Booking created successfully!");
@@ -157,24 +154,22 @@ const SingleEventPage = () => {
   const fetchReviews = useCallback(async () => {
     try {
       const response = await fetch(
-        `http://localhost:8080/api/v1.0/reviews/place/${id}`
+        `http://localhost:8080/api/v1.0/reviews/place/${id}`,
       );
       if (response.ok) {
         const result = await response.json();
         const reviewsData = result.data || [];
-
         const ratings = reviewsData.map((rev) => rev.ratings);
         const avg =
           ratings.length > 0
             ? ratings.reduce((acc, curr) => acc + curr, 0) / ratings.length
             : 0;
         setAverageRating(avg);
-
         const reviewsWithNames = await Promise.all(
           reviewsData.map(async (rev) => {
             try {
               const userRes = await fetch(
-                `http://localhost:8080/api/v1.0/users/${rev.userId}`
+                `http://localhost:8080/api/v1.0/users/${rev.userId}`,
               );
               if (userRes.ok) {
                 const userResult = await userRes.json();
@@ -184,9 +179,8 @@ const SingleEventPage = () => {
               console.error("Error fetching user", err);
             }
             return { ...rev, userName: "Anonymous" };
-          })
+          }),
         );
-
         setReviews(reviewsWithNames);
       }
     } catch (err) {
@@ -199,19 +193,17 @@ const SingleEventPage = () => {
       try {
         setLoading(true);
         const response = await fetch(
-          `http://localhost:8080/api/v1.0/placess/${id}`
+          `http://localhost:8080/api/v1.0/placess/${id}`,
         );
         if (!response.ok) throw new Error("Failed to fetch event details");
         const result = await response.json();
         setEvent(result.data);
-
         if (result.data.imagesID?.length > 0) {
           const formattedImages = result.data.imagesID.map(
-            (imgId) => `http://localhost:8080/api/v1.0/imagess/${imgId}`
+            (imgId) => `http://localhost:8080/api/v1.0/imagess/${imgId}`,
           );
           setImages(formattedImages);
         }
-
         await fetchReviews();
       } catch (err) {
         setError(err.message);
@@ -219,7 +211,6 @@ const SingleEventPage = () => {
         setLoading(false);
       }
     };
-
     fetchPlace();
   }, [id, fetchReviews]);
 
@@ -239,10 +230,9 @@ const SingleEventPage = () => {
       <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-[rgba(0,0,0,0.5)]">
         <svg
           aria-hidden="true"
-          className="w-10 h-10 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+          className="w-10 h-10 text-gray-200 animate-spin fill-blue-600"
           viewBox="0 0 100 101"
           fill="none"
-          xmlns="http://www.w3.org/2000/svg"
         >
           <path
             d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
@@ -253,9 +243,9 @@ const SingleEventPage = () => {
             fill="currentFill"
           />
         </svg>
-        <span className="sr-only">Loading...</span>
       </div>
     );
+
   if (error)
     return <div className="text-center mt-20 text-red-500">{error}</div>;
   if (!event) return null;
@@ -263,6 +253,24 @@ const SingleEventPage = () => {
   const overviewDesc = event.description
     ? event.description.split(/\n\s*\n/)
     : [];
+
+  const displayCategories = [
+    {
+      label: "Categories",
+      value:
+        event.categories && event.categories.length > 0
+          ? event.categories.join(", ")
+          : "N/A",
+    },
+    { label: "Capacity", value: `${event.capacity} people` },
+    { label: "Rating", value: <StarRating rate={averageRating} /> },
+    { label: "Location", value: `${event.city}, ${event.country}` },
+    { label: "Price", value: `$${event.price}` },
+    {
+      label: "Working Hours",
+      value: `${formatTime(event.openTime)} - ${formatTime(event.closeTime)}`,
+    },
+  ];
 
   return (
     <>
@@ -279,42 +287,26 @@ const SingleEventPage = () => {
             </h2>
             <button
               onClick={handleToggleSave}
-              className={`${
-                isSaved ? "text-state-blue" : "text-gray-500"
-              } hover:text-state-blue transition-colors duration-300 cursor-pointer outline-none border-none bg-transparent`}
+              className={`${isSaved ? "text-state-blue" : "text-gray-500"} hover:text-state-blue transition-colors duration-300 cursor-pointer outline-none border-none bg-transparent`}
             >
               <i
-                className={`${
-                  isSaved ? "fa-solid" : "fa-regular"
-                } fa-bookmark text-2xl sm:text-3xl`}
+                className={`${isSaved ? "fa-solid" : "fa-regular"} fa-bookmark text-2xl sm:text-3xl`}
               ></i>
             </button>
           </div>
 
           <div className="mt-8 sm:mt-12 flex flex-col md:flex-row justify-between gap-10">
-            <div className="md:max-w-[440px] flex flex-col gap-6 md:pr-8 md:border-r-2 border-state-blue">
-              <div className="flex items-center gap-2">
-                <h3 className="text-xl font-semibold text-dark-navy">
-                  Capacity:
-                </h3>
-                <p className="text-lg text-state-blue">
-                  {event.capacity} people
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-xl font-semibold text-dark-navy">
-                  Rating:
-                </h3>
-                <StarRating rate={averageRating} />
-              </div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-xl font-semibold text-dark-navy">
-                  Location:
-                </h3>
-                <p className="text-lg text-state-blue">
-                  {event.city}, {event.country}
-                </p>
-              </div>
+            <div className="md:w-1/3 flex flex-col gap-6 md:pr-8 md:border-r-2 border-state-blue max-w-[350px]">
+              {displayCategories.map((cat, index) => (
+                <div key={index} className="flex flex-col gap-1">
+                  <h3 className="font-semibold text-dark-navy uppercase tracking-wider text-xs opacity-60">
+                    {cat.label}
+                  </h3>
+                  <div className="text-xl text-state-blue font-medium capitalize">
+                    {cat.value}
+                  </div>
+                </div>
+              ))}
             </div>
 
             <div className="flex-1">
@@ -338,9 +330,6 @@ const SingleEventPage = () => {
             >
               Request Booking
             </button>
-            <button className="bg-white border-2 border-state-blue px-12 py-3 text-state-blue font-bold text-base md:text-xl rounded-2xl">
-              Ask Question
-            </button>
           </div>
         </div>
 
@@ -349,13 +338,11 @@ const SingleEventPage = () => {
             <div className="flex justify-between items-center mb-4 sm:mb-6">
               <h2 className="font-bold text-xl sm:text-2xl">Booking Details</h2>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium mb-1">Title</label>
                 <input
                   type="text"
-                  placeholder="e.g. Al-Lu'lu'a Venue"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -364,14 +351,12 @@ const SingleEventPage = () => {
                   <p className="text-red-500 text-xs mt-1">{errors.title}</p>
                 )}
               </div>
-
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium mb-1">
                   Description
                 </label>
                 <textarea
                   rows="4"
-                  placeholder="Describe your event..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -382,7 +367,6 @@ const SingleEventPage = () => {
                   </p>
                 )}
               </div>
-
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Start date
@@ -413,7 +397,6 @@ const SingleEventPage = () => {
                   <p className="text-red-500 text-xs mt-1">{errors.endDate}</p>
                 )}
               </div>
-
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Start time
@@ -444,14 +427,12 @@ const SingleEventPage = () => {
                   <p className="text-red-500 text-xs mt-1">{errors.endTime}</p>
                 )}
               </div>
-
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Capacity
                 </label>
                 <input
                   type="number"
-                  placeholder="e.g. 200"
                   value={capacity}
                   onChange={(e) => setCapacity(e.target.value)}
                   className="w-full border border-gray-300 rounded-xl px-4 py-2"
@@ -466,7 +447,6 @@ const SingleEventPage = () => {
                 </label>
                 <input
                   type="number"
-                  placeholder="e.g. 35"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   className="w-full border border-gray-300 rounded-xl px-4 py-2"
@@ -476,7 +456,6 @@ const SingleEventPage = () => {
                 )}
               </div>
             </div>
-
             <div className="flex justify-center mt-6 sm:mt-8">
               <button
                 onClick={handleConfirmBooking}
@@ -500,17 +479,15 @@ const SingleEventPage = () => {
               {showReviewForm ? "Cancel" : "Write Review"}
             </button>
           </div>
-
           {showReviewForm && (
             <ReviewForm placeId={id} onReviewSubmitted={handleReviewSuccess} />
           )}
-
           <div className="mt-8 space-y-6">
             {reviews.length > 0 ? (
               reviews.map((rev) => (
                 <Reviews
                   key={rev.reviewId}
-                  userId={rev.userId || "Anonymous User"}
+                  userId={rev.userName || "Anonymous User"}
                   date={
                     rev.createdAt
                       ? new Date(rev.createdAt).toLocaleDateString()

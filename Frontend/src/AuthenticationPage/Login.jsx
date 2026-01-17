@@ -5,8 +5,11 @@ import { AppContext } from "./context/AppContext";
 import { toast } from "react-toastify";
 import { assets } from "./assets/assets";
 import { useUser } from "../store/useUser";
+import { useLocation } from "react-router-dom";
+import { useEffect } from "react";
 
 const Login = () => {
+  const location = useLocation();
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -16,6 +19,15 @@ const Login = () => {
   const { backendUrl, setIsLoggedIn, getUserData } = useContext(AppContext);
   const navigate = useNavigate();
   const { setUser } = useUser();
+
+  useEffect(() => {
+    if (location.state?.isCreatingAccount) {
+      setIsCreatingAccount(true);
+    }
+    if (location.state?.role) {
+      setRole(location.state.role);
+    }
+  }, [location.state]);
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();

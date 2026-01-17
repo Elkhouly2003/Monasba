@@ -106,7 +106,7 @@ export default function Provider() {
           closeTime,
           categories,
         },
-        { abortEarly: false }
+        { abortEarly: false },
       );
       setErrors({});
     } catch (validationError) {
@@ -163,12 +163,12 @@ export default function Provider() {
 
       if (isEdit && images.length > 0) {
         const currentPlace = placeByOwner?.data?.find(
-          (p) => p.placeId === placeId
+          (p) => p.placeId === placeId,
         );
 
         if (currentPlace && currentPlace.imagesID) {
           const deletePromises = currentPlace.imagesID.map((imgId) =>
-            axios.delete(`http://localhost:8080/api/v1.0/imagess/${imgId}`)
+            axios.delete(`http://localhost:8080/api/v1.0/imagess/${imgId}`),
           );
           await Promise.all(deletePromises);
         }
@@ -185,7 +185,7 @@ export default function Provider() {
           {
             method: "POST",
             body: imageFormData,
-          }
+          },
         );
 
         if (!imgResponse.ok) throw new Error("Image upload failed");
@@ -208,7 +208,7 @@ export default function Provider() {
 
   const getPlacesByOwner = async (userId) => {
     const { data } = await axios.get(
-      `http://localhost:8080/api/v1.0/placess/owner/${userId}`
+      `http://localhost:8080/api/v1.0/placess/owner/${userId}`,
     );
     return data;
   };
@@ -225,7 +225,7 @@ export default function Provider() {
         queryKey: ["reviews", place.placeId],
         queryFn: async () => {
           const { data } = await axios.get(
-            `http://localhost:8080/api/v1.0/reviews/place/${place.placeId}`
+            `http://localhost:8080/api/v1.0/reviews/place/${place.placeId}`,
           );
           return data;
         },
@@ -284,7 +284,7 @@ export default function Provider() {
   async function deleteItem(userId, placeId) {
     try {
       await axios.delete(
-        `http://localhost:8080/api/v1.0/placess/place/${placeId}/user/${userId}`
+        `http://localhost:8080/api/v1.0/placess/place/${placeId}/user/${userId}`,
       );
 
       queryClient.invalidateQueries({
@@ -297,7 +297,7 @@ export default function Provider() {
 
   const getBookingByOwnerId = async (userId) => {
     const { data } = await axios.get(
-      `http://localhost:8080/api/v1.0/bookingss/owner/${userId}`
+      `http://localhost:8080/api/v1.0/bookingss/owner/${userId}`,
     );
     return data;
   };
@@ -311,7 +311,7 @@ export default function Provider() {
   async function deleteBook(bookingId) {
     try {
       await axios.patch(
-        `http://localhost:8080/api/v1.0/bookingss/cancel/${bookingId}`
+        `http://localhost:8080/api/v1.0/bookingss/cancel/${bookingId}`,
       );
 
       queryClient.invalidateQueries({
@@ -325,7 +325,7 @@ export default function Provider() {
   async function acceptBook(bookingId) {
     try {
       await axios.patch(
-        `http://localhost:8080/api/v1.0/bookingss/accept/${bookingId}`
+        `http://localhost:8080/api/v1.0/bookingss/accept/${bookingId}`,
       );
 
       queryClient.invalidateQueries({
@@ -339,7 +339,7 @@ export default function Provider() {
 
   const getNotificartionProvider = async (userId) => {
     const { data } = await axios.get(
-      `http://localhost:8080/api/v1.0/notificationss/owner/${userId}`
+      `http://localhost:8080/api/v1.0/notificationss/owner/${userId}`,
     );
     return data;
   };
@@ -353,7 +353,7 @@ export default function Provider() {
   async function deleteNotif(notificationId) {
     try {
       await axios.delete(
-        `http://localhost:8080/api/v1.0/notificationss/${notificationId}`
+        `http://localhost:8080/api/v1.0/notificationss/${notificationId}`,
       );
 
       queryClient.invalidateQueries({
@@ -366,7 +366,7 @@ export default function Provider() {
 
   const getPlaceById = async (placeId) => {
     const { data } = await axios.get(
-      `http://localhost:8080/api/v1.0/placess/${placeId}`
+      `http://localhost:8080/api/v1.0/placess/${placeId}`,
     );
     return data;
   };
@@ -387,7 +387,7 @@ export default function Provider() {
 
   const getReviewProvider = async (userId) => {
     const { data } = await axios.get(
-      `http://localhost:8080/api/v1.0/reviews/owner/${userId}`
+      `http://localhost:8080/api/v1.0/reviews/owner/${userId}`,
     );
     return data;
   };
@@ -400,7 +400,7 @@ export default function Provider() {
 
   const getUserById = async (userId) => {
     const { data } = await axios.get(
-      `http://localhost:8080/api/v1.0/users/${userId}`
+      `http://localhost:8080/api/v1.0/users/${userId}`,
     );
     return data;
   };
@@ -652,7 +652,7 @@ export default function Provider() {
                                 setCategories([...categories, cat]);
                               } else {
                                 setCategories(
-                                  categories.filter((item) => item !== cat)
+                                  categories.filter((item) => item !== cat),
                                 );
                               }
                             }}
@@ -863,7 +863,7 @@ export default function Provider() {
                       ? (
                           reviewsData.reduce(
                             (acc, curr) => acc + curr.ratings,
-                            0
+                            0,
                           ) / reviewsData.length
                         ).toFixed(1)
                       : "0.0";
@@ -901,10 +901,6 @@ export default function Provider() {
                         </p>
 
                         <div className="flex justify-between items-center mt-4 text-sm text-gray-500">
-                          <div className="flex items-center gap-2">
-                            <i className="fa-regular fa-calendar"></i>
-                            <span>{place.openTime}</span>
-                          </div>
                           <div className="flex items-center gap-2">
                             <i className="fa-solid fa-location-dot"></i>
                             <span>
