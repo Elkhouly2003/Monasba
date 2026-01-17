@@ -58,7 +58,7 @@ public class Place {
     private LocalTime closeTime;
 
     @Column(name = "is_certified")
-    private Boolean certified;          // by default false admin is responsible for this
+    private String certified;          // by default false admin is responsible for this
 
     @Column(name = "place_price")
     private Double price;

@@ -11,6 +11,7 @@ import java.util.List;
 @Repository
 public interface PlaceRepository extends JpaRepository<Place, Integer> {
     List<Place> findByOwnerUserId(Integer id);
+    List<Place> findPlacesByCertified(String status);
 
     @Query("""
     SELECT p FROM Place p

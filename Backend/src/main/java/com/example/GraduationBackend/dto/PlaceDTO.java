@@ -25,7 +25,7 @@ public class PlaceDTO {
     private LocalTime closeTime;
     private Double price;
     private Double discount;
-    private Boolean certified;
+    private String certified;
     private List<String> categories ;
     private List<Integer> imagesID ;
     private List<Integer> reviewsId ;
