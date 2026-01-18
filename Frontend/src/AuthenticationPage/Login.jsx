@@ -5,8 +5,6 @@ import { AppContext } from "./context/AppContext";
 import { toast } from "react-toastify";
 import { assets } from "./assets/assets";
 import { useUser } from "../store/useUser";
-import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
 
 const Login = () => {
   const location = useLocation();
