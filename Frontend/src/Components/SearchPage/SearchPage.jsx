@@ -20,10 +20,10 @@ const SearchPage = () => {
       setLoading(true);
       setError(null);
       try {
-        let url = "http://localhost:8080/api/v1.0/placess/status/true";
+        let url = `${import.meta.env.VITE_API_URL}/placess`;
 
         if (categoryParam && categoryParam.toLowerCase() !== "explore all") {
-          url = `http://localhost:8080/api/v1.0/placess/category/${categoryParam}`;
+          url = `${import.meta.env.VITE_API_URL}/placess/category/${categoryParam}`;
         }
 
         const response = await axios.get(url);

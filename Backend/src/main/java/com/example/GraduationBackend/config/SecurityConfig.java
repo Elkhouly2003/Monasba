@@ -6,6 +6,7 @@ import com.example.GraduationBackend.model.*;
 import com.example.GraduationBackend.services.AppUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
@@ -34,6 +35,8 @@ import java.util.List;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
     private final AppUserDetailsService appUserDetailsService;
 
@@ -58,7 +61,7 @@ public class SecurityConfig {
                 config.exposeIdsFor( Category.class, Place.class, Booking.class, Review.class, User.class, Notification.class, Image.class, PlaceCategory.class, Services.class, ServiceProviders.class);
 
                 // ممكن كمان تعمل CORS لو حابب
-                cors.addMapping("/**").allowedOrigins("http://localhost:3000");
+                cors.addMapping("/**").allowedOrigins(frontendUrl);
             }
         };
     }

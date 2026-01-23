@@ -9,7 +9,7 @@ const ProfileAdmin = () => {
 
   const getPlacesAdmins = async () => {
     const { data } = await axios.get(
-      `http://localhost:8080/api/v1.0/placess/status/false`
+      `${import.meta.env.VITE_API_URL}/placess/status/false`
     );
     return data;
   };
@@ -23,7 +23,7 @@ const ProfileAdmin = () => {
   async function deleteBook(placeId) {
     try {
       await axios.patch(
-        `http://localhost:8080/api/v1.0/placess/reject/${placeId}`
+        `${import.meta.env.VITE_API_URL}/placess/reject/${placeId}`
       );
 
       queryClient.invalidateQueries({
@@ -38,7 +38,7 @@ const ProfileAdmin = () => {
   async function acceptBook(placeId) {
     try {
       await axios.patch(
-        `http://localhost:8080/api/v1.0/placess/accept/${placeId}`
+        `${import.meta.env.VITE_API_URL}/placess/accept/${placeId}`
       );
 
       queryClient.invalidateQueries({
@@ -69,7 +69,7 @@ const ProfileAdmin = () => {
             <div className="flex flex-col md:flex-row gap-5">
               <div className="w-full md:w-40 h-32 rounded-xl overflow-hidden">
                 <img
-                  src={`http://localhost:8080/api/v1.0/imagess/${place.imagesID[0]}`}
+                  src={`${import.meta.env.VITE_API_URL}/imagess/${place.imagesID[0]}`}
                   alt="Event"
                   className="w-full h-full object-cover"
                 />

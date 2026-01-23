@@ -13,7 +13,7 @@ const EventCard = ({ event }) => {
     const fetchUser = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/v1.0/users/${event.ownerID}`
+          `${import.meta.env.VITE_API_URL}/users/${event.ownerID}`
         );
         if (response.ok) {
           const result = await response.json();
@@ -27,7 +27,7 @@ const EventCard = ({ event }) => {
     const fetchReviews = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/v1.0/reviews/place/${event.placeId}`
+          `${import.meta.env.VITE_API_URL}/reviews/place/${event.placeId}`
         );
         if (response.ok) {
           const result = await response.json();

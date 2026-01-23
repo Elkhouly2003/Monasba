@@ -15,7 +15,7 @@ import { NavLink } from "react-router-dom";
 
 const getNotifications = async (userId) => {
   const { data } = await axios.get(
-    `http://localhost:8080/api/v1.0/notifications/user/${userId}`
+    `${import.meta.env.VITE_API_URL}/notifications/user/${userId}`
   );
   return data;
 };
@@ -34,7 +34,7 @@ export default function Profile({ userId }) {
     if (!user?.userId) return;
     try {
       const response = await fetch(
-        `http://localhost:8080/api/v1.0/reviews/user/${user.userId}`
+        `${import.meta.env.VITE_API_URL}/reviews/user/${user.userId}`
       );
       if (response.ok) {
         const result = await response.json();
@@ -48,8 +48,8 @@ export default function Profile({ userId }) {
 
             try {
               const [userRes, placeRes] = await Promise.all([
-                fetch(`http://localhost:8080/api/v1.0/users/${rev.userId}`),
-                fetch(`http://localhost:8080/api/v1.0/placess/${rev.placeId}`),
+                fetch(`${import.meta.env.VITE_API_URL}/users/${rev.userId}`),
+                fetch(`${import.meta.env.VITE_API_URL}/placess/${rev.placeId}`),
               ]);
 
               if (userRes.ok) {
@@ -86,7 +86,7 @@ export default function Profile({ userId }) {
     if (!user?.userId) return;
     try {
       const response = await fetch(
-        `http://localhost:8080/api/v1.0/savedPlaces/${user.userId}`
+        `${import.meta.env.VITE_API_URL}/savedPlaces/${user.userId}`
       );
       if (response.ok) {
         const result = await response.json();
@@ -108,7 +108,7 @@ export default function Profile({ userId }) {
       formData.append("userId", user.userId);
       formData.append("placeId", rev.placeId);
 
-      const response = await fetch(`http://localhost:8080/api/v1.0/reviews`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/reviews`, {
         method: "DELETE",
         body: formData,
       });
@@ -131,7 +131,7 @@ export default function Profile({ userId }) {
       formData.append("ratings", editRating);
       formData.append("userId", user.userId);
       formData.append("placeId", editingReview.placeId);
-      const response = await fetch(`http://localhost:8080/api/v1.0/reviews`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/reviews`, {
         method: "PUT",
         body: formData,
       });
@@ -153,7 +153,7 @@ export default function Profile({ userId }) {
 
   const getBookingByUser = async (userId) => {
     const { data } = await axios.get(
-      `http://localhost:8080/api/v1.0/bookingss/user/${userId}`
+      `${import.meta.env.VITE_API_URL}/bookingss/user/${userId}`
     );
     return data;
   };
@@ -169,7 +169,7 @@ export default function Profile({ userId }) {
   async function deleteBook(bookingId) {
     try {
       await axios.patch(
-        `http://localhost:8080/api/v1.0/bookingss/cancel/${bookingId}`
+        `${import.meta.env.VITE_API_URL}/bookingss/cancel/${bookingId}`
       );
 
       queryClient.invalidateQueries({
@@ -181,7 +181,7 @@ export default function Profile({ userId }) {
   }
   const getNotificartionProvider = async (userId) => {
     const { data } = await axios.get(
-      `http://localhost:8080/api/v1.0/notificationss/user/${userId}`
+      `${import.meta.env.VITE_API_URL}/notificationss/user/${userId}`
     );
     return data;
   };
@@ -195,7 +195,7 @@ export default function Profile({ userId }) {
   async function deleteNotif(notificationId) {
     try {
       await axios.delete(
-        `http://localhost:8080/api/v1.0/notificationss/${notificationId}`
+        `${import.meta.env.VITE_API_URL}/notificationss/${notificationId}`
       );
 
       queryClient.invalidateQueries({
@@ -208,7 +208,7 @@ export default function Profile({ userId }) {
 
   const getPlaceById = async (placeId) => {
     const { data } = await axios.get(
-      `http://localhost:8080/api/v1.0/placess/${placeId}`
+      `${import.meta.env.VITE_API_URL}/placess/${placeId}`
     );
     return data;
   };

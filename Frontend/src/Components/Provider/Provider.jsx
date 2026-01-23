@@ -31,7 +31,7 @@ export default function Provider() {
   const [isEdit, setIsEdit] = useState(false);
   const [placeId, setPlaceId] = useState(null);
 
-  const [isAiChecking, setIsAiChecking] = useState(false);
+  // const [isAiChecking, setIsAiChecking] = useState(false);
 
   const resetForm = () => {
     setPlaceName("");
@@ -113,32 +113,32 @@ export default function Provider() {
       return;
     }
 
-    if (!isEdit && images.length > 0) {
-      setIsAiChecking(true);
-      const aiFormData = new FormData();
-      aiFormData.append("description", description);
-      aiFormData.append("image", images[0]);
+    // if (!isEdit && images.length > 0) {
+    //   setIsAiChecking(true);
+    //   const aiFormData = new FormData();
+    //   aiFormData.append("description", description);
+    //   aiFormData.append("image", images[0]);
 
-      try {
-        const aiCheckResponse = await axios.post(
-          "http://localhost:7000/api/v1/event",
-          aiFormData,
-        );
+    //   try {
+    //     const aiCheckResponse = await axios.post(
+    //       "http://localhost:7000/api/v1/event",
+    //       aiFormData,
+    //     );
 
-        if (aiCheckResponse.data.aiResult === "NOT MATCH") {
-          toast.error("desciption not match the image");
-          setIsAiChecking(false);
-          return;
-        }
-      } catch (err) {
-        console.error("AI check error:", err);
-        toast.error("AI service error. Try again later.");
-        setIsAiChecking(false);
-        return;
-      } finally {
-        setIsAiChecking(false);
-      }
-    }
+    //     if (aiCheckResponse.data.aiResult === "NOT MATCH") {
+    //       toast.error("desciption not match the image");
+    //       setIsAiChecking(false);
+    //       return;
+    //     }
+    //   } catch (err) {
+    //     console.error("AI check error:", err);
+    //     toast.error("AI service error. Try again later.");
+    //     setIsAiChecking(false);
+    //     return;
+    //   } finally {
+    //     setIsAiChecking(false);
+    //   }
+    // }
 
     const userId = user.userId || user.id;
     const formData = new FormData();
@@ -165,8 +165,8 @@ export default function Provider() {
     }
 
     const url = isEdit
-      ? `http://localhost:8080/api/v1.0/placess/${placeId}`
-      : `http://localhost:8080/api/v1.0/placess?ownerId=${userId}`;
+      ? `${import.meta.env.VITE_API_URL}/placess/${placeId}`
+      : `${import.meta.env.VITE_API_URL}/placess?ownerId=${userId}`;
 
     const method = isEdit ? "PUT" : "POST";
 
@@ -178,7 +178,7 @@ export default function Provider() {
 
       if (!response.ok) throw new Error("Place data update failed");
 
-      const placeResult = await response.json();
+      // const placeResult = await response.json();
 
       if (isEdit && images.length > 0) {
         const currentPlace = placeByOwner?.data?.find(
@@ -187,7 +187,7 @@ export default function Provider() {
 
         if (currentPlace && currentPlace.imagesID) {
           const deletePromises = currentPlace.imagesID.map((imgId) =>
-            axios.delete(`http://localhost:8080/api/v1.0/imagess/${imgId}`),
+            axios.delete(`${import.meta.env.VITE_API_URL}/imagess/${imgId}`),
           );
           await Promise.all(deletePromises);
         }
@@ -200,7 +200,7 @@ export default function Provider() {
         });
 
         const imgResponse = await fetch(
-          `http://localhost:8080/api/v1.0/imagess`,
+          `${import.meta.env.VITE_API_URL}/imagess`,
           {
             method: "POST",
             body: imageFormData,
@@ -227,7 +227,7 @@ export default function Provider() {
 
   const getPlacesByOwner = async (userId) => {
     const { data } = await axios.get(
-      `http://localhost:8080/api/v1.0/placess/owner/${userId}`,
+      `${import.meta.env.VITE_API_URL}/placess/owner/${userId}`,
     );
     return data;
   };
@@ -244,7 +244,7 @@ export default function Provider() {
         queryKey: ["reviews", place.placeId],
         queryFn: async () => {
           const { data } = await axios.get(
-            `http://localhost:8080/api/v1.0/reviews/place/${place.placeId}`,
+            `${import.meta.env.VITE_API_URL}/reviews/place/${place.placeId}`,
           );
           return data;
         },
@@ -303,7 +303,7 @@ export default function Provider() {
   async function deleteItem(userId, placeId) {
     try {
       await axios.delete(
-        `http://localhost:8080/api/v1.0/placess/place/${placeId}/user/${userId}`,
+        `${import.meta.env.VITE_API_URL}/placess/place/${placeId}/user/${userId}`,
       );
 
       queryClient.invalidateQueries({
@@ -316,7 +316,7 @@ export default function Provider() {
 
   const getBookingByOwnerId = async (userId) => {
     const { data } = await axios.get(
-      `http://localhost:8080/api/v1.0/bookingss/owner/${userId}`,
+      `${import.meta.env.VITE_API_URL}/bookingss/owner/${userId}`,
     );
     return data;
   };
@@ -330,7 +330,7 @@ export default function Provider() {
   async function deleteBook(bookingId) {
     try {
       await axios.patch(
-        `http://localhost:8080/api/v1.0/bookingss/cancel/${bookingId}`,
+        `${import.meta.env.VITE_API_URL}/bookingss/cancel/${bookingId}`,
       );
 
       queryClient.invalidateQueries({
@@ -344,7 +344,7 @@ export default function Provider() {
   async function acceptBook(bookingId) {
     try {
       await axios.patch(
-        `http://localhost:8080/api/v1.0/bookingss/accept/${bookingId}`,
+        `${import.meta.env.VITE_API_URL}/bookingss/accept/${bookingId}`,
       );
 
       queryClient.invalidateQueries({
@@ -358,7 +358,7 @@ export default function Provider() {
 
   const getNotificartionProvider = async (userId) => {
     const { data } = await axios.get(
-      `http://localhost:8080/api/v1.0/notificationss/owner/${userId}`,
+      `${import.meta.env.VITE_API_URL}/notificationss/owner/${userId}`,
     );
     return data;
   };
@@ -372,7 +372,7 @@ export default function Provider() {
   async function deleteNotif(notificationId) {
     try {
       await axios.delete(
-        `http://localhost:8080/api/v1.0/notificationss/${notificationId}`,
+        `${import.meta.env.VITE_API_URL}/notificationss/${notificationId}`,
       );
 
       queryClient.invalidateQueries({
@@ -385,7 +385,7 @@ export default function Provider() {
 
   const getPlaceById = async (placeId) => {
     const { data } = await axios.get(
-      `http://localhost:8080/api/v1.0/placess/${placeId}`,
+      `${import.meta.env.VITE_API_URL}/placess/${placeId}`,
     );
     return data;
   };
@@ -406,7 +406,7 @@ export default function Provider() {
 
   const getReviewProvider = async (userId) => {
     const { data } = await axios.get(
-      `http://localhost:8080/api/v1.0/reviews/owner/${userId}`,
+      `${import.meta.env.VITE_API_URL}/reviews/owner/${userId}`,
     );
     return data;
   };
@@ -419,7 +419,7 @@ export default function Provider() {
 
   const getUserById = async (userId) => {
     const { data } = await axios.get(
-      `http://localhost:8080/api/v1.0/users/${userId}`,
+      `${import.meta.env.VITE_API_URL}/users/${userId}`,
     );
     return data;
   };
@@ -859,23 +859,13 @@ export default function Provider() {
                 </div>
 
                 <div className="flex justify-end gap-3 mt-6">
-                  <button
-                    onClick={handleSubmit}
-                    disabled={isAiChecking}
-                    className={`px-5 py-2 rounded-xl text-white cursor-pointer ${
-                      isAiChecking
-                        ? "bg-gray-400"
-                        : isEdit
-                          ? "bg-green-600"
-                          : "bg-(--color-dark-navy)"
-                    }`}
-                  >
-                    {isAiChecking
-                      ? "Checking AI..."
-                      : isEdit
-                        ? "Update Event"
-                        : "Publish Event"}
-                  </button>
+            <button
+  onClick={handleSubmit}
+  className="px-5 py-2 rounded-xl text-white cursor-pointer bg-(--color-dark-navy)"
+>
+  {isEdit ? "Update Event" : "Publish Event"}
+</button>
+
                 </div>
               </div>
             </>
@@ -908,7 +898,7 @@ export default function Provider() {
                       <div className="overflow-hidden">
                         <img
                           className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500"
-                          src={`http://localhost:8080/api/v1.0/imagess/${place.imagesID[0]}`}
+                          src={`${import.meta.env.VITE_API_URL}/imagess/${place.imagesID[0]}`}
                           alt=""
                         />
                       </div>

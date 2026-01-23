@@ -47,7 +47,7 @@ const SlideItem = ({ place, index, currentSlide }) => {
         <img
           src={
             imageId
-              ? `http://localhost:8080/api/v1.0/imagess/${imageId}`
+              ? `${import.meta.env.VITE_API_URL}/imagess/${imageId}`
               : img15
           }
           className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105 group-hover:opacity-60"
@@ -92,7 +92,7 @@ function Home() {
 
   const getPlacesWithRatings = async () => {
     const { data: placesResponse } = await axios.get(
-      `http://localhost:8080/api/v1.0/placess`,
+      `${import.meta.env.VITE_API_URL}/placess`,
     );
     const placesList = placesResponse.data || [];
 
@@ -100,7 +100,7 @@ function Home() {
       placesList.map(async (place) => {
         try {
           const res = await fetch(
-            `http://localhost:8080/api/v1.0/reviews/place/${place.placeId}`,
+            `${import.meta.env.VITE_API_URL}/reviews/place/${place.placeId}`,
           );
           if (res.ok) {
             const result = await res.json();

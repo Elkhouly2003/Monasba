@@ -72,7 +72,7 @@ export default function Nav() {
               </li>
               <li>
                 <NavLink
-                  to="/search"
+                  to="/search"     
                   className="block py-2 px-3 rounded-sm md:p-0 text-(--color-light-neutral) hover:text-(--color-gold)"
                 >
                   Browse Events
